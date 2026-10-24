@@ -1,0 +1,14 @@
+{
+  "name": "daneel",
+  "owner": { "name": "phileggel" },
+  "metadata": {
+    "description": "The way of working shared by phileggel's projects, served as Claude Code plugins."
+  },
+  "plugins": [
+    {
+      "name": "flow",
+      "source": "./plugins/flow",
+      "description": "The generic flow core: skills every project runs the same way."
+    }
+  ]
+}

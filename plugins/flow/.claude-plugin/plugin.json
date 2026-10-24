@@ -1,0 +1,8 @@
+{
+  "name": "flow",
+  "version": "0.1.0",
+  "description": "The generic flow core: skills every project runs the same way.",
+  "author": { "name": "phileggel" },
+  "repository": "https://github.com/phileggel/daneel",
+  "license": "MIT"
+}
