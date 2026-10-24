@@ -6,6 +6,20 @@ marketplace, so a flow change is made once instead of once per repository.
 
 Named after R. Daneel Olivaw, who kept to the Laws for twenty thousand years.
 
+## The goal
+
+A workflow that is **fluid, secure, of quality and fast**. Every rule here is weighed
+against all four:
+
+- **Fluid**: a rule costs a run as little as it can. A check the agent runs itself,
+  re-tested at the batch end and corrected with the owner in chat, beats a gate that
+  stops the run; a rule need not hold perfectly to be worth having.
+- **Secure**: what cannot be undone is held firm. A security or data-loss finding is
+  always filed; nothing is pushed to `main`, force-pushed or released by the agent.
+- **Quality**: a rule is measured at each batch end, so whether it works is known, not
+  assumed.
+- **Fast**: a rule that adds steps to every run shows at the batch end what it pays back.
+
 ## Plugins
 
 | Plugin | Holds |
