@@ -6,6 +6,7 @@ same way, kept once here instead of copied into each repository.
 | Skill | What it does |
 | ----- | ------------ |
 | `/flow:flow-audit` | After a batch ends, judges it from its records alone — `just flow-audit`'s figures, the batch's pull requests and issues — in a forked context, posts the audit on the batch's `batch-audit` issue and files the flow issues it proposes. |
+| `/flow:plan-batch` | Shows where the GitHub Project stands and proposes the next batch for the owner to approve in chat; on the yes, sets it on the Project. Needs `plan-batch.owner` and `.number` in `.claude/daneel.json`. |
 
 The skill ships its scripts (`scripts/flow-audit.py`, `scripts/batch-ends.sh`) and its
 method (`audit.md`, which also says what the project provides and the settings of
