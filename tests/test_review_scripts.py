@@ -6,7 +6,7 @@ import unittest
 from datetime import date
 from pathlib import Path
 
-SCRIPTS = Path(__file__).resolve().parents[1] / "plugins/flow/scripts"
+SCRIPTS = Path(__file__).resolve().parents[1] / "plugins/app/scripts"
 
 
 def git(repo, *args):
