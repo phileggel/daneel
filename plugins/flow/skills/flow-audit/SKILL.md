@@ -30,7 +30,8 @@ not published yet is the session's step, and the audit is run again after it. A
 
 ## Step 2 — Read the records
 
-The script has read them into `records` (read the document in parts):
+The script has read them into `records` (read the document in parts; a working file goes
+in the session's scratchpad, never `/tmp`):
 
 - `pull_requests`: each one merged in the window, with its body, commits, comments and
   reviews — the graded findings are in the body and the comments, beside each CI round's

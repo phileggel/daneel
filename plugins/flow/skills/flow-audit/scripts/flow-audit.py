@@ -142,8 +142,9 @@ def _rounded(value: float) -> float:
 
 
 def commit_type(title: str) -> str:
-    """The conventional type a pull request's title starts with, or `other`."""
-    head = title.split(":", 1)[0].strip()
+    """The conventional type a pull request's title starts with, or `other`; a scope or
+    a breaking mark (`chore(deps):`, `feat!:`) is read as its type."""
+    head = re.sub(r"(\([^)]*\))?!?$", "", title.split(":", 1)[0].strip())
     return head if ":" in title and head in COMMIT_TYPES else "other"
 
 

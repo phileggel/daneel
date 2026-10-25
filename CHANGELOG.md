@@ -2,6 +2,13 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## flow 0.3.1 — 2026-10-25
+
+- `flow-audit.py` reads a scoped or breaking pull request title as its type
+  (`chore(deps): …` is a `chore`, `feat!: …` a `feat`); a Dependabot pull request
+  counted as `other` before. The auditor keeps its working files in the session's
+  scratchpad, never `/tmp`. Nothing to do in a project.
+
 ## flow 0.3.0 — 2026-10-25
 
 - `flow-audit` is faster: `flow-audit.py` reads the records the auditor judges — the
