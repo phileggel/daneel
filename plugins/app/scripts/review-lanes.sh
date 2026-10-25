@@ -48,7 +48,12 @@ from pathlib import Path
 lanes = sys.argv[2].split()
 path = Path(sys.argv[1]) / ".claude" / "daneel.json"
 settings = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-own = settings.get("review", {}).get("lanes", {})
+review = settings.get("review", {})
+# The keys of `review` some piece reads: lanes here, rules by the lanes, the rest by the protocol.
+strange = sorted(set(review) - {"lanes", "rules", "owners", "setup", "glossary"})
+if strange:
+    sys.exit(f"review-lanes: unknown review settings in {path}: {chr(44).join(strange)}")
+own = review.get("lanes", {})
 unknown = sorted(set(own) - set(lanes))
 if unknown:
     sys.exit(f"review-lanes: unknown lanes in {path} review.lanes: {chr(44).join(unknown)}")

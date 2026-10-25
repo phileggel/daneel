@@ -51,7 +51,7 @@ Read the component, `src/bindings.ts` and, when one exists for its domain,
 `docs/contracts/{domain}-contract.md`, for realistic data shapes.
 
 The config's paths are from the repository root; from `src/__preview__/main.tsx` strip
-the leading `src/` and prefix `../` (`src/i18n/config.ts` → `../i18n/config`).
+the leading `src/` and prefix `../` (`src/lib/i18n.ts` → `../lib/i18n`).
 
 **`preview.html`** at the repository root:
 
@@ -80,8 +80,8 @@ in its provider with mock values — otherwise it throws and the capture is sile
 ```tsx
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "../ui/global.css"; // global_css_import
-import "../i18n/config";
+import "../styles/app.css"; // global_css_import
+import "../lib/i18n"; // i18n_import
 import { LoginForm } from "../features/auth/LoginForm";
 
 if (new URLSearchParams(window.location.search).get("theme") === "dark") {
@@ -140,6 +140,8 @@ file is not:
 ```bash
 git add screenshots/
 ```
+
+Only if the capture printed `Console errors detected`:
 
 ```bash
 git restore --staged screenshots/.console-errors.json

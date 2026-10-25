@@ -104,6 +104,27 @@ class VersionFiles(unittest.TestCase):
         text = '{\n  "productName": "App",\n  "version": "1.0.0",\n  "app": {"version": "x"}\n}\n'
         self.assertEqual(json.loads(release.with_version("src-tauri/tauri.conf.json", text, "1.1.0"))["version"], "1.1.0")
 
+    def test_a_dependency_at_the_same_version_before_the_top_level_one_stays(self):
+        text = '{"engines": {"x": {"version": "1.0.0"}}, "version": "1.0.0"}'
+        self.assertEqual(release.with_version("package.json", text, "1.1.0"),
+                         '{"engines": {"x": {"version": "1.0.0"}}, "version": "1.1.0"}')
+
+    def test_a_lockfile_moves_its_two_versions_and_no_dependency(self):
+        text = ('{"name": "a", "version": "1.0.0", "packages": {"node_modules/b": {"version": "1.0.0"},'
+                ' "": {"name": "a", "version": "1.0.0"}}}')
+        moved = json.loads(release.with_version("package-lock.json", text, "1.1.0"))
+        self.assertEqual(moved["version"], "1.1.0")
+        self.assertEqual(moved["packages"][""]["version"], "1.1.0")
+        self.assertEqual(moved["packages"]["node_modules/b"]["version"], "1.0.0")
+
+    def test_a_crlf_file_keeps_its_line_ends(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "package.json"
+            path.write_bytes(b'{\r\n  "version": "1.0.0"\r\n}\r\n')
+            text, crlf = release.read_file(path)
+            release.write_file(path, release.with_version("package.json", text, "1.1.0"), crlf)
+            self.assertEqual(path.read_bytes(), b'{\r\n  "version": "1.1.0"\r\n}\r\n')
+
     def test_a_json_file_moves_nothing_but_its_version(self):
         text = '{"name": "a", "version": "1.0.0", "files": ["dist"],\n  "deps": {"b": {"version": "1.0.0"}}}'
         self.assertEqual(release.with_version("package.json", text, "1.1.0"),

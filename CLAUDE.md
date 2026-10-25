@@ -23,7 +23,8 @@ change here is reviewed against.
   checkout too, as CI uses it.
 - A plugin never reads another plugin's folder. `app` depends on `flow`
   (`"dependencies"` in its `plugin.json`) and reads `flow`'s method through its own
-  `method.md`, a link the install copies in; anything else across plugins is named by
+  `method.md`, a link to it (copied in by a GitHub install, read in place from a local
+  folder and in CI); anything else across plugins is named by
   skill or agent (`/flow:flow-audit`), never by path.
 - Every command a skill tells the agent to run is written literally, and its
   `allowed-tools` covers it — a headless run approves nothing — or the skill says the
@@ -33,10 +34,14 @@ change here is reviewed against.
   pipeline, in a skill as in the recovery lines a script prints.
 - Every per-project difference is a key in `.claude/daneel.json`, under the piece's own
   name, documented in the skill that reads it, and listed in its plugin's README and the
-  root README. A script refuses a key of its section that no piece reads, and treats a
+  root README. A script refuses a key of its section that no piece reads (`review-lanes.sh`
+for `review`), and treats a
   shared file (`required-checks.json`) exactly as the other scripts do.
 - A script's exit codes read the same in its header and in the skill that acts on them.
 - A claim that something was measured says what, when, and covers only that.
+- Every doc an agent reads (skill, agent, loop, method, protocol) is as concise as it can
+  be: each line is one the agent acts on; no restating, no history, no rationale it
+  does not need.
 
 ## What the agent never does, and nothing here makes it do
 

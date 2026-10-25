@@ -242,15 +242,49 @@ def with_version(name: str, text: str, version: str) -> str:
         if not isinstance(top, dict) or "version" not in top:
             raise Stop(f'{name} carries no "version" under packages[""]')
         top["version"] = version
-    # The text is edited in place, never re-serialised: the first `"version": "<old>"`
-    # occurrences are replaced, as many as it takes for the file to read as `data`.
-    pattern = re.compile(r'("version"\s*:\s*")' + re.escape(str(old)) + r'(")')
+    # The text is edited in place, never re-serialised. Each `"version": "<old>"` is kept
+    # only if changing it alone changes a version this release states (a dependency at the
+    # same version is left alone, wherever it sits); together they must read as `data`.
+    original = json.loads(text)
+    pattern = re.compile(r'"version"\s*:\s*"(' + re.escape(str(old)) + r')"')
+    kept = []
+    for match in pattern.finditer(text):
+        one = json.loads(text[: match.start(1)] + version + text[match.end(1):])
+        if one != original and _only_release_versions_moved(original, one, kind):
+            kept.append(match)
     edited = text
-    for _ in pattern.finditer(text):
-        edited = pattern.sub(lambda m: m.group(1) + version + m.group(2), edited, count=1)
-        if json.loads(edited) == data:
-            return edited
-    raise Stop(f'{name}: its "version" could not be changed without moving anything else')
+    for match in reversed(kept):
+        edited = edited[: match.start(1)] + version + edited[match.end(1):]
+    if json.loads(edited) != data:
+        raise Stop(f'{name}: its "version" could not be changed without moving anything else')
+    return edited
+
+
+def _only_release_versions_moved(original: dict, moved: dict, kind: str) -> bool:
+    """`moved` differs from `original` only in the top-level version or, for a lockfile,
+    `packages[""]`'s."""
+    a, b = json.loads(json.dumps(original)), json.loads(json.dumps(moved))
+    a.pop("version", None)
+    b.pop("version", None)
+    if kind == "lockfile":
+        for side in (a, b):
+            top = side.get("packages", {}).get("")
+            if isinstance(top, dict):
+                top.pop("version", None)
+    return a == b
+
+
+def read_file(path: Path) -> tuple[str, bool]:
+    """The file's text with `\n` line ends, and whether it was written with `\r\n`."""
+    with open(path, encoding="utf-8", newline="") as handle:
+        raw = handle.read()
+    return raw.replace("\r\n", "\n"), "\r\n" in raw
+
+
+def write_file(path: Path, text: str, crlf: bool) -> None:
+    """`text` written back with the line ends the file had."""
+    with open(path, "w", encoding="utf-8", newline="") as handle:
+        handle.write(text.replace("\n", "\r\n") if crlf else text)
 
 
 def write_versions(root: Path, settings: dict, version: str) -> list[str]:
@@ -259,7 +293,8 @@ def write_versions(root: Path, settings: dict, version: str) -> list[str]:
     written = []
     for name in settings["version_files"]:
         path = root / name
-        path.write_text(with_version(name, path.read_text(encoding="utf-8"), version), encoding="utf-8")
+        text, crlf = read_file(path)
+        write_file(path, with_version(name, text, version), crlf)
         written.append(name)
         if version_kind(name) == "cargo":
             metadata = json.loads(out(path.parent, "cargo", "metadata", "--format-version", "1"))
@@ -496,8 +531,8 @@ def main(argv: list[str]) -> int:
                        f"stands (gh pr list --head chore/release-v{version} --state all), then delete the branch")
         files = write_versions(root, settings, version)
         changelog = root / settings["changelog"]
-        existing = changelog.read_text(encoding="utf-8") if changelog.exists() else None
-        changelog.write_text(changelog_with(existing, entry), encoding="utf-8")
+        existing, crlf = read_file(changelog) if changelog.exists() else (None, False)
+        write_file(changelog, changelog_with(existing, entry), crlf)
         land(root, version, [*files, settings["changelog"]])
         draft(root, settings, f"v{version}")
         return 0

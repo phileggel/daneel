@@ -157,6 +157,12 @@ class ReviewLanesTest(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertIn("rust", result.stderr)
 
+    def test_an_unknown_review_key_is_an_error(self):
+        self.settings({"review": {"lane": {"infra": ["x"]}}})
+        result = script(self.repo, "review-lanes.sh", stdin="x\n")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("lane", result.stderr)
+
     def test_json_names_every_lane_of_the_agents(self):
         out = self.lanes("src-tauri/src/lib.rs", json_out=True)
         self.assertEqual(

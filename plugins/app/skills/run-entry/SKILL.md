@@ -34,8 +34,8 @@ checkout's root (`{"checks": [...]}`).
 
 ## Step 0 — Preconditions and mode
 
-- `git status --short` is empty and `main` is fresh (`git pull --ff-only`). Otherwise
-  stop and report; never work on a dirty tree.
+- `git status --short` is empty, `git branch --show-current` is `main`, and `main` is
+  fresh (`git pull --ff-only`). Otherwise stop and report; never work on a dirty tree.
 - **Headless** (no argument): `gh project item-list {number} --owner {owner} --format json --limit 500`;
   take the first Queued item, in row order, that is ready. Nobody to ask: a
   question becomes a comment on the issue with `needs-owner` (method § 2).

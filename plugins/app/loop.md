@@ -1,5 +1,7 @@
 # The loop — the apps' method
 
+`${CLAUDE_PLUGIN_ROOT}` is the folder holding this file.
+
 How a task moves through a Tauri + React app that runs `app` beside `flow`. The batch
 around it — ownership, issues, the Project, the backlog, budget and stop rules, the batch
 end, the audit — is `flow`'s method, `${CLAUDE_PLUGIN_ROOT}/method.md` (this plugin's link to `flow`'s

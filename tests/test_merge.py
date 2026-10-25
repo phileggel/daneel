@@ -244,6 +244,7 @@ class RebasedBranch(unittest.TestCase):
 
     def guard(self, standing, pushed=0):
         push = subprocess.CompletedProcess([], pushed, stdout="", stderr="")
+        self.err = io.StringIO()
         with (
             unittest.mock.patch.object(merge, "_open_pull_request", return_value=(7, "abc1234")),
             unittest.mock.patch.object(merge, "_rebase_left_the_checks_standing", return_value=standing),
@@ -251,7 +252,7 @@ class RebasedBranch(unittest.TestCase):
             unittest.mock.patch.object(merge, "_check_runs", return_value={"PR checks": ("completed", "success")}),
             unittest.mock.patch.object(merge, "_reviewer_notes", return_value={}),
             unittest.mock.patch.object(merge, "git", return_value=push) as git,
-            contextlib.redirect_stderr(io.StringIO()),
+            contextlib.redirect_stderr(self.err),
         ):
             try:
                 merge.ensure_checks_green("work", "main", "abc1234", "def5678", merge.SETTINGS)
@@ -270,9 +271,20 @@ class RebasedBranch(unittest.TestCase):
         git.assert_not_called()
         self.assertFalse(stopped)
 
-    def test_a_refused_push_stops(self):
+    def test_a_refused_push_stops_and_says_so(self):
         git, stopped = self.guard(standing=False, pushed=1)
         self.assertTrue(stopped)
+        self.assertIn("the push failed", self.err.getvalue())
+
+    def test_a_checks_file_of_the_wrong_shape_is_refused_not_crashed_on(self):
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / "required-checks.json").write_text('["Quality"]')
+            with (
+                unittest.mock.patch.object(merge, "root", return_value=Path(folder)),
+                contextlib.redirect_stderr(io.StringIO()),
+                self.assertRaises(SystemExit),
+            ):
+                merge._required_checks()
 
 
 class DeletingTheRemoteBranch(unittest.TestCase):

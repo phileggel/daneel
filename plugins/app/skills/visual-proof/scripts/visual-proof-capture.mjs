@@ -33,20 +33,23 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 
-// Playwright is the project's dependency, not the plugin's: resolve it from the
-// project's checkout (the working directory), never from this script's folder.
-const { chromium } = createRequire(join(process.cwd(), "package.json"))("playwright");
-
 // `--port 1420` or `--port=1420`; a skill's allowed-tools can name the script with
 // its arguments, where an environment-variable prefix would not match.
+// A flag it does not know is a usage error: `--state` for `--states` would capture idle
+// alone and pass.
+const FLAGS = new Set(["port", "host", "name", "states", "mask", "out"]);
 const ARGS = {};
 for (let i = 2; i < process.argv.length; i++) {
   const match = /^--([a-z]+)(?:=(.*))?$/.exec(process.argv[i]);
-  if (!match) {
+  if (!match || !FLAGS.has(match[1])) {
     console.error(`error: unexpected argument ${process.argv[i]}`);
     process.exit(2);
   }
   ARGS[match[1]] = match[2] ?? process.argv[++i];
+  if (ARGS[match[1]] === undefined) {
+    console.error(`error: --${match[1]} takes a value`);
+    process.exit(2);
+  }
 }
 const PORT = ARGS.port ?? process.env.VP_PORT;
 const HOST = ARGS.host ?? process.env.VP_HOST;
@@ -59,6 +62,10 @@ if (!PORT || !HOST || !NAME) {
   console.error("error: --port, --host and --name (or VP_PORT, VP_HOST, VP_NAME) are required");
   process.exit(2);
 }
+
+// Playwright is the project's dependency, not the plugin's: resolve it from the
+// project's checkout (the working directory), never from this script's folder.
+const { chromium } = createRequire(join(process.cwd(), "package.json"))("playwright");
 
 const consoleErrors = [];
 const missing = new Set();

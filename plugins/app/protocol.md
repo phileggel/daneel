@@ -1,5 +1,7 @@
 # Review protocol — shared by every reviewer
 
+`${CLAUDE_PLUGIN_ROOT}` is the folder holding this file.
+
 Each `reviewer-*` prompt names its lane: the files it owns, the rules docs it loads and the checks it adds. Everything a reviewer does that is not its lane is in this file. Which lanes run is decided by the project (`${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh` with its `review.lanes` setting, locally and in CI), not by the reviewer.
 
 
