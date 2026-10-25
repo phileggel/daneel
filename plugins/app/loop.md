@@ -121,8 +121,8 @@ The project's rules document lists its own checks beside these.
 
 ## 5. Reviewers and the triage policy
 
-Before the PR, run exactly the lanes `bash scripts/branch.sh files | bash
-scripts/review-lanes.sh` prints, and again on every fix before its push, until no 🔴
+Before the PR, run exactly the lanes `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files | bash
+${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh` prints (this plugin's scripts), and again on every fix before its push, until no 🔴
 remains: a file edited in answer to a finding goes back to its lane, a spec above all.
 Once pushed, a fix is a `fixup!` commit pushed as is: CI runs the same lanes on every
 push, prompts from a pinned release, and a green CI needs no local run. A local reviewer
@@ -227,7 +227,7 @@ is green.
 ### Release sweep
 
 Before a batch ends, run in `release-sweep` mode the lanes
-`git diff --name-only <tag>...HEAD | bash scripts/review-lanes.sh` prints, `<tag>` the
+`git diff --name-only <tag>...HEAD | bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh` prints, `<tag>` the
 last batch end (`git describe --tags --abbrev=0 --match 'v*' --match 'batch/*'`), plus
 `reviewer-security`, which reads the whole command surface; and `app:spec-checker` on
 every spec the batch touched. Each lane's `## Files read` goes into the closing brief.
