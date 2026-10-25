@@ -23,10 +23,10 @@ against all four:
 ## Plugins
 
 One plugin for now, `flow`: working on a project with agents, from planning a batch to
-reviewing, proving and auditing it — `plan-batch`, `backlog`, `flow-audit`, the reviewers
-`spec-reviewer`, `contract-reviewer`, `adr-reviewer`, `spec-checker`, `reviewer-guides`
-with their `protocol.md`, and the skills `visual-proof` and `dep-audit`
-(`plugins/flow/README.md`). It is split only when a project needs part of it (ticket #6).
+reviewing and auditing it — `plan-batch`, `backlog`, `flow-audit`, and `reviewer-guides`
+with its `protocol.md` (`plugins/flow/README.md`). Only what any project can use is
+here; what one project's conventions or stack alone can check stays in that project
+(ticket #6).
 
 ## Use
 
@@ -46,7 +46,7 @@ In a project's `.claude/settings.json`, so headless runs and teammates get it to
 }
 ```
 
-A skill or an agent is then named by its plugin, `/flow:flow-audit`, `flow:spec-reviewer`.
+A skill or an agent is then named by its plugin, `/flow:flow-audit`, `flow:reviewer-guides`.
 A project adds no allow-list line for a plugin's scripts: a skill's `allowed-tools`
 already lets them run, forked and headless too (`flow-audit` under `claude -p`,
 PatientManager, 2026-10-25). Never add a line of the shape
@@ -56,7 +56,7 @@ PatientManager, 2026-10-25). Never add a line of the shape
 project's session runs a reviewer.
 
 What differs between projects is the project's own: `.claude/daneel.json` (one key per
-skill: `flow-audit`, `plan-batch`), and `.claude/visual-proof.json` for `visual-proof`.
+piece: `flow-audit`, `plan-batch`, `backlog`, `review`).
 Each skill's doc names its keys.
 
 ## In CI
@@ -70,13 +70,13 @@ reads the agent from there:
 - uses: actions/checkout@v4
   with:
     repository: phileggel/daneel
-    ref: flow--v0.4.0
+    ref: flow--v0.6.0
     path: .daneel
 ```
 
 ```yaml
 prompt: |
-  Read `.daneel/plugins/flow/agents/spec-reviewer.md` and follow it.
+  Read `.daneel/plugins/flow/agents/reviewer-guides.md` and follow it.
   `${CLAUDE_PLUGIN_ROOT}` in it is `.daneel/plugins/flow`.
 ```
 
@@ -99,7 +99,7 @@ A release is a tag, `<plugin>--v<version>`, made on `main` once the bump is merg
 - **Local and headless runs** follow `main`: `claude plugin update flow@daneel` (or the
   marketplace's auto-update) takes the newest version. Claude Code caches a plugin by its
   version, so a change that does not bump it never reaches a project.
-- **CI** pins a tag (`ref: flow--v0.4.0`) and moves it in a pull request of the project,
+- **CI** pins a tag (`ref: flow--v0.6.0`) and moves it in a pull request of the project,
   so a reviewer change is reviewed where it lands.
 
 ## Status

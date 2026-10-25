@@ -1,7 +1,7 @@
 {
   "name": "flow",
-  "version": "0.5.0",
-  "description": "Working on a project with agents: plan a batch, review it, prove it, audit it (flow-audit, plan-batch, the reviewers, visual-proof, dep-audit).",
+  "version": "0.6.0",
+  "description": "Working on a project with agents: plan a batch, check the backlog, review the guides, audit the batch (plan-batch, backlog, reviewer-guides, flow-audit).",
   "author": {
     "name": "phileggel"
   },

@@ -2,6 +2,21 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## flow 0.6.0 — 2026-10-25
+
+- `flow` holds only what any project can use (owner, 2026-10-25, ticket #6):
+  `spec-reviewer`, `contract-reviewer`, `adr-reviewer`, `spec-checker`, `visual-proof`
+  and `dep-audit` leave it — they check one project's conventions or stack, and stay that
+  project's own, run as before. No piece names a project document any more:
+  `reviewer-guides` and `protocol.md` read `flow-audit.guides` and the optional
+  `review.owners`, `review.setup`, `review.glossary`; `plan-batch` reads its rules from
+  `plan-batch.workflow`; `flow-audit`'s defaults name no project (`guides`: `CLAUDE.md` and `.claude/`; `records`: `CHANGELOG.md`; `path_roots` without `src-tauri/`, `e2e/`, `.githooks/`).
+- To take it: keep the project's own copies of the pieces that left. Set
+  `plan-batch.workflow`, and list the project's own documents in `flow-audit.guides`
+  , `records` and `path_roots` (what the defaults dropped); set `review.owners` and
+  `review.setup` to keep `reviewer-guides`'s ownership and setup checks. A CI job
+  reading `flow:reviewer-guides` moves to `flow--v0.6.0`.
+
 ## flow 0.5.0 — 2026-10-25
 
 - `backlog` (ticket #3): `/flow:backlog` checks, before the coding agent files a ticket,
