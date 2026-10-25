@@ -70,17 +70,14 @@ SETTINGS = {
     # stated beside the batch before, so a document that only grows is seen.
     "guides": [
         "CLAUDE.md",
-        "docs/workflow.md",
-        "docs/agentic-setup.md",
-        "docs/*-rules.md",
         ".claude/skills/*/SKILL.md",
         ".claude/agents/*.md",
         ".claude/rules/*.md",
     ],
     # Records keep the paths of their day; every other document names paths that exist.
-    "records": ["CHANGELOG.md", "docs/adr/", "docs/lessons.md"],
+    "records": ["CHANGELOG.md"],
     # A backticked token is read as a path only when it starts at the repository root.
-    "path_roots": ["src/", "src-tauri/", "docs/", "scripts/", "e2e/", ".github/", ".claude/", ".githooks/"],
+    "path_roots": ["src/", "docs/", "scripts/", ".github/", ".claude/"],
 }
 
 

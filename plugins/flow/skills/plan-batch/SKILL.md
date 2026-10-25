@@ -5,14 +5,15 @@ description: Shows where the Project stands (Ready, Inbox, needs-owner, open pul
 
 # Skill — `plan-batch`
 
-The owner sets the batch (`docs/workflow.md` § 2). This skill prepares that decision:
+The owner sets the batch, under the project's workflow document (`plan-batch.workflow`
+in `.claude/daneel.json`: its rules on sizes, Ready, the decision scan and the order). This skill prepares that decision:
 it shows where every item stands and proposes an order. It never decides, and it never
 commits: the backlog is on GitHub.
 
 ## Step 1 — Collect
 
 The Project is the project's: `.claude/daneel.json`, key `plan-batch`, gives its `owner`
-and `number` (`{"plan-batch": {"owner": "folioneer", "number": 1}}`); with no such key,
+and `number`, and `workflow` (`{"plan-batch": {"owner": "acme", "number": 1, "workflow": "docs/workflow.md"}}`); with no such key,
 stop and say so.
 
 ```bash
@@ -28,9 +29,9 @@ unknown, never as none.
 
 ## Step 2 — Check what is not Ready
 
-- **Inbox**: give each its label, its form's fields and its size (`docs/workflow.md` § 2);
-  one that changes what a user sees gets its mock (`/design-proposal`); Ready as § 2
-  defines it.
+- **Inbox**: give each its label, its form's fields and its size, as the workflow says;
+  one that changes what a user sees gets the project's design step, if it has one; Ready as
+  the workflow defines it.
 - **Task**: obsolete — the path is gone or the observation no longer holds (grep the
   code, read the git log): propose closing it with the reason. Owner's call (a visible
   change, a product call): its question goes to **Needs you**. One theme is one line.
@@ -41,17 +42,16 @@ unknown, never as none.
 A feature or bug without a User value or a Done when cannot be queued: draft both from
 its text (the User value in the user's words, the Done when as clauses a test can
 prove), or say what is missing when the text is too thin. Then, for every item about to
-be proposed: read the code it names, check its size, run the decision scan
-(`docs/workflow.md` § 3). Its questions join **Needs you**. Name every programme and
+be proposed: read the code it names, check its size, run the workflow's decision scan, if it has one. Its questions join **Needs you**. Name every programme and
 propose its first slice as a sub-issue.
 
 ## Step 4 — Propose
 
 1. **Needs you** — the decisions and drafts of Steps 2 and 3, one line each.
 2. **In flight** — open pull requests and their checks. The sum of the proposal's `size:`
-   labels beside the sums of the last batches, the proposal stopping at the latter; a
-   batch with no feature or bug ends without a release (§ 3), say so.
-3. **Proposed batch** — in the order of `docs/workflow.md` § 2: each line `#123`, a
+   labels beside the sums of the last batches, the proposal stopping at the latter; when the
+   workflow ends such a batch without a release, say so.
+3. **Proposed batch** — in the workflow's order: each line `#123`, a
    concise summary, at most a clause on why it sits there; where two ordering rules
    disagree, one line says so. Nothing waiting on the owner is in it.
 4. **Left out** — one line per theme, with why, and each open issue or Dependabot pull

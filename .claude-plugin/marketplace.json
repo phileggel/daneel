@@ -10,7 +10,7 @@
     {
       "name": "flow",
       "source": "./plugins/flow",
-      "description": "Working on a project with agents: plan a batch, review it, prove it, audit it."
+      "description": "Working on a project with agents: plan a batch, check the backlog, review the guides, audit the batch."
     }
   ]
 }
