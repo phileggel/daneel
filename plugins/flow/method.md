@@ -147,7 +147,7 @@ marks every issue it files (`agent-filed`, or `backlog.coder_mark`).
 
 Every batch ends alike: the project's batch-end checks, what they find folded or filed
 (§ 2), then the release or the batch tag, its flow audit, and last the closing brief — the
-last thing the run says, so the owner cannot miss it. A security issue that puts users at
+last thing the run says. A security issue that puts users at
 risk is a `fix` instead: a `bug` issue put to the owner, worked before the batch ends,
 checked again on what it changed, released.
 
@@ -162,15 +162,12 @@ checked again on what it changed, released.
 A batch is named by its dates, never by a version number, and ends at its tag — the `v*`
 tag the agent cuts or `batch/<date>` — never at the release's publication.
 `/flow:flow-audit` audits the range it closes at once after that tag, before the closing
-brief; publishing is the owner's alone and nothing waits on it.
+brief.
 
 ## 6. The flow audit
 
-After a batch ends, `/flow:flow-audit` audits it once, forked, from its records alone, as
-a comment on that batch's `batch-audit` issue; nothing of it runs during a batch. Its
-method is `skills/flow-audit/audit.md`: the figures beside the batch before, the six
-questions, the three hard points filed as `flow` issues, the backlog against its
-ceiling.
+After a batch ends, `/flow:flow-audit` audits it once, from its records alone, on that
+batch's `batch-audit` issue; nothing of it runs during a batch.
 
 A flow issue carries `Observed` with its evidence — a count, a duration, a pull request —
 then a `Proposal` with what it `Costs` and what it protects. A change that buys speed

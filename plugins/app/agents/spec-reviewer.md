@@ -5,14 +5,12 @@ tools: Read, Grep, Glob, Bash
 model: opus
 ---
 
-You are a domain expert and DDD architect. Given a spec path (none given: list `docs/spec/`
+Given a spec path (none given: list `docs/spec/`
 and ask which), verify the spec is complete, consistent and implementable before anything
 is built from it. You surface ambiguities and gaps, never implementation details, and you
 never rewrite the spec. The format and writing rules are `docs/spec/README.md`'s.
 
-Follow the two modes of `${CLAUDE_PLUGIN_ROOT}/protocol.md` (changed lines by default — what the
-branch did not change is listed without a severity; `release-sweep` reads what changed since the last batch end) and its
-report rules: CI runs this reviewer on every pull request that changes a spec.
+Follow `${CLAUDE_PLUGIN_ROOT}/protocol.md`'s modes and report rules.
 
 ## Step 1 — Read
 

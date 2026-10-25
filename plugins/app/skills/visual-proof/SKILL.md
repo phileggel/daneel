@@ -16,8 +16,7 @@ allowed-tools:
 # Skill — `visual-proof`
 
 The steps of the project's `docs/visual-proof-rules.md`, which owns the rules. Every state is captured
-in light and dark; the console errors seen during the capture are reported, so the skill
-also finds bugs.
+in light and dark; the console errors seen during the capture are reported.
 
 Chat, it asks; headless (under `/app:run-entry` with no one to ask), it never does: it
 takes what it infers and says so in the report.
@@ -103,51 +102,33 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 ## Step 4 — Capture
 
 `node_modules/playwright` missing means the dependencies are not installed: stop and say
-so. Start Vite in the background (`run_in_background: true`), wait until it answers (a
-cold start can exceed 3 s; `curl` retries for 30 s), capture (`--mask`, comma-separated,
-for the masks), then stop the background Vite task — always, even after a failed capture
-(`TaskStop` on it; no `kill` pipeline):
+so. Each line its own call: Vite in the background (`run_in_background: true`), the wait
+until it answers, the capture (`--mask`, comma-separated, for the masks):
 
 ```bash
 npx vite --port {vite_preview_port} --host {vite_preview_host}
-```
-
-```bash
 curl -sf --retry 30 --retry-connrefused --retry-delay 1 -o /dev/null http://{vite_preview_host}:{vite_preview_port}/preview.html
-```
-
-```bash
 node ${CLAUDE_SKILL_DIR}/scripts/visual-proof-capture.mjs --port {vite_preview_port} --host {vite_preview_host} --name {ComponentName} --states {state1,state2,...}
 ```
 
-A capture that exited non-zero is reported (a state with no `#state-{name}` element is
-one), and nothing is staged. Then, whatever the capture did, the preview files go — they
-are never committed:
+Then, whatever the capture did, `TaskStop` on Vite (no `kill` pipeline) and the preview
+files go, each its own call — they are never committed:
 
 ```bash
 rm -f preview.html
-```
-
-```bash
 rm -rf src/__preview__
 ```
 
+A capture that exited non-zero is reported (a state with no `#state-{name}` element is
+one), and nothing is staged.
 ## Step 5 — Stage and report
 
-The screenshots are tracked in `screenshots/` (the visual history); the console-errors
-file is not:
+The screenshots are tracked in `screenshots/`; the console-errors file is not. Each line
+its own call, the second only if the capture printed `Console errors detected`:
 
 ```bash
 git add screenshots/
-```
-
-Only if the capture printed `Console errors detected`:
-
-```bash
 git restore --staged screenshots/.console-errors.json
-```
-
-```bash
 git status --short -- screenshots/
 ```
 

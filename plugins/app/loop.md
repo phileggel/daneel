@@ -4,8 +4,7 @@
 
 How a task moves through a Tauri + React app that runs `app` beside `flow`. The batch
 around it — ownership, issues, the Project, the backlog, budget and stop rules, the batch
-end, the audit — is `flow`'s method, `${CLAUDE_PLUGIN_ROOT}/method.md` (this plugin's link to `flow`'s
-own, which `app` depends on). The project's rules
+end, the audit — is `flow`'s method, `${CLAUDE_PLUGIN_ROOT}/method.md`. The project's rules
 document names what is its own: its harness checks, its rules docs and IDs, where its
 mocks live, its release steps.
 
@@ -54,39 +53,24 @@ with every check green, merged by run-entry's `merge.py`.
     until every check is green and folds `fixup!` commits, so the task lands as one
     commit. The closing brief says what changed for the user and what the project gained.
 
-**At a batch end**, before the method's release or batch tag: the release sweep
-(Conventions); for a release, `/app:dep-audit` on the final `main` once every pull
-request of the batch has merged — a known vulnerability in what ships blocks the release —
-and the closing brief names its verdict and the runs. `/app:run-batch` then cuts the release
-with its `release.py`, which leaves a draft for the owner to publish, or closes any other
-batch with its `batch-end.sh`.
+**At a batch end:** `/app:run-batch` Step 4.
 
 ## 2. Design proposal
 
 Before any change to what the user sees — a new screen, a moved or added control, a
 changed layout or wording pattern — the agent renders mocks of the target state with the
 real components and tokens (`/app:design-proposal`): `{id}-{light|dark}-{state}.png` plus
-a five-line note (what moves, is added, is removed, stays), posted on the issue; an issue
-whose design needs a mock carries `mock`.
-
-- **In chat:** nothing is built until the owner says yes; the yes sets the issue's Design
-  to `validated`.
-- **Headless:** the issue gets `needs-owner` and the run moves on to the next Queued
-  item; the owner validates in the thread.
-
-The mocks show invented data only and never reach `main`: they live where the project's
-rules document says, the issue links them, the pull request's visual proofs are the
-record.
+a five-line note, posted on the issue; an issue whose design needs a mock carries
+`mock`. Nothing is built before the owner's yes. The mocks show invented data only and
+never reach `main`; the pull request's visual proofs are the record.
 
 ## 3. The harness
 
 The harness recipe (`just {harness}`, `run-entry.recipes.harness`) runs it locally,
 scoped to the layers the branch touched. The same checks are required on every pull
-request (`required-checks.json` at the root, which `merge.py`, `watch-pr.py` and
-`release.py` all refuse to run without), and CI runs on every push to `main` too:
-`release.py` cuts a release only from a `main` whose runs are green. The git hooks run
-only fast checks for the same scope. Nothing is run by hand just before a commit or a
-push: the hooks do it, and the harness recipe is for wanting CI's answer before pushing. Every app's harness holds at least:
+request (`required-checks.json` at the root) and CI runs on every push to `main`. The
+git hooks run only fast checks for the same scope; nothing is run by hand before a commit
+or a push. Every app's harness holds at least:
 
 - lint, format, types and build;
 - architecture rules, today's debt frozen in `arch-allowlist.json`, which only shrinks;
@@ -100,9 +84,6 @@ push: the hooks do it, and the harness recipe is for wanting CI's answer before 
 - dependency advisories (`security-audit.yml`), weekly;
 - the merge guard: run-entry's `merge.py` refuses unless the branch heads an open pull
   request with every required check present and green.
-
-Neither `merge.py` nor `release.py` pushes `main`: GitHub merges the tested head, behind
-the ruleset on `main`.
 
 The project's rules document lists its own checks beside these.
 
@@ -136,7 +117,7 @@ Before the PR, run exactly the lanes this plugin's scripts print:
 and again on every fix before its push, until no 🔴 remains: a file edited in answer
 to a finding goes back to its lane, a spec above all.
 Once pushed, a fix is a `fixup!` commit pushed as is: CI runs the same lanes on every
-push, prompts from a pinned release, and a green CI needs no local run. A local reviewer
+push. A local reviewer
 gets the branch, the spec and the vocabulary, never a description of the change. Also:
 `app:spec-reviewer`, `app:contract-reviewer`, `app:adr-reviewer` when those documents
 change; `app:spec-checker` before closing an issue with spec rules; `app:reviewer-guides`
@@ -159,10 +140,6 @@ that changed something or was rejected goes in the PR body, or a PR comment once
   owner with three options — file it as a `task` issue and ship the scoped change (the
   default), widen this pull request, or block. Never deferred silently. A finding the
   pull request introduces blocks.
-
-A CI lane stopped by its usage limit says "did not run (usage limit)" and fails: an
-unreviewed pull request does not merge. It is re-run once the limit has reset
-(`gh run rerun <run> --failed`).
 
 ## 6. Gold for new code, bit by bit for existing
 
@@ -205,8 +182,7 @@ questions. The loop runs one task per run and keeps its state in git and the Pro
   end, then the closing brief.
 - **Laptop:** `just run-entry` — the first Queued item, headless, under the method's
   budget. A command outside the allow list in `.claude/settings.json` is denied, so the
-  run fails instead of waiting. The allow list scopes the flow, it is not a sandbox; what
-  is enforced is the harness and the merge guard.
+  run fails instead of waiting.
 - **Cloud routine** on claude.ai, created disabled; the owner switches it on.
 
 ## Conventions
@@ -219,16 +195,9 @@ goes to the owner in chat, and the PR stays open. The choice is recorded before 
 a technical one as an ADR (`docs/adr/README.md`), a domain one in the spec or the
 glossary.
 
-### Reviewer reports
-
-Locally a reviewer's reply is its report; nothing is written. In CI the reviewer saves
-its output under `.review/` (`protocol.md`, The report) and the workflow posts it as the
-lane's comment each round. `.review/` is gitignored and safe to delete.
-
 ### Dependabot pull requests
 
-The review workflow skips every lane for Dependabot (its runs get no secrets), so its
-green reviewer checks are skips, not reviews. It is on the Project as itself and
+The review workflow skips every lane for Dependabot, so its green reviewer checks are skips, not reviews. It is on the Project as itself and
 `/flow:plan-batch` proposes it with the rest. Once queued, the agent reads the diff and
 checks each pinned commit against the upstream tag it names; runs run-entry's `merge.py` on its
 branch, so the rebase and push are the agent's and CI runs the reviewers for real; grades

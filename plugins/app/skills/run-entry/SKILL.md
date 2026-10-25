@@ -27,31 +27,26 @@ Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and `.number
 - `record_paths` — the files whose move of `main` leaves the checks standing (default
   `["docs/adr/"]`; an entry ending in `/` is a folder of `.md` files).
 
-`merge.py` lets GitHub merge the tested head and never pushes `main`: the repository
-has a ruleset on `main` that takes only a commit whose checks passed, and allows rebase
-and squash merges. `merge.py` and `watch-pr.py` read the required checks from `required-checks.json` at the
-checkout's root (`{"checks": [...]}`).
+GitHub merges the tested head: `main` has a ruleset taking only a commit whose checks
+passed, rebase and squash allowed. The required checks are `required-checks.json` at the
+root (`{"checks": [...]}`).
 
 ## Step 0 — Preconditions and mode
 
 - `git status --short` is empty, `git branch --show-current` is `main`, and `main` is
   fresh (`git pull --ff-only`). Otherwise stop and report; never work on a dirty tree.
 - **Headless** (no argument): `gh project item-list {number} --owner {owner} --format json --limit 500`;
-  take the first Queued item, in row order, that is ready. Nobody to ask: a
-  question becomes a comment on the issue with `needs-owner` (method § 2).
+  take the first Queued item, in row order, that is ready.
 - **Chat, named issue** (`#123`): `gh issue view 123 --comments`.
 - **A Dependabot pull request** (queued or named): loop § Dependabot pull requests, not
   Steps 1 to 10 — the diff, each pinned commit, `python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` on its branch, grade, merge.
 - **Chat, plain request**: the request is the task; no issue is created — the PR body
   is its record. Write its Done when into the opening brief.
-- **Decision scan**, for an issue, before the branch exists (method § 2). Chat: its
-  questions asked then, the answers written on the issue. Headless: each a comment with
-  `needs-owner`, and the issue is no longer ready.
-- **Ready** as method § 2 defines it; a flow issue's Decision and a task's Observation are their
-  Done when. Headless: skip what is not ready; if nothing is, say what blocks each issue
-  and stop. Chat: ask each open question alone, with the context to answer it cold, and
-  wait for the answer before the next; write the answers on the issue. For an issue with
-  a spec: spec draft, `app:spec-reviewer`, then the questions.
+- **Decision scan and Ready** (method § 2), for an issue, before the branch exists; a flow
+  issue's Decision and a task's Observation are its Done when. Chat: each open question
+  alone, with the context to answer it cold, the answer awaited and written on the issue.
+  Headless: each a comment with `needs-owner`; skip what is not ready, and if nothing is,
+  say what blocks each issue and stop. With a spec, loop § 1 step 1's order.
 
 ## Step 1 — Design gate
 
@@ -80,9 +75,8 @@ Before any branch exists, and before the item moves: anything the user sees chan
 - Every Done-when clause becomes a failing test (loop § 1, step 3).
 - A fault met in production: ask for the input that shows it before designing a fix,
   and reproduce it in a failing test first (loop § 1).
-- Run the suites; confirm the new tests are red. A clause the agent cannot run becomes
-  a test of the harness — an E2E scenario when it needs the real window — or a `task`
-  issue that asks for it (method § 1).
+- Run the suites; confirm the new tests are red. A clause the agent cannot run: method § 1 (an
+  E2E scenario when it needs the real window).
 
 ## Step 4 — Implement
 
@@ -115,9 +109,7 @@ graded (loop § 5); again on the fixes before the first push until no 🔴 remai
 - A lane stopped by the CI account's usage limit (by exit code or comment): nothing to
   fix. Wait for the reset time it names (a wake-up in chat, a sleep headless; outside
   Rule 4), then `gh run rerun <the run id> --failed` and watch again.
-- Any other red: read the log first. If it shows the cause, fix it; if not, the next
-  push adds observation and makes the failure cheap, never a fix (method § 4). Fix with
-  `git commit --fixup <sha>` (never a new titled commit, never a force-push), push, watch
+- Any other red: method § 4 (the log first). Fix with `git commit --fixup <sha>` (never a new titled commit, never a force-push), push, watch
   again. The same gate red three times: open question, leave the PR open, stop.
 - All green: every lane's newest comment graded in a PR comment (loop § 1, step 10).
 

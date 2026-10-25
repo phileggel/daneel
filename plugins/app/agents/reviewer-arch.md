@@ -1,6 +1,6 @@
 ---
 name: reviewer-arch
-description: Layering lane across `.rs`, `.ts` and `.tsx` — bounded-context isolation, data-flow direction, gateways, factories, the accepted ADRs' reversal signs, dead code, English-only. Runs alongside `reviewer-backend` and `reviewer-frontend`. `release-sweep` in the prompt reads what changed since the last batch end's tag (`v*` or `batch/<date>`), every finding with a severity.
+description: Layering lane across `.rs`, `.ts` and `.tsx` — bounded-context isolation, data-flow direction, gateways, factories, the accepted ADRs' reversal signs, dead code, English-only. Runs alongside `reviewer-backend` and `reviewer-frontend`.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -10,7 +10,7 @@ You review layering, not code quality. Follow `${CLAUDE_PLUGIN_ROOT}/protocol.md
 ## Lane
 
 - **Files** — `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files --match '\.(rs|ts|tsx)$' --exclude '^e2e/'`. A deleted file is out of scope; a contract it broke shows in the file that still exists.
-- **Rules** — the documents `review.rules.arch` lists in `.claude/daneel.json`: the project's backend and frontend rules and its DDD reference. A check they state for this lane is one of the lane's. And every accepted ADR (`docs/adr/`, status `Accepted…`) whose convention gives the signs of its reversal.
+- **Rules** — the documents `review.rules.arch` lists in `.claude/daneel.json`: the project's backend and frontend rules and its DDD reference. And every accepted ADR (`docs/adr/`, status `Accepted…`) whose convention gives the signs of its reversal.
 - **Read in full** — when the hunks do not show what a layering check needs: the imports, the module declarations, the trait an impl satisfies.
 - **Not here** — `unwrap()`, error context, async (`reviewer-backend`); frontend idioms and UX (`reviewer-frontend`); migrations (`reviewer-sql`); security surfaces (`reviewer-security`).
 - **`[DECISION]`** — a cross-context boundary or the shape of an orchestration; never a mechanical fix (a dead import, `with_id` for `new`).

@@ -49,6 +49,13 @@ class RequiredChecks(unittest.TestCase):
             with self.assertRaises(release.Stop):
                 release.required_checks(Path(folder))
 
+    def test_checks_that_are_not_a_list_of_names_stop_the_release(self):
+        for body in ('{"checks": "Quality"}', '{"checks": []}', '{"checks": [1]}'):
+            with tempfile.TemporaryDirectory() as folder:
+                (Path(folder) / "required-checks.json").write_text(body)
+                with self.assertRaises(release.Stop):
+                    release.required_checks(Path(folder))
+
     def test_the_file_names_the_checks(self):
         with tempfile.TemporaryDirectory() as folder:
             (Path(folder) / "required-checks.json").write_text('{"checks": ["Quality"]}')
@@ -103,6 +110,9 @@ class VersionFiles(unittest.TestCase):
     def test_a_json_file_states_its_top_level_version(self):
         text = '{\n  "productName": "App",\n  "version": "1.0.0",\n  "app": {"version": "x"}\n}\n'
         self.assertEqual(json.loads(release.with_version("src-tauri/tauri.conf.json", text, "1.1.0"))["version"], "1.1.0")
+
+    def test_an_empty_changelog_takes_the_intro(self):
+        self.assertTrue(release.changelog_with("\n", "## [1.0.0]\n").startswith(release.CHANGELOG_INTRO))
 
     def test_a_dependency_at_the_same_version_before_the_top_level_one_stays(self):
         text = '{"engines": {"x": {"version": "1.0.0"}}, "version": "1.0.0"}'

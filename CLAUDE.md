@@ -35,13 +35,14 @@ change here is reviewed against.
 - Every per-project difference is a key in `.claude/daneel.json`, under the piece's own
   name, documented in the skill that reads it, and listed in its plugin's README and the
   root README. A script refuses a key of its section that no piece reads (`review-lanes.sh`
-for `review`), and treats a
-  shared file (`required-checks.json`) exactly as the other scripts do.
+  for `review`), and treats a shared file (`required-checks.json`) exactly as the other
+  scripts do.
 - A script's exit codes read the same in its header and in the skill that acts on them.
 - A claim that something was measured says what, when, and covers only that.
 - Every doc an agent reads (skill, agent, loop, method, protocol) is as concise as it can
   be: each line is one the agent acts on; no restating, no history, no rationale it
-  does not need.
+  does not need. Each has a word ceiling in `doc-ceilings.json`, lowered with
+  the doc; only the owner raises one.
 
 ## What the agent never does, and nothing here makes it do
 

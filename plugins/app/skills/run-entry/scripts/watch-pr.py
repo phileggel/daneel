@@ -353,9 +353,12 @@ def main(argv: list[str] | None = None) -> int:
         print(line, flush=True)
 
     try:
-        required = list(json.loads((ROOT / "required-checks.json").read_text(encoding="utf-8"))["checks"])
+        required = json.loads((ROOT / "required-checks.json").read_text(encoding="utf-8"))["checks"]
     except (OSError, json.JSONDecodeError, KeyError, TypeError):
         say("CANNOT WATCH: required-checks.json cannot be read")
+        return 2
+    if not isinstance(checks, list) or not checks or not all(isinstance(c, str) and c for c in checks):
+        say('CANNOT WATCH: required-checks.json: "checks" must be a non-empty list of check names')
         return 2
 
     failed: list[Run] = []

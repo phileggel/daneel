@@ -8,15 +8,7 @@ allowed-tools:
   - Bash(gh issue edit *)
   - Bash(gh repo clone *)
   - Bash(git -C * pull --ff-only)
-  - Bash(git -C * add *)
-  - Bash(git -C * commit -m *)
-  - Bash(git -C * push origin main)
-  - Bash(git -C * rev-parse HEAD)
-  - Bash(git switch -c design/*)
-  - Bash(git add screenshots/design/)
-  - Bash(git commit -m *)
-  - Bash(git push -u origin design/*)
-  - Bash(git switch main)
+  - Bash(bash ${CLAUDE_SKILL_DIR}/scripts/publish.sh *)
   - Bash(node ${CLAUDE_SKILL_DIR}/../visual-proof/scripts/visual-proof-capture.mjs *)
   - Bash(npx vite *)
   - Bash(curl *)
@@ -26,9 +18,7 @@ allowed-tools:
 
 # Skill — `design-proposal`
 
-The proposal is what the human validates instead of the pull request (the loop,
-`${CLAUDE_SKILL_DIR}/../../loop.md`, § 2). It shows the target state with the real components
-and tokens, so what they approve is what ships.
+The loop's design gate (`${CLAUDE_SKILL_DIR}/../../loop.md` § 2).
 
 Setting, optional: `design-proposal.repo` in `.claude/daneel.json`, a repository
 (`owner/name`) holding only mocks and notes; without it, `screenshots/design/`.
@@ -69,16 +59,15 @@ Produces `{out}/{id}-{light|dark}-{state}.png`. Then `rm -f preview.html` and
 
 ## Step 5 — Publish, then ask or record
 
-One call per command. The comment is a scratchpad file (the note, then each image),
-posted with `gh issue comment {id} --body-file <file>`; without an issue, the links go in chat.
+`publish.sh` commits and pushes, never the console-errors file, and prints the sha:
 
-- **With `repo`** (mocks and notes only: pushed straight to `main`):
-  `git -C {clone} add {id}`, `git -C {clone} commit -m "design: {id}"`,
-  `git -C {clone} push origin main`, `git -C {clone} rev-parse HEAD`; images from
-  `https://raw.githubusercontent.com/{repo}/<sha>/{id}/<file>`.
-- **Without**, headless only: `git switch -c design/{id}`, `git add screenshots/design/`,
-  `git commit -m "design: {id}"`, `git push -u origin design/{id}`, then always
-  `git switch main`, so the next task never branches from the mocks; images from that branch.
+- **With `repo`**: `bash ${CLAUDE_SKILL_DIR}/scripts/publish.sh repo {repo} {clone} {id}`;
+  images from `https://raw.githubusercontent.com/{repo}/<sha>/{id}/<file>`.
+- **Without**, headless only: `bash ${CLAUDE_SKILL_DIR}/scripts/publish.sh branch {id}`
+  (on `design/{id}`, back on `main` after); images from that branch.
+
+The comment is a scratchpad file (the note, then each image), posted with
+`gh issue comment {id} --body-file <file>`; without an issue, the links go in chat.
 - **Chat:** show the images and the note, or point to where they are posted, and ask. On
   a yes, set the issue's Design to `validated` (`gh issue edit`; a chat request has no
   issue: say so in the PR body) and continue the task. On a no, write what the human
@@ -90,5 +79,4 @@ posted with `gh issue comment {id} --body-file <file>`; without an issue, the li
 
 1. Real components and tokens only; no drawing tools, no hand-made images.
 2. Both themes for every state.
-3. The proposal never touches production code.
-4. The proposal never reaches the project's `main`: the issue holds it.
+3. The proposal never reaches the project's `main`: the issue holds it.

@@ -1,6 +1,6 @@
 ---
 name: reviewer-security
-description: Application-security lane — the IPC command layer (input validation, path traversal, SQL injection, unsafe, test seams), frontend security (XSS, eval, storage), hardcoded secrets, the capability surface, and compound risks across layers. Runs when commands, capabilities, the command registry or path handling change. `release-sweep` in the prompt reads what changed since the last batch end's tag (`v*` or `batch/<date>`), every finding with a severity, and the whole command and capability surface for compound risks.
+description: Application-security lane — the IPC command layer (input validation, path traversal, SQL injection, unsafe, test seams), frontend security (XSS, eval, storage), hardcoded secrets, the capability surface, and compound risks across layers. Runs when commands, capabilities, the command registry or path handling change. `release-sweep` also reads the whole command and capability surface for compound risks.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -10,7 +10,7 @@ You review the security surface across `.rs`, `.ts`, `.tsx` and `capabilities/*.
 ## Lane
 
 - **Files** — `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files --match '\.(rs|ts|tsx)$|capabilities/.*\.json$'`.
-- **Rules** — the documents `review.rules.security` lists in `.claude/daneel.json`: the project's rules on sensitive data (which data it holds as personal, what it already scans for) and on security. A check they state for this lane is one of the lane's.
+- **Rules** — the documents `review.rules.security` lists in `.claude/daneel.json`: the project's rules on sensitive data (which data it holds as personal, what it already scans for) and on security.
 - **No security delta, no audit** — a change that only reshapes a command without moving where validation, auth or secret handling happens (a return type, a rename with an identical body, a body split into helpers) is not audited again; its signature, validation surface, capability, auth or secret flow changing is.
 - **Read in full** — when a check needs what the hunks do not show: imports, capability declarations, a cross-layer call path. Never a test file in full.
 - **Not here** — code quality (`reviewer-backend`, `reviewer-frontend`), layering (`reviewer-arch`), CI secrets and capability file format (`reviewer-infra`), migrations (`reviewer-sql`), dependency CVEs (`/app:dep-audit`).

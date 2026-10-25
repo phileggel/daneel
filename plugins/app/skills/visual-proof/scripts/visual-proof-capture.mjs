@@ -29,7 +29,7 @@
  * Exit codes: 0 ok, 2 usage error (missing env), 1 runtime/Playwright error.
  */
 
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 
@@ -46,7 +46,7 @@ for (let i = 2; i < process.argv.length; i++) {
     process.exit(2);
   }
   ARGS[match[1]] = match[2] ?? process.argv[++i];
-  if (ARGS[match[1]] === undefined) {
+  if (ARGS[match[1]] === undefined || ARGS[match[1]].startsWith("--")) {
     console.error(`error: --${match[1]} takes a value`);
     process.exit(2);
   }
@@ -70,6 +70,8 @@ const { chromium } = createRequire(join(process.cwd(), "package.json"))("playwri
 const consoleErrors = [];
 const missing = new Set();
 await mkdir(OUT_DIR, { recursive: true });
+// The file exists after a run only if that run saw console errors.
+await rm(`${OUT_DIR}/.console-errors.json`, { force: true });
 
 const browser = await chromium.launch({ args: ["--no-sandbox"] });
 try {

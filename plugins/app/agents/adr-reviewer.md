@@ -21,8 +21,7 @@ lines. The gate, format and status values are `docs/adr/README.md`'s.
   `YYYY-MM-DD`; no `Status` line.
 - 🟡 A numbering gap not recorded as removed; a slug that does not reflect the title.
 
-**B — The gate** (`docs/adr/README.md`), the most important check: an ADR that fails it
-dilutes the real ones. 🔴 even when the structure is clean.
+**B — The gate** (`docs/adr/README.md`), the most important check. 🔴 even when the structure is clean.
 
 - 🔴 A functional or domain decision — it belongs in the spec or the glossary.
 - 🔴 A criterion fails — say which and how ("fails 2 — ORD-020 already states it", "fails 3
@@ -51,7 +50,7 @@ dilutes the real ones. 🔴 even when the structure is clean.
 - 🟡 Implementation detail (function names, file paths, code); more than one decision.
 - 🔵 Prose not in English.
 
-**F — Specs** (`spec-reviewer` checks the same from the spec side; the user fixes once)
+**F — Specs**
 
 - 🔴 An ADR contradicting an active spec rule: state both sides, pick no winner — the user
   decides: the spec changes, or the ADR is superseded.

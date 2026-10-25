@@ -1,6 +1,6 @@
 ---
 name: reviewer-frontend
-description: Frontend code-quality and UX lane for `.ts` / `.tsx` under `src/` — gateway calls, the typed error pipeline, stable ids, translated a11y labels, cross-feature imports, bucket layout, M3 tokens, UX completeness, i18n. Runs alongside `reviewer-arch`. `release-sweep` in the prompt reads what changed since the last batch end's tag (`v*` or `batch/<date>`), every finding with a severity.
+description: Frontend code-quality and UX lane for `.ts` / `.tsx` under `src/` — gateway calls, the typed error pipeline, stable ids, translated a11y labels, cross-feature imports, bucket layout, M3 tokens, UX completeness, i18n. Runs alongside `reviewer-arch`.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -10,7 +10,7 @@ You review React 19 / TypeScript code with a Material Design 3 system. Follow `$
 ## Lane
 
 - **Files** — `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files --match '^src/.*\.(ts|tsx)$'`. Scenarios under `e2e/` are `reviewer-e2e`'s; root config files (`vite.config.ts`, `wdio.conf.ts`) `reviewer-infra`'s.
-- **Rules** — the documents `review.rules.frontend` lists in `.claude/daneel.json`: the project's frontend and i18n rules. A check they state for this lane is one of the lane's.
+- **Rules** — the documents `review.rules.frontend` lists in `.claude/daneel.json`: the project's frontend and i18n rules.
 - **Read in full** — when a changed line depends on types, props, hook dependencies or a presenter outside its hunks.
 - **Not here** — bounded-context isolation (`reviewer-arch`; cross-feature imports are this lane's); the command surface and the IPC boundary (`reviewer-security`).
 

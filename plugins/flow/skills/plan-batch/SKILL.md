@@ -5,11 +5,9 @@ description: Shows where the Project stands (Ready, Inbox, needs-owner, open pul
 
 # Skill — `plan-batch`
 
-The owner sets the batch, under the method (`${CLAUDE_SKILL_DIR}/../../method.md`, § 2:
-sizes, Ready, the decision scan and the order), and the project's own additions to it in
-its rules document (`plan-batch.workflow`, if set). This skill prepares that decision:
-it shows where every item stands and proposes an order. It never decides, and it never
-commits: the backlog is on GitHub.
+The owner sets the batch under `${CLAUDE_SKILL_DIR}/../../method.md` § 2 and the
+project's rules document (`plan-batch.workflow`, if set). This skill shows where every
+item stands and proposes an order; it never decides, and never commits.
 
 ## Step 1 — Collect
 

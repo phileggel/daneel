@@ -48,9 +48,8 @@ issue. The batch then runs without waiting on the owner.
 
 ## Step 3 — Run the items
 
-For each remaining item that is ready, in order: `/app:run-entry #123`. While a pull
-request waits for its checks, the next task may be prepared on a branch not pushed yet
-(loop § 7).
+For each remaining item that is ready, in order: `/app:run-entry #123` (the next may be
+prepared while one waits, loop § 7).
 
 Stop, and say where, when `/app:run-entry` stops by its own rules (an open question, the
 same gate red three times, the three-hour budget). An item that is not ready is said so
@@ -69,22 +68,18 @@ findings folded or filed. Then, on the final `main`:
 
       python3 ${CLAUDE_SKILL_DIR}/scripts/release.py
 
-  It bumps the version files, writes the changelog section, lands them through a pull
-  request merged once green, tags `main`'s head `v<version>` and leaves the draft release
-  with the section as its notes (after the `release_workflow` run, which can take long:
-  run it in the background). It never publishes. Stopped, it says where and what to do;
-  `--draft v<version>` redoes the draft step alone once its tag is pushed.
+  in the background: it lands the version and changelog through a green pull request,
+  tags `v<version>` and leaves the draft release; it never publishes. Stopped, it says
+  what to do; `--draft v<version>` redoes the draft alone once the tag is pushed.
 - **Exit 3, no `feat` or `fix`:** `bash ${CLAUDE_SKILL_DIR}/scripts/batch-end.sh` tags
   the fresh `main` `batch/<UTC date>`.
 
-Then, in both cases, `/flow:flow-audit` once the batch end is made — the tag pushed, and
-for a release `release.py` done with its draft, which the audit reads. A batch end is
-dated by its tag; whether the owner publishes the release is the owner's alone, never
-audited, and nothing waits on it.
+Then, in both cases, `/flow:flow-audit` once the tag is pushed and, for a release, the
+draft made (method § 5).
 
 ## Step 5 — The closing brief, last
 
-The last thing the run says, so the owner cannot miss it: what shipped (each issue with
+The last thing the run says: what shipped (each issue with
 its pull request), what a user notices (the `feat` and `fix` titles, or "nothing"), what
 was filed during the run, what was left — skipped, stopped or not ready — with why, the
 dependency audit's verdict, the flow audit's verdict, and for a release "everything is

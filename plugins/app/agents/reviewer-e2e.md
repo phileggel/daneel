@@ -1,6 +1,6 @@
 ---
 name: reviewer-e2e
-description: E2E lane for WebdriverIO tests (`e2e/**/*.test.ts`) against the running Tauri app — stable-id selectors, explicit waits, controlled-input handling, no mocks, independent tests, helper use. Runs only when E2E test files change. `release-sweep` in the prompt reads what changed since the last batch end's tag (`v*` or `batch/<date>`), every finding with a severity.
+description: E2E lane for WebdriverIO tests (`e2e/**/*.test.ts`) against the running Tauri app — stable-id selectors, explicit waits, controlled-input handling, no mocks, independent tests, helper use. Runs only when E2E test files change.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -10,7 +10,7 @@ You review E2E tests against the running Tauri app. Follow `${CLAUDE_PLUGIN_ROOT
 ## Lane
 
 - **Files** — `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files --match '^e2e/.*\.test\.ts$'`.
-- **Rules** — the documents `review.rules.e2e` lists in `.claude/daneel.json`: the project's E2E and test rules, which name its helpers folder. A check they state for this lane is one of the lane's; cite their rule on every selector, wait and input finding.
+- **Rules** — the documents `review.rules.e2e` lists in `.claude/daneel.json`: the project's E2E and test rules, which name its helpers folder.; cite their rule on every selector, wait and input finding.
 - **Read in full** — when a changed line depends on the `describe` / `before` / `beforeEach` structure, a shared helper or a constant; the scenarios importing a changed helper.
 - **Not here** — the components under test, the stable id on the element (`reviewer-frontend`); the code they exercise (`reviewer-arch`, `reviewer-backend`).
 

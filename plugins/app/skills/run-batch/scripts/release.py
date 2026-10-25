@@ -166,7 +166,7 @@ def changelog_entry(version: str, day: str, commits: list[dict]) -> str:
 
 def changelog_with(existing: str | None, entry: str) -> str:
     """The changelog with the new section above the newest one, under the file's header."""
-    if existing is None:
+    if existing is None or not existing.strip():
         return CHANGELOG_INTRO + entry
     newest = re.search(r"^## \[", existing, re.MULTILINE)
     if newest:
@@ -336,9 +336,12 @@ def required_checks(root: Path) -> list[str]:
     release, as it stops them."""
     path = root / "required-checks.json"
     try:
-        return list(json.loads(path.read_text(encoding="utf-8"))["checks"])
+        checks = json.loads(path.read_text(encoding="utf-8"))["checks"]
     except (OSError, ValueError, KeyError, TypeError) as exc:
         raise Stop(f"required-checks.json cannot be read: {exc}")
+    if not isinstance(checks, list) or not checks or not all(isinstance(c, str) and c for c in checks):
+        raise Stop('required-checks.json: "checks" must be a non-empty list of check names')
+    return checks
 
 
 def checks_verdict(checks: list[dict], required: list[str] = ()) -> tuple[str, list[str]]:

@@ -13,43 +13,24 @@ allowed-tools:
 # Skill — `dep-audit`
 
 Outdated versions and known CVEs in `package.json` and `src-tauri/Cargo.toml`. A version is
-never called latest or outdated from model knowledge, which may be months behind: each one
-reported is checked with WebSearch and cited with its source URL. The skill never upgrades.
+never called latest or outdated from model knowledge: each one reported is checked with WebSearch and cited with its source URL. The skill never upgrades.
 
 Settings, optional, under `dep-audit` in `.claude/daneel.json`: `licence_check`, the
-project's recipe that checks the shipped dependencies' licences (`just {licence_check}`,
-allowed by the project's own allow list, as every recipe of its own is),
-and `terms_doc`, the project's document of the services it calls and the data it copies.
+project's recipe that checks the shipped dependencies' licences (the project's allow list
+covers it), and `terms_doc`, the project's document of the services it calls and the data it copies.
 
 ## 1. Read and run
 
-The declared packages and ranges of both files, then each command on its own — a non-zero
+The declared packages and ranges of both files, then each line its own call — a non-zero
 exit is information (a missing tool, or findings), never a stop:
 
 ```bash
 rustc --version
-```
-
-```bash
 npm outdated
-```
-
-```bash
 npm audit
-```
-
-```bash
 cargo outdated --manifest-path src-tauri/Cargo.toml
-```
-
-```bash
 cargo audit --file src-tauri/Cargo.lock
-```
-
-With `licence_check` set, that recipe too:
-
-```bash
-just {licence_check}
+just {licence_check}          # only with licence_check set
 ```
 
 It reports a shipped dependency whose licence the project does not allow. With
@@ -74,8 +55,7 @@ CVEs (`{package} security advisory CVE`, osv.dev).
 - 🟡 **Major drift** — the latest major above the current one (v5 in use, v6 out).
 - 🟡 **Misplaced** — a build-time package (bundler, linter, type checker, test runner, types)
   in `dependencies`, a runtime one (imported in `src/`) in `devDependencies`, a test-only
-  crate in `[dependencies]`, two packages in one role. Reported even when current:
-  placement changes the production bundle.
+  crate in `[dependencies]`, two packages in one role. Reported even when current.
 - 🔵 **Minor drift** — the latest minor above the current one, same major.
 
 What a 🔴 CVE becomes is the owner's call (loop § 5). The report gives its evidence:

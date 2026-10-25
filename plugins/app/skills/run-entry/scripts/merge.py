@@ -109,9 +109,12 @@ PASSING = {"success", "skipped", "neutral"}
 def _required_checks() -> list[str]:
     path = root() / "required-checks.json"
     try:
-        return list(json.loads(path.read_text(encoding="utf-8"))["checks"])
+        checks = json.loads(path.read_text(encoding="utf-8"))["checks"]
     except (OSError, ValueError, KeyError, TypeError) as exc:
         fail(f"Could not read {path.name}: {exc}")
+    if not isinstance(checks, list) or not checks or not all(isinstance(c, str) and c for c in checks):
+        fail(f'{path.name}: "checks" must be a non-empty list of check names')
+    return checks
 
 
 def _open_pull_request(branch: str, target: str) -> tuple[int, str]:

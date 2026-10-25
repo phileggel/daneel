@@ -37,6 +37,8 @@ from the apps' copies.
   `run-batch.version_files`, `.changelog`, `.release_workflow`, drops its `release` and
   `batch-end` recipes and its release script, and drops any deny line matching `release.py`.
 - `app` depends on `flow` and reads its method through its own `method.md` link.
+- `design-proposal`'s `publish.sh` pushes the mocks to the design repository or a
+  `design/<id>` branch, never the project's `main`.
 - A key of `.claude/daneel.json` no piece reads stops the script that reads its section.
 - `merge.py` lets GitHub merge the tested head and never pushes `main`; its only push is
   the task's own branch, with lease. A project's `main` needs a ruleset that takes only a

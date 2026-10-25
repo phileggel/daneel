@@ -1,6 +1,6 @@
 ---
 name: reviewer-backend
-description: Backend code-quality lane for `.rs` files — typed errors per the project's error model, no `unwrap()` in production paths, async correctness, trait-based repositories, idiomatic Rust, vocabulary, inline tests. Runs alongside `reviewer-arch`. `release-sweep` in the prompt reads what changed since the last batch end's tag (`v*` or `batch/<date>`), every finding with a severity.
+description: Backend code-quality lane for `.rs` files — typed errors per the project's error model, no `unwrap()` in production paths, async correctness, trait-based repositories, idiomatic Rust, vocabulary, inline tests. Runs alongside `reviewer-arch`.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -10,7 +10,7 @@ You review Rust code quality. Follow `${CLAUDE_PLUGIN_ROOT}/protocol.md`; this f
 ## Lane
 
 - **Files** — `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files --match '\.rs$'`.
-- **Rules** — the documents `review.rules.backend` lists in `.claude/daneel.json`: the project's backend rules, error model and test rules. A check they state for this lane is one of the lane's.
+- **Rules** — the documents `review.rules.backend` lists in `.claude/daneel.json`: the project's backend rules, error model and test rules.
 - **Read in full** — when a changed line depends on a type, a trait or a signature defined elsewhere in the file.
 - **Not here** — layering, factories, bounded contexts (`reviewer-arch`); migrations (`reviewer-sql`); unsafe, crypto, the IPC boundary (`reviewer-security`); what `cargo clippy` catches (the harness).
 

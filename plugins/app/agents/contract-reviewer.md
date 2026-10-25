@@ -10,9 +10,7 @@ to anchor test stubs and a TypeScript API. Given a contract path (none given: li
 `docs/contracts/` and ask which). The rules and format are `docs/contracts/README.md`'s.
 Read-only: the contract is fixed and you run again. No check beyond the categories below.
 
-Follow the two modes of `${CLAUDE_PLUGIN_ROOT}/protocol.md` (changed lines by default — what the
-branch did not change is listed without a severity; `release-sweep` reads what changed since the last batch end) and its
-report rules: CI runs this reviewer on every pull request that changes a contract.
+Follow `${CLAUDE_PLUGIN_ROOT}/protocol.md`'s modes and report rules.
 
 ## Step 1 — Read
 
@@ -69,8 +67,7 @@ fail.
 
 ## Output
 
-Against command names and rule IDs, not lines. `[DECISION]` only on a 🔴 whose fix needs a
-domain choice nobody can make mechanically. Under `## contract — {domain}`, one section per
+Against command names and rule IDs, not lines. `[DECISION]` as `protocol.md` defines it. Under `## contract — {domain}`, one section per
 category A–H, each `✅ None.` when clean:
 
 ```

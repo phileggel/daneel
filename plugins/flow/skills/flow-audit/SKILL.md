@@ -86,5 +86,5 @@ batch-audit --title "Batch <dates>"` first if it has none): `## Measured`, each 
   for the owner; the audit comment links them.
 - Then empty `logs/usage.log` (local, never committed): its figures are recorded.
 
-Reply with the audit's link and the issues filed. Nothing is committed, no figure is
-one the script did not print or you did not count, and no proposal is applied.
+Reply with the audit's link and the issues filed. Nothing is committed and no proposal
+is applied.
