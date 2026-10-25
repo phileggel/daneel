@@ -349,13 +349,8 @@ class Settings(unittest.TestCase):
         self.assertEqual(merge.settings(self.root), merge.SETTINGS)
 
     def test_a_project_sets_its_own_keys_and_the_others_are_left_to_their_skills(self):
-        self.write({"run-entry": {"land": "push", "lanes": "bash x.sh"}, "flow-audit": {"x": 1}})
-        self.assertEqual(merge.settings(self.root), {"land": "push", "record_paths": ["docs/adr/"]})
-
-    def test_an_unknown_way_to_land_is_refused(self):
-        self.write({"run-entry": {"land": "merge"}})
-        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
-            merge.settings(self.root)
+        self.write({"run-entry": {"record_paths": ["docs/"], "lanes": "bash x.sh"}, "flow-audit": {"x": 1}})
+        self.assertEqual(merge.settings(self.root), {"record_paths": ["docs/"]})
 
 
 if __name__ == "__main__":

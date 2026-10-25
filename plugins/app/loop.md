@@ -96,8 +96,8 @@ CI's answer before pushing. Every app's harness holds at least:
 - the merge guard: run-entry's `merge.py` refuses unless the branch heads an open pull
   request with every required check present and green.
 
-Neither script pushes to `main`: `release.py` never does, and `merge.py` only when the
-project sets `run-entry.land` to `"push"`.
+Neither `merge.py` nor `release.py` pushes `main`: GitHub merges the tested head, behind
+the ruleset on `main`.
 
 The project's rules document lists its own checks beside these.
 

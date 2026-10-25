@@ -14,8 +14,9 @@ against all four:
   re-tested at the batch end and corrected with the owner in chat, beats a gate that
   stops the run; a rule need not hold perfectly to be worth having.
 - **Secure**: what cannot be undone is held firm. A security or data-loss finding is
-  always filed; nothing is pushed to `main` or force-pushed by the agent, and a release
-  is published by the owner alone.
+  always filed; nothing is pushed to `main` by the agent, a task's own branch is
+  force-pushed (with lease) only by the script that lands it, and a release is published
+  by the owner alone.
 - **Quality**: a rule is measured at each batch end, so whether it works is known, not
   assumed.
 - **Fast**: a rule that adds steps to every run shows at the batch end what it pays back.

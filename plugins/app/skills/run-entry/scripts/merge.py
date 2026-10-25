@@ -14,13 +14,12 @@ One entry lands as one commit: a fix pushed after the first push is a `fixup!` c
 (`git commit --fixup <sha>`), and the rebase folds it into the commit it names. Folding
 rewrites commits and leaves the tree as CI tested it, so the checks stand.
 
-How it lands is the project's (`.claude/daneel.json`, key `run-entry`, `SETTINGS` below):
-- `land: "github"` — GitHub merges the pull request's tested head, never a push to the
-  target: squashed under the folded commit's message when the branch carried `fixup!`
-  commits, rebased otherwise. For a target whose ruleset accepts only a commit whose
-  checks passed; the repository allows rebase and squash merges.
-- `land: "push"` — the rebased branch is pushed, the target fast-forwarded onto it and
-  pushed: for a target that accepts the agent's push.
+GitHub merges the pull request's tested head; nothing here pushes the target. Squashed
+under the folded commit's message when the branch carried `fixup!` commits, rebased
+otherwise: the target has a ruleset that accepts only a commit whose checks passed, and
+the repository allows rebase and squash merges. The only push is of the task's own
+branch, with lease, once its fixups are folded or it is rebased (the method's one
+exception to never force-pushing).
 """
 
 from __future__ import annotations
@@ -48,8 +47,6 @@ WATCH = f"python3 {HERE / 'watch-pr.py'}"
 
 # What a project may set in `.claude/daneel.json` under `run-entry`, with its default.
 SETTINGS = {
-    # "github": GitHub merges the tested head; "push": the target is pushed by this script.
-    "land": "github",
     # Record files: a move of the target made only of them cannot change what the checks
     # proved, since none is read against the code. An entry ending in `/` is a folder
     # (its `.md` files), any other one a file.
@@ -79,10 +76,7 @@ def settings(top: Path) -> dict:
         own = json.loads(path.read_text(encoding="utf-8")).get("run-entry", {}) if path.exists() else {}
     except (OSError, ValueError) as exc:
         fail(f"Could not read {path}: {exc}")
-    merged = {**SETTINGS, **{key: own[key] for key in SETTINGS if key in own}}
-    if merged["land"] not in ("github", "push"):
-        fail(f"run-entry.land in {path} is {merged['land']!r}: it is \"github\" or \"push\".")
-    return merged
+    return {**SETTINGS, **{key: own[key] for key in SETTINGS if key in own}}
 
 
 def _git_dir() -> Path:
@@ -302,9 +296,9 @@ def ensure_checks_green(branch: str, target: str, before: str, after: str, confi
     number, head = _open_pull_request(branch, target)
     if after != head:
         standing = before == head and _rebase_left_the_checks_standing(before, after, config["record_paths"])
-        # GitHub merges the tested head itself; a pushed target needs the pull request's
-        # head to be the commit that lands, so the pull request shows as merged.
-        if not standing or config["land"] == "push":
+        # GitHub merges the tested head itself: a rebase that left the checks standing
+        # needs no push.
+        if not standing:
             push = git("push", "--force-with-lease", "origin", branch, check=False)
             if push.returncode != 0:
                 fail(
@@ -400,33 +394,6 @@ def land_by_github(number: int, head: str, target: str, before: str, branch: str
             (result.stderr or "").strip(),
             f"Inspect: gh pr view {number} (a ruleset that asks the branch to be up to date refuses it) — then re-run `{RERUN}`.",
         )
-
-
-def land_by_push(target: str, branch: str, has_origin_target: bool) -> None:
-    result = git("checkout", target, check=False)
-    if result.returncode != 0:
-        fail(
-            f"Could not checkout `{target}` after rebase.",
-            f"detail: {result.stderr.strip() or '(no stderr captured)'}",
-            f"Manually: git checkout {target} && git merge --ff-only {branch}",
-        )
-    if git("merge", "--ff-only", branch, check=False).returncode != 0:
-        git("checkout", branch, check=False)
-        fail(
-            f"The fast-forward of `{target}` onto `{branch}` failed: `{target}` likely moved.",
-            f"Inspect: git log {target}..{branch} — then re-run `{RERUN}`.",
-        )
-    if has_origin_target:
-        result = git("push", "origin", target, check=False)
-        if result.returncode != 0:
-            # Nothing landed on origin: the local target goes back, the branch stays pushed.
-            git("reset", "--quiet", "--hard", f"origin/{target}", check=False)
-            git("checkout", branch, check=False)
-            fail(
-                f"Could not push {target} to origin/{target}.",
-                (result.stderr or "").strip(),
-                f"Origin probably moved while merging: re-run `{RERUN}`.",
-            )
 
 
 def main() -> int:
@@ -550,10 +517,7 @@ def main() -> int:
     try:
         # Step 3 — the merge guard: green checks on exactly these commits; then land.
         number, head = ensure_checks_green(branch, target, before, after, config)
-        if config["land"] == "github":
-            land_by_github(number, head, target, before, branch)
-        else:
-            land_by_push(target, branch, has_origin_target)
+        land_by_github(number, head, target, before, branch)
     except BaseException:
         # A stop, an interrupt during the wait, or a git error: the same way back.
         if git("rev-parse", "--abbrev-ref", "HEAD").stdout.strip() != branch:
@@ -562,14 +526,13 @@ def main() -> int:
         raise
 
     # Step 4 — bring the local target to what landed.
-    if config["land"] == "github":
-        result = git("checkout", target, check=False)
-        if result.returncode != 0 or git("pull", "--ff-only", "--quiet", "origin", target, check=False).returncode != 0:
-            fail(
-                f"PR #{number} is merged, but the local `{target}` could not be brought up to date.",
-                f"Manually: git checkout {target} && git pull --ff-only",
-                f"  git push --delete origin {branch} && git branch -D {branch}",
-            )
+    result = git("checkout", target, check=False)
+    if result.returncode != 0 or git("pull", "--ff-only", "--quiet", "origin", target, check=False).returncode != 0:
+        fail(
+            f"PR #{number} is merged, but the local `{target}` could not be brought up to date.",
+            f"Manually: git checkout {target} && git pull --ff-only",
+            f"  git push --delete origin {branch} && git branch -D {branch}",
+        )
 
     # Step 5 — delete the remote branch (GitHub may have deleted it already: benign).
     remote_state = "skipped"  # one of: skipped, deleted, gone, failed
@@ -599,9 +562,8 @@ def main() -> int:
         parts.append("remote")
     elif remote_state == "failed":
         parts.append("remote delete failed — see above")
-    how = "by GitHub" if config["land"] == "github" else "and pushed" if has_origin_target else "locally"
     print(
-        f"{GREEN}✅ {branch} merged into {target} {how} (PR #{number}), and deleted ({' + '.join(parts)}).{NC}",
+        f"{GREEN}✅ {branch} merged into {target} by GitHub (PR #{number}), and deleted ({' + '.join(parts)}).{NC}",
         file=sys.stderr,
     )
     return 0

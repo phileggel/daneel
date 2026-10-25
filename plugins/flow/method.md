@@ -136,9 +136,12 @@ marks every issue it files (`agent-filed`, or `backlog.coder_mark`).
   with the failure text and the run's link; the fix that re-enables it closes the issue.
   The run continues.
 - **Never:** what the project's core rules forbid; nor change the batch without the
-  owner's yes; nor push to `main`, force-push, or publish a release (cutting it is the agent's); nor edit
-  `.claude/settings.json` (the owner edits it; the agent commits that edit through a
-  pull request).
+  owner's yes; nor push to the project's `main`, force-push (but the script that lands a
+  task pushing the task's own branch, with lease, once it folded its fixups or rebased
+  it), or publish a release (cutting it is the agent's); nor edit `.claude/settings.json`
+  (the owner edits it; the agent commits that edit through a pull request). A repository that holds only mocks
+  and notes, with no code and nothing shipped from it, is not the project's: its `main`
+  takes a push.
 
 ## 5. How a batch ends
 

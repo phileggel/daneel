@@ -24,14 +24,12 @@ Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and `.number
 
 - `recipes` — the project's `just` recipes by role: `harness` (default `harness`),
   `push_harness` (default none; `harness` runs once more before the first push).
-- `land` — how `merge.py` lands a green pull request: `"github"` (default), GitHub merges
-  the tested head, for a `main` whose ruleset takes only checked commits in a repository
-  that allows rebase and squash merges; `"push"`, the script fast-forwards `main` and
-  pushes it.
 - `record_paths` — the files whose move of `main` leaves the checks standing (default
   `["docs/adr/"]`; an entry ending in `/` is a folder of `.md` files).
 
-`merge.py` and `watch-pr.py` read the required checks from `required-checks.json` at the
+`merge.py` lets GitHub merge the tested head and never pushes `main`: the repository
+has a ruleset on `main` that takes only a commit whose checks passed, and allows rebase
+and squash merges. `merge.py` and `watch-pr.py` read the required checks from `required-checks.json` at the
 checkout's root (`{"checks": [...]}`).
 
 ## Step 0 — Preconditions and mode
