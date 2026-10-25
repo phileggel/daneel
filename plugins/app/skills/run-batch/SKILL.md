@@ -1,7 +1,12 @@
 ---
 name: run-batch
 description: Runs a whole batch in chat — every Queued item of the Project through /app:run-entry, one after the other, then the batch's end (a release cut to its draft, or a batch tag), /flow:flow-audit, then the closing brief. Chains the existing skills and decides nothing new. Use when the owner says to run the batch.
-allowed-tools: Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/release.py *), Bash(bash ${CLAUDE_SKILL_DIR}/scripts/batch-end.sh)
+allowed-tools:
+  - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/release.py)
+  - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/release.py *)
+  - Bash(bash ${CLAUDE_SKILL_DIR}/scripts/batch-end.sh)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh *)
 ---
 
 # Skill — `run-batch`

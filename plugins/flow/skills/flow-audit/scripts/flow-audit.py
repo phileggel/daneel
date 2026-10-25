@@ -190,10 +190,10 @@ def measure_pull_requests(
 
 
 def sort_later_rounds(runs: list[dict], relation: Callable[[str, str], str | None]) -> dict:
-    """FLOW-020 — why each round after a branch's first came: after a failed check of the
+    """Why each round after a branch's first came: after a failed check of the
     round before (a failed run of any workflow on its commit); a rebase, when the round's
     commit does not descend from the round before (the branch was rewritten onto another
-    base, the push of `just merge` among them); a fix, a commit pushed on top; or unreadable,
+    base, the push of `merge.py` among them); a fix, a commit pushed on top; or unreadable,
     when `relation(before, sha)` — GitHub's comparison of the two commits, `ahead`,
     `diverged`, … — cannot be read, so that a comparison GitHub refused never passes for a fix.
     """
@@ -241,8 +241,8 @@ def measure_ci(
     window loses the rounds it ran before it. A failure is counted per run, so a commit
     run again after a failure counts once as a round and once per failed run. `gh run list`
     shows a run's last attempt only: `reruns` carries the earlier attempts of each run that
-    was re-run (`collect_reruns`), and their failures count too (FLOW-057). With
-    `relation`, the rounds beyond the first are sorted by their cause (FLOW-020).
+    was re-run (`collect_reruns`), and their failures count too. With
+    `relation`, the rounds beyond the first are sorted by their cause.
     """
     branches = {
         pr["headRefName"]
@@ -315,7 +315,7 @@ def _open_at(item: dict, moment: datetime) -> bool:
 
 
 def measure_open(items: list[dict], since: datetime, until: datetime) -> dict:
-    """How many of `items` were open when the window started and when it ended (FLOW-042)."""
+    """How many of `items` were open when the window started and when it ended."""
     return {
         "at_start": sum(_open_at(item, since) for item in items),
         "at_end": sum(_open_at(item, until) for item in items),
@@ -355,7 +355,7 @@ def measure_usage(
     The log is local and written outside CI only: a tool that only CI runs is never
     seen, and a log that starts after `since` covers part of the window. A recipe that
     runs no script of its own logs `started` and nothing else: a run with no outcome,
-    counted apart, never as a failure (FLOW-047).
+    counted apart, never as a failure.
     """
     runs: dict[str, int] = {}
     failed: dict[str, int] = {}
@@ -499,7 +499,7 @@ def _gh_json_lines(*args: str) -> list[dict]:
 
 @functools.lru_cache(maxsize=None)
 def compared(before: str, sha: str) -> str | None:
-    """FLOW-020 — how GitHub relates commit `sha` to `before` (`ahead`, `diverged`, …),
+    """How GitHub relates commit `sha` to `before` (`ahead`, `diverged`, …),
     read once per pair; None when it cannot say (a commit no longer on GitHub)."""
     try:
         result = subprocess.run(
@@ -714,7 +714,7 @@ BATCH_TAG_PREFIX = "batch/"
 
 def batch_end_moment(tag: str) -> datetime:
     """When the batch end `tag` happened: the tag's date, a release's `v*` tag or a
-    `batch/<date>` tag alike (FLOW-074). A release is the agent's once it is tagged;
+    `batch/<date>` tag alike. A release is the agent's once it is tagged;
     publishing it is the owner's and no figure waits on it."""
     made = _git("for-each-ref", f"refs/tags/{tag}", "--format=%(creatordate:iso-strict)").strip()
     if not made:

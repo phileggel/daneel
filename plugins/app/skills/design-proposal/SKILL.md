@@ -2,6 +2,10 @@
 name: design-proposal
 description: Produces the design proposal required before anything the user sees changes — rendered mocks of the target state in light and dark, plus a five-line note, posted on the issue — for an issue or a chat request. Invoked as `/app:design-proposal <id>` (an issue number, or a short slug for a chat request). The human validates; nothing visible is built before that.
 argument-hint: "[123 | slug]"
+allowed-tools:
+  - Bash(node ${CLAUDE_SKILL_DIR}/../visual-proof/scripts/visual-proof-capture.mjs *)
+  - Bash(npx vite *)
+  - Bash(curl *)
 ---
 
 # Skill — `design-proposal`
@@ -37,7 +41,7 @@ The output folder `{out}`: with `repo`, `{clone}/{id}` in a clone in the scratch
 background, wait until the preview answers, capture, stop Vite.
 
 ```bash
-VP_PORT={port} VP_HOST={host} VP_NAME={id} VP_STATES={state1,state2} VP_OUT_DIR={out} node ${CLAUDE_SKILL_DIR}/../visual-proof/scripts/visual-proof-capture.mjs
+node ${CLAUDE_SKILL_DIR}/../visual-proof/scripts/visual-proof-capture.mjs --port {vite_preview_port} --host {vite_preview_host} --name {id} --states {state1,state2} --out {out}
 ```
 
 Produces `{out}/{id}-{light|dark}-{state}.png`. Delete `preview.html` and

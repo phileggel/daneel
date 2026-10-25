@@ -1,7 +1,13 @@
 ---
 name: dep-audit
 description: Audit npm and Cargo dependencies for outdated versions and CVEs, with web-verified version data. Run at the point of the batch end the project's workflow names, or periodically during development.
-tools: Bash, Read, WebSearch
+allowed-tools:
+  - Bash(rustc --version)
+  - Bash(npm outdated)
+  - Bash(npm audit)
+  - Bash(cargo outdated)
+  - Bash(cargo audit)
+  - WebSearch
 ---
 
 # Skill — `dep-audit`
@@ -9,6 +15,10 @@ tools: Bash, Read, WebSearch
 Outdated versions and known CVEs in `package.json` and `src-tauri/Cargo.toml`. A version is
 never called latest or outdated from model knowledge, which may be months behind: each one
 reported is checked with WebSearch and cited with its source URL. The skill never upgrades.
+
+Settings, optional, under `dep-audit` in `.claude/daneel.json`: `licence_check`, the
+project's recipe that checks the shipped dependencies' licences (`just {licence_check}`),
+and `terms_doc`, the project's document of the services it calls and the data it copies.
 
 ## 1. Read and run
 
@@ -20,29 +30,29 @@ rustc --version
 ```
 
 ```bash
-npm outdated 2>/dev/null
+npm outdated
 ```
 
 ```bash
-npm audit 2>/dev/null
+npm audit
 ```
 
 ```bash
-cargo outdated 2>/dev/null
+cargo outdated
 ```
 
 ```bash
-cargo audit 2>/dev/null
+cargo audit
 ```
 
-When the project has a `licence-allowlist.json`, its own gate too:
+With `licence_check` set, that recipe too:
 
 ```bash
-just licence-check
+just {licence_check}
 ```
 
-It reports a shipped dependency whose licence is outside the allowlist. When the project
-has a `docs/external-dependencies.md`, re-read it — the terms of the services the
+It reports a shipped dependency whose licence the project does not allow. With
+`terms_doc` set, re-read it — the terms of the services the
 application calls and the reference data copied into the source, which no tool checks:
 report an item whose terms are unverified, or whose conditions the application no longer
 meets. A project with neither reports neither line.
@@ -67,7 +77,7 @@ CVEs (`{package} security advisory CVE`, osv.dev).
   placement changes the production bundle.
 - 🔵 **Minor drift** — the latest minor above the current one, same major.
 
-What a 🔴 CVE becomes is the project's call (its `docs/workflow.md`). The report gives its evidence:
+What a 🔴 CVE becomes is the owner's call (loop § 5). The report gives its evidence:
 whether the application reaches the vulnerable code, read in the code (the advisory's
 function is called, or never).
 

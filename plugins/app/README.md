@@ -1,7 +1,7 @@
 # app
 
-The addon for folioneer and PatientManager, two Tauri + React apps: what both run, and a
-project of another shape would not. Used with `flow`.
+The addon for Tauri + React apps: what such apps run, and a project of another shape
+would not. Used with `flow`.
 
 | Piece | What it does |
 | ----- | ------------ |
@@ -54,7 +54,7 @@ of `.claude/daneel.json`: extended regular expressions on the path from the repo
 root, which only add to the defaults (a lane name it does not know is an error):
 
 ```json
-{ "review": { "lanes": { "infra": ["^guide-ceilings\\.json$"], "security": ["^src-tauri/src/context/sync/"] } } }
+{ "review": { "lanes": { "infra": ["^tools/[^/]*\\.sh$"], "security": ["^src-tauri/src/auth/"] } } }
 ```
 
 In CI the workflow checks daneel out (see daneel's `README.md`), takes `.claude/daneel.json`

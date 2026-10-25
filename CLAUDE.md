@@ -3,8 +3,9 @@
 A Claude Code plugin marketplace: the flow shared by phileggel's projects.
 `README.md` says what it holds and how a project enables it.
 
-- Nothing here knows one project. A line naming folioneer, PatientManager or a
-  game belongs in that project, or in a setting the project gives the skill.
+- Nothing here knows one project, and nothing names one: not a skill, script, test,
+  changelog, manifest or README. A line that needs a project's name belongs in that
+  project, or in a setting the project gives the skill.
 - A skill comes here extracted from the projects' copies, with the differences
   between them measured and recorded in its pull request — never written
   generic first.

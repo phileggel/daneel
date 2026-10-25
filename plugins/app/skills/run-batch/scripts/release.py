@@ -241,7 +241,17 @@ def with_version(name: str, text: str, version: str) -> str:
         if not isinstance(top, dict) or "version" not in top:
             raise Stop(f'{name} carries no "version" under packages[""]')
         top["version"] = version
-    return json.dumps(data, indent=2, ensure_ascii=False) + "\n"
+    return json.dumps(data, indent=json_indent(text), ensure_ascii=False) + ("\n" if text.endswith("\n") else "")
+
+
+def json_indent(text: str) -> str | int:
+    """The indent the file is written with — its first indented line's — so the rewrite moves
+    nothing but the version; 2 for a file on one line."""
+    for line in text.splitlines()[1:]:
+        stripped = line.lstrip(" \t")
+        if stripped and stripped != line:
+            return line[: len(line) - len(stripped)]
+    return 2
 
 
 def write_versions(root: Path, settings: dict, version: str) -> list[str]:
@@ -253,10 +263,12 @@ def write_versions(root: Path, settings: dict, version: str) -> list[str]:
         path.write_text(with_version(name, path.read_text(encoding="utf-8"), version), encoding="utf-8")
         written.append(name)
         if version_kind(name) == "cargo":
-            out(path.parent, "cargo", "metadata", "--format-version", "1")
-            lock = Path(name).parent / "Cargo.lock"
-            if (root / lock).exists():
-                written.append(str(lock))
+            metadata = json.loads(out(path.parent, "cargo", "metadata", "--format-version", "1"))
+            lock = Path(metadata.get("workspace_root") or path.parent) / "Cargo.lock"
+            if lock.exists():
+                relative = str(lock.resolve().relative_to(root.resolve()))
+                if relative not in written:
+                    written.append(relative)
     return written
 
 
@@ -284,9 +296,22 @@ def runs_in_the_way(runs: list[dict]) -> list[str]:
     return obstacles
 
 
-def checks_verdict(checks: list[dict]) -> tuple[str, list[str]]:
+def required_checks(root: Path) -> list[str]:
+    """The checks `required-checks.json` at the checkout's root names (`{"checks": [...]}`),
+    as `merge.py` reads them; none when the file is absent."""
+    path = root / "required-checks.json"
+    if not path.exists():
+        return []
+    try:
+        return list(json.loads(path.read_text(encoding="utf-8"))["checks"])
+    except (ValueError, KeyError, TypeError) as exc:
+        raise Stop(f"required-checks.json cannot be read: {exc}")
+
+
+def checks_verdict(checks: list[dict], required: list[str] = ()) -> tuple[str, list[str]]:
     """A pull request's checks (`gh pr checks --json name,bucket,link`): pending while none
-    is listed or one runs; red with the failed ones named; else green."""
+    is listed, one runs, or a `required` one is not listed yet; red with the failed ones
+    named; else green."""
     if not checks:
         return "pending", []
     failed = [f"{c.get('name')}: {c.get('bucket')} — {c.get('link')}" for c in checks
@@ -295,10 +320,13 @@ def checks_verdict(checks: list[dict]) -> tuple[str, list[str]]:
         return "red", failed
     if any(c.get("bucket") == "pending" for c in checks):
         return "pending", []
+    if set(required) - {c.get("name") for c in checks}:
+        return "pending", []
     return "green", []
 
 
 def wait_for_checks(root: Path, number: str) -> None:
+    required = required_checks(root)
     waited = 0
     while True:
         listed = run(root, "gh", "pr", "checks", number, "--json", "name,bucket,link")
@@ -306,7 +334,7 @@ def wait_for_checks(root: Path, number: str) -> None:
             checks = json.loads(listed.stdout) if listed.stdout.strip() else []
         except json.JSONDecodeError:
             checks = []
-        verdict, failed = checks_verdict(checks)
+        verdict, failed = checks_verdict(checks, required)
         if verdict == "green":
             return
         if verdict == "red":

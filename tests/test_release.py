@@ -91,6 +91,10 @@ class VersionFiles(unittest.TestCase):
     def test_a_json_file_states_its_top_level_version(self):
         text = '{\n  "productName": "App",\n  "version": "1.0.0",\n  "app": {"version": "x"}\n}\n'
         self.assertEqual(json.loads(release.with_version("src-tauri/tauri.conf.json", text, "1.1.0"))["version"], "1.1.0")
+
+    def test_a_json_file_keeps_its_indent(self):
+        text = '{\n    "name": "a",\n    "version": "1.0.0"\n}\n'
+        self.assertEqual(release.with_version("tauri.conf.json", text, "1.1.0"), text.replace("1.0.0", "1.1.0"))
         self.assertEqual(release.read_version("package.json", '{"version": "3.2.1"}'), "3.2.1")
 
     def test_cargo_moves_the_package_version_alone(self):
@@ -142,6 +146,8 @@ class Runs(unittest.TestCase):
         self.assertEqual(release.checks_verdict([])[0], "pending")
         self.assertEqual(release.checks_verdict([{"bucket": "pass"}, {"bucket": "pending"}])[0], "pending")
         self.assertEqual(release.checks_verdict([{"bucket": "pass"}, {"bucket": "skipping"}])[0], "green")
+        self.assertEqual(release.checks_verdict([{"name": "Quality", "bucket": "pass"}], ["Quality", "Review"])[0], "pending")
+        self.assertEqual(release.checks_verdict([{"name": "Quality", "bucket": "pass"}], ["Quality"])[0], "green")
         verdict, failed = release.checks_verdict([{"name": "Quality", "bucket": "fail", "link": "l"}, {"bucket": "pending"}])
         self.assertEqual((verdict, len(failed)), ("red", 1))
 
@@ -351,14 +357,23 @@ class BatchEnd(unittest.TestCase):
     def batch_end(self):
         return subprocess.run(["bash", str(SCRIPTS / "batch-end.sh")], cwd=self.work, capture_output=True, text=True, env=self.env)
 
-    def test_a_fresh_main_is_tagged_once_a_day(self):
+    def test_a_fresh_main_is_tagged_once_per_commit(self):
         self.assertEqual(self.batch_end().returncode, 0)
         tags = self.git(self.origin, "tag").stdout.split()
         self.assertEqual(len(tags), 1)
         self.assertTrue(tags[0].startswith("batch/"))
         again = self.batch_end()
         self.assertEqual(again.returncode, 1)
-        self.assertIn("already exists", again.stderr)
+        self.assertIn("already ends a batch", again.stderr)
+
+    def test_a_second_batch_the_same_day_gets_its_own_tag(self):
+        self.assertEqual(self.batch_end().returncode, 0)
+        self.git(self.work, "commit", "-q", "--allow-empty", "-m", "chore: next")
+        self.git(self.work, "push", "-q", "origin", "main")
+        self.assertEqual(self.batch_end().returncode, 0)
+        tags = sorted(self.git(self.origin, "tag").stdout.split())
+        self.assertEqual(len(tags), 2)
+        self.assertTrue(tags[1].endswith(".2"))
 
     def test_a_main_ahead_of_origin_is_not_tagged(self):
         self.git(self.work, "commit", "-q", "--allow-empty", "-m", "chore: local")

@@ -2,7 +2,7 @@
 
 How a task moves through a Tauri + React app that runs `app` beside `flow`. The batch
 around it — ownership, issues, the Project, the backlog, budget and stop rules, the batch
-end, the audit — is `flow`'s method (`plugins/flow/method.md`). The project's rules
+end, the audit — is `flow`'s method (`method.md` in the `flow` plugin). The project's rules
 document names what is its own: its harness checks, its rules docs and IDs, where its
 mocks live, its release steps.
 
@@ -31,8 +31,9 @@ with every check green, merged by run-entry's `merge.py`.
    the fix's acceptance test; when the input holds private data, the agent says what it
    needs from it and how little.
 4. **Implement** to green, the right way (§ 4).
-5. **Self-check:** the scoped recipes while working, then `just harness` (§ 3). A run is
-   judged by its exit code, never by a line picked out of its output.
+5. **Self-check:** the scoped recipes while working, then the project's harness recipe
+   (`run-entry.recipes.harness`, default `just harness`; § 3). A run is judged by its
+   exit code, never by a line picked out of its output.
 6. **Self-review:** the reviewer lanes the diff needs (§ 5), again on the fixes until no
    🔴 remains.
 7. **Evidence:** `/app:visual-proof` for every changed component.
@@ -40,15 +41,15 @@ with every check green, merged by run-entry's `merge.py`.
    the task, each Done-when clause with the test that proves it and where it was seen red
    (or why it could not be), findings that changed something, issues filed, screenshots.
    The commit title is the changelog line.
-9. **Merge:** run-entry's `watch-pr.py` waits for the checks; each lane's newest comment, green or
-   not, is read and its findings graded (§ 5); then `merge.py` — it refuses until every
-   check is green and folds `fixup!` commits, so the task lands as one commit.
-10. **Closure** in the same PR: on an issue that touched a spec, `app:spec-checker` runs
-    first and what it finds is fixed; a coverage floor the run measured more than a
-    point above rises to half a point under that figure, never down; what the task met
-    and did not fix is folded or filed; `ARCHITECTURE.md` if a module appeared, the spec
-    if a rule changed. The closing brief says what changed for the user and what the
-    project gained.
+9. **Closure**, in the same PR before it merges: on an issue that touched a spec,
+   `app:spec-checker` runs first and what it finds is fixed; a coverage floor the run
+   measured more than a point above rises to half a point under that figure, never down;
+   what the task met and did not fix is folded or filed; `ARCHITECTURE.md` if a module
+   appeared, the spec if a rule changed.
+10. **Merge:** run-entry's `watch-pr.py` waits for the checks; each lane's newest comment,
+    green or not, is read and its findings graded (§ 5); then `merge.py` — it refuses
+    until every check is green and folds `fixup!` commits, so the task lands as one
+    commit. The closing brief says what changed for the user and what the project gained.
 
 **At a batch end**, before the method's release or batch tag: the release sweep
 (Conventions); for a release, `/app:dep-audit` on the final `main` once every pull
@@ -76,10 +77,10 @@ record.
 
 ## 3. The harness
 
-`just harness` runs it locally, scoped to the layers the branch touched; the same checks
-are required on every pull request (`required-checks.json`), and run-entry's `merge.py` refuses
+The harness recipe (`just {harness}`, `run-entry.recipes.harness`) runs it locally,
+scoped to the layers the branch touched; the same checks are required on every pull request (`required-checks.json`), and run-entry's `merge.py` refuses
 without them. The git hooks run only fast checks for the same scope. Nothing is run by
-hand just before a commit or a push: the hooks do it, and `just harness` is for wanting
+hand just before a commit or a push: the hooks do it, and the harness recipe is for wanting
 CI's answer before pushing. Every app's harness holds at least:
 
 - lint, format, types and build;
@@ -92,9 +93,11 @@ CI's answer before pushing. Every app's harness holds at least:
 - the reviewers (`review.yml`), one check per lane the diff touches, any 🔴 failing;
 - commit hygiene: a conventional title, no trailer;
 - dependency advisories (`security-audit.yml`), weekly;
-- the merge guard: run-entry's `merge.py` refuses unless the branch heads an open pull request with
-  every required check present and green; run-batch's `release.py` never pushes to `main`, nor does
-  `merge.py` unless the project sets `run-entry.land` to `"push"`.
+- the merge guard: run-entry's `merge.py` refuses unless the branch heads an open pull
+  request with every required check present and green.
+
+Neither script pushes to `main`: `release.py` never does, and `merge.py` only when the
+project sets `run-entry.land` to `"push"`.
 
 The project's rules document lists its own checks beside these.
 
@@ -121,9 +124,12 @@ The project's rules document lists its own checks beside these.
 
 ## 5. Reviewers and the triage policy
 
-Before the PR, run exactly the lanes `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files | bash
-${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh` prints (this plugin's scripts), and again on every fix before its push, until no 🔴
-remains: a file edited in answer to a finding goes back to its lane, a spec above all.
+Before the PR, run exactly the lanes this plugin's scripts print:
+
+    bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files | bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh
+
+and again on every fix before its push, until no 🔴 remains: a file edited in answer
+to a finding goes back to its lane, a spec above all.
 Once pushed, a fix is a `fixup!` commit pushed as is: CI runs the same lanes on every
 push, prompts from a pinned release, and a green CI needs no local run. A local reviewer
 gets the branch, the spec and the vocabulary, never a description of the change. Also:
@@ -226,9 +232,11 @@ is green.
 
 ### Release sweep
 
-Before a batch ends, run in `release-sweep` mode the lanes
-`git diff --name-only <tag>...HEAD | bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh` prints, `<tag>` the
-last batch end (`git describe --tags --abbrev=0 --match 'v*' --match 'batch/*'`), plus
+Before a batch ends, run in `release-sweep` mode the lanes this prints:
+
+    git diff --name-only <tag>...HEAD | bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh
+
+`<tag>` the last batch end (`git describe --tags --abbrev=0 --match 'v*' --match 'batch/*'`), plus
 `reviewer-security`, which reads the whole command surface; and `app:spec-checker` on
 every spec the batch touched. Each lane's `## Files read` goes into the closing brief.
 What they find is folded or filed, not fixed in the batch, but for the method's user-risk
@@ -238,7 +246,7 @@ case; a finding not critical and older than the batch is filed and reported, not
 ### Shell calls
 
 A headless run has nobody to approve a command, so every shell call is one command the
-allow list in `.claude/settings.json` names:
+skill's `allowed-tools` or the project's allow list (`.claude/settings.json`) names:
 
 - no `cd … &&`, no `&&`, `||`, `;` or `$(...)` chain, in a prompt as in a call (the allow
   list matches a literal prefix): `git -C <path>` reaches another directory, a multi-line

@@ -15,7 +15,7 @@
     {
       "name": "app",
       "source": "./plugins/app",
-      "description": "The addon for folioneer and PatientManager (Tauri + React): reviewers, visual proof, dependency audit. Used with flow."
+      "description": "The addon for Tauri + React apps: the loop, run-entry, run-batch, design-proposal, reviewers, visual proof, dependency audit. Used with flow."
     }
   ]
 }

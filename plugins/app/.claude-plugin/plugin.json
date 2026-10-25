@@ -1,7 +1,7 @@
 {
   "name": "app",
   "version": "0.1.0",
-  "description": "The addon for folioneer and PatientManager, Tauri + React apps: the reviewers (spec, contract, ADR, spec compliance, guides) with their protocol, visual proof, dependency audit.",
+  "description": "The addon for Tauri + React apps: the loop, run-entry, run-batch, design-proposal, the reviewers and stack lanes with their protocol, visual proof, dependency audit. Used with flow.",
   "author": { "name": "phileggel" },
   "repository": "https://github.com/phileggel/daneel",
   "license": "MIT"

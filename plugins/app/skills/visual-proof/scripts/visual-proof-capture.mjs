@@ -8,6 +8,10 @@
  * the visual-proof skill's Step 4, from the project's checkout; not intended for
  * direct CLI use.
  *
+ * Arguments (each also read from its environment variable, the argument first):
+ *   --port / VP_PORT, --host / VP_HOST, --name / VP_NAME, --states / VP_STATES,
+ *   --mask / VP_MASK, --out / VP_OUT_DIR.
+ *
  * Env contract:
  *   VP_PORT   — Vite preview port (required)
  *   VP_HOST   — Vite preview host (required)
@@ -33,15 +37,26 @@ import { join } from "node:path";
 // project's checkout (the working directory), never from this script's folder.
 const { chromium } = createRequire(join(process.cwd(), "package.json"))("playwright");
 
-const PORT = process.env.VP_PORT;
-const HOST = process.env.VP_HOST;
-const NAME = process.env.VP_NAME;
-const STATES = (process.env.VP_STATES || "idle").split(",");
-const MASK_SELECTORS = (process.env.VP_MASK || "").split(",").filter(Boolean);
-const OUT_DIR = process.env.VP_OUT_DIR || "screenshots";
+// `--port 1420` or `--port=1420`; a skill's allowed-tools can name the script with
+// its arguments, where an environment-variable prefix would not match.
+const ARGS = {};
+for (let i = 2; i < process.argv.length; i++) {
+  const match = /^--([a-z]+)(?:=(.*))?$/.exec(process.argv[i]);
+  if (!match) {
+    console.error(`error: unexpected argument ${process.argv[i]}`);
+    process.exit(2);
+  }
+  ARGS[match[1]] = match[2] ?? process.argv[++i];
+}
+const PORT = ARGS.port ?? process.env.VP_PORT;
+const HOST = ARGS.host ?? process.env.VP_HOST;
+const NAME = ARGS.name ?? process.env.VP_NAME;
+const STATES = (ARGS.states ?? process.env.VP_STATES ?? "idle").split(",");
+const MASK_SELECTORS = (ARGS.mask ?? process.env.VP_MASK ?? "").split(",").filter(Boolean);
+const OUT_DIR = ARGS.out ?? process.env.VP_OUT_DIR ?? "screenshots";
 
 if (!PORT || !HOST || !NAME) {
-  console.error("error: VP_PORT, VP_HOST, and VP_NAME are required");
+  console.error("error: --port, --host and --name (or VP_PORT, VP_HOST, VP_NAME) are required");
   process.exit(2);
 }
 

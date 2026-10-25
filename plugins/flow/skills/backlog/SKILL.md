@@ -7,8 +7,8 @@ allowed-tools: Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/backlog.py *)
 # Backlog ceiling
 
 The ceiling binds the coding agent alone (`${CLAUDE_SKILL_DIR}/../../method.md`, § 3).
-A project may set a healthy size (`backlog.target` in `.claude/daneel.json`): at or under it the agent files up to it; over it the ceiling
-shrinks the backlog back. Tickets the owner files — on GitHub, through
+A project may set a healthy size (`backlog.target` in `.claude/daneel.json`): at or
+under it the agent files up to it; over it the ceiling shrinks the backlog back. Tickets the owner files — on GitHub, through
 Cowork, by another session — raise it, as do the agent's tickets the owner asked for
 (`owner-asked`) and the waived ones.
 

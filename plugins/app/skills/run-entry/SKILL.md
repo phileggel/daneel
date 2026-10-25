@@ -1,6 +1,6 @@
 ---
 name: run-entry
-description: Runs one task end to end under the loop — branch, design gate, acceptance tests, implementation, harness, reviewers, PR, merge on green, closure. The task is the first ready Queued item of the Project (headless, no argument), an issue the human names (#123), or a plain request typed in chat. One task per invocation.
+description: Runs one task end to end under the loop — branch, design gate, acceptance tests, implementation, harness, reviewers, PR, closure, merge on green. The task is the first ready Queued item of the Project (headless, no argument), an issue the human names (#123), or a plain request typed in chat. One task per invocation.
 argument-hint: "[#123 | a request]"
 allowed-tools:
   - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py *)
@@ -43,7 +43,7 @@ checkout's root (`{"checks": [...]}`).
   question becomes a comment on the issue with `needs-owner` (method § 2).
 - **Chat, named issue** (`#123`): `gh issue view 123 --comments`.
 - **A Dependabot pull request** (queued or named): loop § Dependabot pull requests, not
-  Steps 1 to 9 — the diff, each pinned commit, `python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` on its branch, grade, merge.
+  Steps 1 to 10 — the diff, each pinned commit, `python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` on its branch, grade, merge.
 - **Chat, plain request**: the request is the task; no issue is created — the PR body
   is its record. Write its Done when into the opening brief.
 - **Decision scan**, for an issue, before the branch exists (method § 2). Chat: its
@@ -104,7 +104,7 @@ graded (loop § 5); again on the fixes before the first push until no 🔴 remai
 
 `/app:visual-proof` for every changed `.tsx` / `.css`. One commit (the commit rules).
 
-## Step 8 — Pull request and merge
+## Step 8 — Pull request and checks
 
 - Push, `gh pr create --body-file`: the body of loop § 1, step 8.
 - `python3 ${CLAUDE_SKILL_DIR}/scripts/watch-pr.py` in the background: exit 0 is green, 1 a
@@ -119,12 +119,11 @@ graded (loop § 5); again on the fixes before the first push until no 🔴 remai
   push adds observation and makes the failure cheap, never a fix (method § 4). Fix with
   `git commit --fixup <sha>` (never a new titled commit, never a force-push), push, watch
   again. The same gate red three times: open question, leave the PR open, stop.
-- All green: every lane's newest comment graded in a PR comment (loop § 1, step 9);
-  `python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` folds the fixups.
+- All green: every lane's newest comment graded in a PR comment (loop § 1, step 10).
 
 ## Step 9 — Closure
 
-In the same PR, before the merge, then the closing brief with the PR number:
+In the same PR, before the merge:
 
 - **The source docs still match the code**: spec, contract, an ADR for a hard technical
   choice, the architecture doc for a new module; the PR body says which, or "docs: none needed".
@@ -132,9 +131,16 @@ In the same PR, before the merge, then the closing brief with the PR number:
 - What the task met and did not fix is folded or filed as loop § 5 says (headless too), never
   left in chat; a task issue the work resolved is `Closes #NN` too.
 
+A closure commit is a `fixup!` pushed like any fix; once its checks are green again:
+
+## Step 10 — Merge
+
+`python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` folds the fixups and lands the pull
+request; then the closing brief with the PR number.
+
 ## Rules
 
 1. Headless never asks the human; questions are comments on the issue.
 2. The project's core rules and Step 5 hold, and the batch is never edited (method § 4).
-3. One task per invocation. Stop after Step 9.
+3. One task per invocation. Stop after Step 10.
 4. Method § 4's wall-clock budget per task; over it, open question and stop.
