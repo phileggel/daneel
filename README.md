@@ -47,10 +47,13 @@ In a project's `.claude/settings.json`, so headless runs and teammates get it to
 ```
 
 A skill or an agent is then named by its plugin, `/flow:flow-audit`, `app:spec-reviewer`.
-A headless run has nobody to approve a command: the project's allow list names the
-plugin's scripts (`Bash(python3 *flow-audit/scripts/flow-audit.py*)`,
-`Bash(bash *flow-audit/scripts/batch-ends.sh*)`, `Bash(bash *app/*/scripts/branch.sh *)`,
-`Bash(bash *app/*/scripts/review-path.sh *)`).
+A project adds no allow-list line for a plugin's scripts: a skill's `allowed-tools`
+already lets them run, forked and headless too (`flow-audit` under `claude -p`,
+PatientManager, 2026-10-25). Never add a line of the shape
+`Bash(python3 *<script>*)` or `Bash(bash *<script>*)`: its leading wildcard also allows
+`python3 -c '<anything>' <script>`. The `app` agents' scripts (`branch.sh`,
+`review-path.sh`) are not measured yet; they are checked the same way before a project
+enables `app`.
 
 What differs between projects is the project's own: `.claude/daneel.json` (one key per
 skill: `flow-audit`, `plan-batch`), and `.claude/visual-proof.json` for `visual-proof`.
