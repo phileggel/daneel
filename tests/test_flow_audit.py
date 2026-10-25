@@ -1,6 +1,9 @@
 """Tests for the flow-audit skill's script — run with `python3 -m unittest discover -s tests`."""
 
+import contextlib
 import importlib.util
+import io
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -193,7 +196,7 @@ class MeasureCiTest(unittest.TestCase):
         self.assertEqual(figures["failures_by_workflow"], {"E2E": 1, "Quality": 1, "Review": 1})
         self.assertEqual(figures["cancelled_by_workflow"], {"E2E": 1})
 
-    def test_flow_057_the_failed_attempts_of_a_run_re_run_are_counted_and_the_run_printed(self):
+    def test_the_failed_attempts_of_a_run_re_run_are_counted_and_the_run_printed(self):
         reruns = [
             {"workflowName": "Review", "headBranch": "branch-101", "event": "pull_request",
              "createdAt": "2026-10-04T08:01:00Z", "attempts": ["failure"]},
@@ -214,12 +217,12 @@ class MeasureCiTest(unittest.TestCase):
 
 
 class MeasureOpenTest(unittest.TestCase):
-    """FLOW-042: how many issues and Dependabot pull requests were open when the batch started and ended."""
+    """How many issues and Dependabot pull requests were open when the batch started and ended."""
 
     def item(self, created, closed=None):
         return {"createdAt": created, "closedAt": closed}
 
-    def test_flow_042_an_item_is_open_from_its_creation_until_it_is_closed(self):
+    def test_an_item_is_open_from_its_creation_until_it_is_closed(self):
         items = [
             self.item("2026-10-01T00:00:00Z"),  # open throughout
             self.item("2026-10-01T00:00:00Z", "2026-10-04T00:00:00Z"),  # closed during the batch
@@ -229,7 +232,7 @@ class MeasureOpenTest(unittest.TestCase):
         ]
         self.assertEqual(flow_audit.measure_open(items, SINCE, UNTIL), {"at_start": 2, "at_end": 2})
 
-    def test_flow_042_only_the_bot_s_pull_requests_are_dependabot_s(self):
+    def test_only_the_bot_s_pull_requests_are_dependabot_s(self):
         pulls = [
             {"author": {"login": "app/dependabot"}, "createdAt": "2026-10-01T00:00:00Z", "closedAt": None},
             {"author": {"login": "owner"}, "createdAt": "2026-10-01T00:00:00Z", "closedAt": None},
@@ -239,7 +242,7 @@ class MeasureOpenTest(unittest.TestCase):
 
 
 class MeasureBacklogTest(unittest.TestCase):
-    """Ticket #492: the open backlog counted by size, against a ceiling only the owner raises."""
+    """The open backlog counted by size, against a ceiling only the owner raises."""
 
     def issue(self, created, closed=None, labels=(), subs=()):
         return {
@@ -249,7 +252,7 @@ class MeasureBacklogTest(unittest.TestCase):
             "subIssues": [{"createdAt": c, "closedAt": d} for c, d in subs],
         }
 
-    def test_ticket_492_each_open_ticket_weighs_its_size_and_an_unsized_one_an_m(self):
+    def test_each_open_ticket_weighs_its_size_and_an_unsized_one_an_m(self):
         issues = [
             self.issue("2026-10-01T00:00:00Z", labels=["task", "size:S"]),
             self.issue("2026-10-01T00:00:00Z", labels=["bug", "size:M"]),
@@ -262,7 +265,7 @@ class MeasureBacklogTest(unittest.TestCase):
         backlog = flow_audit.backlog.measure_backlog(issues, SINCE, UNTIL)
         self.assertEqual((backlog["at_start"], backlog["at_end"]), (17, 17))
 
-    def test_ticket_492_a_parent_weighs_nothing_while_a_slice_is_open(self):
+    def test_a_parent_weighs_nothing_while_a_slice_is_open(self):
         parent = self.issue(
             "2026-10-01T00:00:00Z",
             labels=["size:XL"],
@@ -271,7 +274,7 @@ class MeasureBacklogTest(unittest.TestCase):
         backlog = flow_audit.backlog.measure_backlog([parent], SINCE, UNTIL)
         self.assertEqual((backlog["at_start"], backlog["at_end"]), (0, 8))
 
-    def test_ticket_492_only_the_owner_s_additions_raise_the_ceiling(self):
+    def test_only_the_owner_s_additions_raise_the_ceiling(self):
         issues = [
             self.issue("2026-10-01T00:00:00Z", labels=["size:M"]),
             self.issue("2026-10-04T00:00:00Z", labels=["size:L", "owner-asked"]),  # asked during the batch
@@ -283,6 +286,17 @@ class MeasureBacklogTest(unittest.TestCase):
         self.assertEqual(backlog["ceiling"], 14)
         self.assertEqual(backlog["at_end"], 15)
         self.assertFalse(backlog["within_ceiling"])
+
+    def test_daneel_ticket_13_under_its_target_the_backlog_may_grow_to_it(self):
+        issues = [
+            self.issue("2026-10-01T00:00:00Z", labels=["size:M"]),
+            self.issue("2026-10-04T00:00:00Z", labels=["size:L", "agent-filed"]),
+        ]
+        grown = flow_audit.backlog.measure_backlog(issues, SINCE, UNTIL, target=10)
+        self.assertEqual((grown["ceiling"], grown["at_end"], grown["room"]), (10, 6, 4))
+        over = flow_audit.backlog.measure_backlog(issues, SINCE, UNTIL, target=1)
+        self.assertEqual(over["ceiling"], 2)
+        self.assertFalse(over["within_ceiling"])
 
     def test_daneel_ticket_3_the_block_says_what_was_added_and_removed(self):
         issues = [
@@ -308,18 +322,18 @@ class MeasureBacklogTest(unittest.TestCase):
 
 
 class QueueFiguresTest(unittest.TestCase):
-    """FLOW-045: how long the batch took."""
+    """How long the batch took."""
 
-    def test_flow_045_the_queue_runs_from_the_first_opening_to_the_last_merge(self):
+    def test_the_queue_runs_from_the_first_opening_to_the_last_merge(self):
         figures = flow_audit.measure_pull_requests(PULL_REQUESTS, SINCE, UNTIL)
         # 101 opened at 08:00, 103 merged at 11:20.
         self.assertEqual(figures["minutes_first_opened_to_last_merged"], 200.0)
 
-    def test_flow_045_an_empty_window_has_no_queue_time(self):
+    def test_an_empty_window_has_no_queue_time(self):
         self.assertIsNone(flow_audit.measure_pull_requests([], SINCE, UNTIL)["minutes_first_opened_to_last_merged"])
 
 class LaterRoundsTest(unittest.TestCase):
-    """FLOW-020 — each round after a branch's first is sorted by what caused it."""
+    """Each round after a branch's first is sorted by what caused it."""
 
     RUNS = [
         # branch-a: a red first round, a fix after it, then a rebase.
@@ -338,21 +352,21 @@ class LaterRoundsTest(unittest.TestCase):
     def relation(cls, before, sha):
         return cls.RELATIONS.get((before, sha))
 
-    def test_flow_020_sorts_each_later_round_by_its_cause(self):
+    def test_sorts_each_later_round_by_its_cause(self):
         sorted_rounds = flow_audit.sort_later_rounds(self.RUNS, self.relation)
         self.assertEqual(
             sorted_rounds,
             {"after_a_failed_check": 1, "rebase": 1, "fix": 1, "unreadable": 0},
         )
 
-    def test_flow_020_a_comparison_github_cannot_give_is_counted_apart(self):
+    def test_a_comparison_github_cannot_give_is_counted_apart(self):
         sorted_rounds = flow_audit.sort_later_rounds(self.RUNS, lambda before, sha: None)
         self.assertEqual(
             sorted_rounds,
             {"after_a_failed_check": 1, "rebase": 0, "fix": 0, "unreadable": 2},
         )
 
-    def test_flow_020_a_window_s_figures_carry_the_sort_when_commits_can_be_compared(self):
+    def test_a_window_s_figures_carry_the_sort_when_commits_can_be_compared(self):
         prs = [
             pull_request(1, "feat: a", "2026-10-04T09:00:00Z", merged="2026-10-04T13:00:00Z", branch="branch-a"),
             pull_request(2, "fix: b", "2026-10-04T09:00:00Z", merged="2026-10-04T14:00:00Z", branch="branch-b"),
@@ -392,7 +406,7 @@ class SettingsTest(unittest.TestCase):
 
 
 class KnownToolsTest(unittest.TestCase):
-    """FLOW-035 — the tools the usage log can name are the project's, never the plugin's."""
+    """The tools the usage log can name are the project's, never the plugin's."""
 
     def test_only_scripts_that_log_themselves_and_logged_recipes_are_known(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -478,7 +492,7 @@ class MeasureUsageTest(unittest.TestCase):
         self.assertEqual(self.figures["runs"], {"check.py": 2, "format": 1, "test-scripts": 2})
         self.assertEqual(self.figures["failed"], {"check.py": 1})
 
-    def test_flow_047_a_recipe_that_started_is_a_run_with_no_outcome_not_a_failure(self):
+    def test_a_recipe_that_started_is_a_run_with_no_outcome_not_a_failure(self):
         self.assertNotIn("test-scripts", self.figures["failed"])
         self.assertEqual(self.figures["no_outcome"], {"test-scripts": 2})
         self.assertEqual(self.figures["runs"]["test-scripts"], 2)
@@ -527,7 +541,7 @@ class TruncatedTest(unittest.TestCase):
         late = [{"createdAt": "2026-10-04T00:00:00Z"}] * flow_audit.RUN_LIMIT
         self.assertEqual(flow_audit.truncated([], late, [], SINCE), ["workflow runs"])
 
-    def test_flow_053_a_full_list_of_issues_that_starts_too_late_is_reported_too(self):
+    def test_a_full_list_of_issues_that_starts_too_late_is_reported_too(self):
         late = [{"createdAt": "2026-10-04T00:00:00Z"}] * flow_audit.ISSUE_LIMIT
         self.assertEqual(flow_audit.truncated([], [], late, SINCE), ["issues"])
 
@@ -539,33 +553,78 @@ class TruncatedTest(unittest.TestCase):
 
 
 class RangeEndTest(unittest.TestCase):
-    def test_flow_074_a_batch_tag_is_dated_by_the_tag_not_a_release(self):
+    def test_a_batch_tag_is_dated_by_the_tag_not_a_release(self):
         with mock.patch.object(
             flow_audit, "_git", return_value="2026-10-20T18:00:00+02:00\n"
         ) as git, mock.patch.object(flow_audit, "_gh_json") as gh:
             moment = flow_audit.batch_end_moment("batch/2026-10-20")
         self.assertEqual(moment, flow_audit.parse_moment("2026-10-20T16:00:00Z"))
-        git.assert_called_once()
+        git.assert_called_once_with(
+            "for-each-ref", "refs/tags/batch/2026-10-20", "--format=%(creatordate:iso-strict)"
+        )
         gh.assert_not_called()
 
-    def test_flow_074_a_batch_tag_without_a_date_stops_the_audit(self):
+    def test_a_batch_tag_without_a_date_stops_the_audit(self):
         with mock.patch.object(flow_audit, "_git", return_value="\n"):
             with self.assertRaises(SystemExit):
                 flow_audit.batch_end_moment("batch/2026-10-20")
 
-    def test_a_version_tag_is_dated_by_its_publication(self):
+    def test_daneel_ticket_13_a_release_is_dated_by_its_tag_draft_or_not(self):
         with mock.patch.object(
-            flow_audit, "_gh_json", return_value={"publishedAt": "2026-10-17T11:11:19Z"}
-        ):
+            flow_audit, "_git", return_value="2026-10-17T11:11:19+00:00\n"
+        ), mock.patch.object(flow_audit, "_gh_json") as gh:
             moment = flow_audit.batch_end_moment("v0.24.7")
         self.assertEqual(moment, flow_audit.parse_moment("2026-10-17T11:11:19Z"))
+        gh.assert_not_called()
 
-    def test_a_draft_release_stops_the_audit_at_once(self):
-        with mock.patch.object(
-            flow_audit, "_gh_json", return_value={"publishedAt": None, "isDraft": True}
-        ):
-            with self.assertRaisesRegex(SystemExit, "is a draft"):
-                flow_audit.batch_end_moment("v0.26.1")
+
+class BacklogBeforeTheFirstBatchEndTest(unittest.TestCase):
+    """Before any batch end, the backlog has nothing to shrink from: only the target holds."""
+
+    backlog = flow_audit.backlog
+
+    def run_check(self, size, target, issues):
+        out = io.StringIO()
+        with mock.patch.object(self.backlog, "project_root", return_value=Path("/nowhere")), \
+                mock.patch.object(self.backlog, "load_settings",
+                                  return_value={**self.backlog.SETTINGS, "target": target}), \
+                mock.patch.object(self.backlog, "last_batch_end", return_value=None), \
+                mock.patch.object(self.backlog, "collect_backlog", return_value=issues), \
+                contextlib.redirect_stdout(out):
+            code = self.backlog.main(["check", size])
+        return code, out.getvalue()
+
+    def test_no_tag_means_no_batch_end_yet(self):
+        done = subprocess.CompletedProcess([], 0, stdout="\n", stderr="")
+        with mock.patch.object(self.backlog.subprocess, "run", return_value=done) as run:
+            self.assertIsNone(self.backlog.last_batch_end())
+        self.assertIn("refs/tags/v*", run.call_args.args[0])
+
+    def test_without_a_target_a_ticket_fits(self):
+        code, out = self.run_check("L", None, [])
+        self.assertEqual(code, 0)
+        self.assertIn("fits", out)
+
+    def test_a_target_bounds_the_backlog(self):
+        code, out = self.run_check("XL", 1, [])
+        self.assertIn("does not fit", out)
+
+
+class CollectReleaseTest(unittest.TestCase):
+    """Daneel ticket #13: the draft release is audited, its publishing never."""
+
+    def test_a_release_is_read_as_made_and_its_publishing_is_left_out(self):
+        draft = {"tagName": "v1.2.0", "name": "v1.2.0", "isDraft": True, "createdAt": "2026-10-20T10:00:00Z",
+                 "body": "## Fixed", "assets": [{"name": "app.msi"}], "url": "u"}
+        with mock.patch.object(flow_audit, "_gh_json", return_value=draft):
+            release = flow_audit.collect_release("v1.2.0")
+        self.assertEqual(release["assets"], ["app.msi"])
+        self.assertNotIn("isDraft", release)
+
+    def test_a_batch_tag_has_no_release(self):
+        with mock.patch.object(flow_audit, "_gh_json") as gh:
+            self.assertIsNone(flow_audit.collect_release("batch/2026-10-20"))
+        gh.assert_not_called()
 
 
 def connection(nodes, total=None):

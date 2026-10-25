@@ -1,0 +1,30 @@
+{
+  "words": {
+    "plugins/app/agents/adr-reviewer.md": 562,
+    "plugins/app/agents/contract-reviewer.md": 608,
+    "plugins/app/agents/reviewer-arch.md": 483,
+    "plugins/app/agents/reviewer-backend.md": 441,
+    "plugins/app/agents/reviewer-e2e.md": 395,
+    "plugins/app/agents/reviewer-frontend.md": 710,
+    "plugins/app/agents/reviewer-guides.md": 630,
+    "plugins/app/agents/reviewer-infra.md": 1447,
+    "plugins/app/agents/reviewer-security.md": 765,
+    "plugins/app/agents/reviewer-sql.md": 427,
+    "plugins/app/agents/spec-checker.md": 422,
+    "plugins/app/agents/spec-reviewer.md": 754,
+    "plugins/app/loop.md": 2296,
+    "plugins/app/protocol.md": 1041,
+    "plugins/app/skills/dep-audit/SKILL.md": 657,
+    "plugins/app/skills/design-proposal/SKILL.md": 577,
+    "plugins/app/skills/run-batch/SKILL.md": 707,
+    "plugins/app/skills/run-entry/SKILL.md": 1202,
+    "plugins/app/skills/visual-proof/SKILL.md": 731,
+    "plugins/flow/method.md": 2475,
+    "plugins/flow/skills/backlog/SKILL.md": 148,
+    "plugins/flow/skills/flow-audit/SKILL.md": 783,
+    "plugins/flow/skills/flow-audit/audit.md": 703,
+    "plugins/flow/skills/init/SKILL.md": 569,
+    "plugins/flow/skills/plan-batch/SKILL.md": 724,
+    "CLAUDE.md": 598
+  }
+}

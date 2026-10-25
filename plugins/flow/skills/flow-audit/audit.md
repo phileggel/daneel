@@ -13,8 +13,8 @@ and effort. Nothing of it runs during a batch.
   issues and Dependabot pull requests, the backlog by size against its ceiling, the usage
   log, dead paths and the guides' length; and reads the records the auditor judges (the
   pull requests with their reviews, the issues with their threads) in a few calls, so the
-  auditor reads one document instead of gathering it. A batch end not yet published
-  stops it at once. The auditor counts from the pull requests what
+  auditor reads one document instead of gathering it. A batch end is dated by its
+  tag, a release published or not. The auditor counts from the pull requests what
   the reviewers caught, got wrong and left to CI, and reads each generic piece of the
   guide that lists the agent's tools, if the project has one, against its line.
 - **Six questions**, asked of every batch: what would have avoided a conflict; where it
@@ -43,7 +43,7 @@ queued. One done, or whose verdict is to keep things as they are, is closed.
 ## What the project provides
 
 - A git checkout with an `origin` on GitHub, and `gh` signed in to it.
-- Batch ends as tags: releases `v*` published on GitHub, or `batch/<date>` tags.
+- Batch ends as tags: releases `v*` (published or still a draft) or `batch/<date>` tags, each dated by its tag.
 - Pull requests whose CI runs one workflow on every push (`round_workflow`, default
   `Quality`), and a `batch-audit` label.
 - Optionally `logs/usage.log` (local, never committed): one line per run of a project

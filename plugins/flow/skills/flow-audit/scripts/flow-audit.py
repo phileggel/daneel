@@ -19,8 +19,7 @@ Usage, from the project's checkout:
     python3 <skill>/scripts/flow-audit.py v0.5.0 v0.6.0 --previous v0.4.0
     python3 <skill>/scripts/flow-audit.py v0.5.0 --pretty
 
-A release is named by its tag; its moment is when it was published on GitHub, and a
-draft stops the script at once. A batch
+A release is named by its tag, dated by the tag, published or not. A batch
 that ended without a release is named by its `batch/<date>` tag, dated by the tag. The skill
 posts the figures on the batch's `batch-audit` issue. This script has
 no judgment — only counting.
@@ -191,10 +190,10 @@ def measure_pull_requests(
 
 
 def sort_later_rounds(runs: list[dict], relation: Callable[[str, str], str | None]) -> dict:
-    """FLOW-020 — why each round after a branch's first came: after a failed check of the
+    """Why each round after a branch's first came: after a failed check of the
     round before (a failed run of any workflow on its commit); a rebase, when the round's
     commit does not descend from the round before (the branch was rewritten onto another
-    base, the push of `just merge` among them); a fix, a commit pushed on top; or unreadable,
+    base, the push of `merge.py` among them); a fix, a commit pushed on top; or unreadable,
     when `relation(before, sha)` — GitHub's comparison of the two commits, `ahead`,
     `diverged`, … — cannot be read, so that a comparison GitHub refused never passes for a fix.
     """
@@ -242,8 +241,8 @@ def measure_ci(
     window loses the rounds it ran before it. A failure is counted per run, so a commit
     run again after a failure counts once as a round and once per failed run. `gh run list`
     shows a run's last attempt only: `reruns` carries the earlier attempts of each run that
-    was re-run (`collect_reruns`), and their failures count too (FLOW-057). With
-    `relation`, the rounds beyond the first are sorted by their cause (FLOW-020).
+    was re-run (`collect_reruns`), and their failures count too. With
+    `relation`, the rounds beyond the first are sorted by their cause.
     """
     branches = {
         pr["headRefName"]
@@ -316,7 +315,7 @@ def _open_at(item: dict, moment: datetime) -> bool:
 
 
 def measure_open(items: list[dict], since: datetime, until: datetime) -> dict:
-    """How many of `items` were open when the window started and when it ended (FLOW-042)."""
+    """How many of `items` were open when the window started and when it ended."""
     return {
         "at_start": sum(_open_at(item, since) for item in items),
         "at_end": sum(_open_at(item, until) for item in items),
@@ -356,7 +355,7 @@ def measure_usage(
     The log is local and written outside CI only: a tool that only CI runs is never
     seen, and a log that starts after `since` covers part of the window. A recipe that
     runs no script of its own logs `started` and nothing else: a run with no outcome,
-    counted apart, never as a failure (FLOW-047).
+    counted apart, never as a failure.
     """
     runs: dict[str, int] = {}
     failed: dict[str, int] = {}
@@ -500,7 +499,7 @@ def _gh_json_lines(*args: str) -> list[dict]:
 
 @functools.lru_cache(maxsize=None)
 def compared(before: str, sha: str) -> str | None:
-    """FLOW-020 — how GitHub relates commit `sha` to `before` (`ahead`, `diverged`, …),
+    """How GitHub relates commit `sha` to `before` (`ahead`, `diverged`, …),
     read once per pair; None when it cannot say (a commit no longer on GitHub)."""
     try:
         result = subprocess.run(
@@ -662,6 +661,27 @@ def collect_records(pull_requests: list[dict], since: datetime, until: datetime)
     }
 
 
+def collect_release(tag: str | None) -> dict | None:
+    """The batch's release as it was left — its notes and assets, draft or published; the
+    audit judges what was made, never whether the owner has published it. None for a
+    `batch/<date>` tag or an open window."""
+    if not tag or not tag.startswith("v"):
+        return None
+    release = _gh_json(
+        "release", "view", tag, "--json", "tagName,name,isDraft,createdAt,body,assets,url"
+    )
+    if not isinstance(release, dict):
+        return {"tag": tag, "missing": True}
+    return {
+        "tag": release.get("tagName", tag),
+        "name": release.get("name"),
+        "created_at": release.get("createdAt"),
+        "body": release.get("body"),
+        "assets": [asset.get("name") for asset in release.get("assets") or []],
+        "url": release.get("url"),
+    }
+
+
 def collect_reruns(earliest: datetime) -> list[dict]:
     """The runs re-run since `earliest`, each with the conclusions of its earlier attempts.
 
@@ -693,24 +713,13 @@ BATCH_TAG_PREFIX = "batch/"
 
 
 def batch_end_moment(tag: str) -> datetime:
-    """When the batch end `tag` happened: a release's publication on GitHub, or the
-    tagger date of a `batch/<date>` tag for a batch that ended without one (FLOW-074)."""
-    if tag.startswith(BATCH_TAG_PREFIX):
-        made = _git(
-            "for-each-ref", f"refs/tags/{tag}", "--format=%(taggerdate:iso-strict)"
-        ).strip()
-        if not made:
-            raise SystemExit(f"flow-audit: batch tag {tag} has no tagger date")
-        return parse_moment(made)
-    release = _gh_json("release", "view", tag, "--json", "publishedAt,isDraft")
-    if isinstance(release, dict) and release.get("isDraft"):
-        raise SystemExit(
-            f"flow-audit: release {tag} is a draft; the audit runs once it is published"
-        )
-    published = release.get("publishedAt") if isinstance(release, dict) else None
-    if not published:
-        raise SystemExit(f"flow-audit: release {tag} has no publication date")
-    return parse_moment(published)
+    """When the batch end `tag` happened: the tag's date, a release's `v*` tag or a
+    `batch/<date>` tag alike. A release is the agent's once it is tagged;
+    publishing it is the owner's and no figure waits on it."""
+    made = _git("for-each-ref", f"refs/tags/{tag}", "--format=%(creatordate:iso-strict)").strip()
+    if not made:
+        raise SystemExit(f"flow-audit: no tag {tag} in this checkout (git fetch --tags)")
+    return parse_moment(made)
 
 
 def collect() -> tuple[list[dict], list[dict]]:
@@ -780,9 +789,11 @@ def main(argv: list[str] | None = None) -> int:
     }
     own = backlog.load_settings(ROOT)
     report["current"]["backlog"] = backlog.measure_backlog(
-        backlog.collect_backlog(), since, until, own["coder_mark"], tuple(own["waived"])
+        backlog.collect_backlog(), since, until, own["coder_mark"], tuple(own["waived"]),
+        own["target"],
     )
     report["records"] = collect_records(pull_requests, since, until)
+    report["records"]["release"] = collect_release(args.until)
     report["repository"] = measure_repository(
         since, until, args.until or "HEAD", args.since
     )

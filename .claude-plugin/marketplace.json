@@ -10,7 +10,12 @@
     {
       "name": "flow",
       "source": "./plugins/flow",
-      "description": "Working on a project with agents: plan a batch, check the backlog, review the guides, audit the batch."
+      "description": "Working on any project with agents: plan a batch, check the backlog, audit the batch."
+    },
+    {
+      "name": "app",
+      "source": "./plugins/app",
+      "description": "The addon for Tauri + React apps: the loop, run-entry, run-batch, design-proposal, reviewers, visual proof, dependency audit. Used with flow."
     }
   ]
 }

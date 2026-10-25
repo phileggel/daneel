@@ -32,8 +32,9 @@ set -euo pipefail
 # Why a script (vs inline shell in agent prompts):
 #   Compound shell ($(...), &&, ||, ;) cannot be safely allowlisted in
 #   Claude Code's permission system, which matches by literal prefix. A
-#   literal `bash <plugin>/scripts/branch.sh diff foo.ts` call IS allowlistable
-#   as `Bash(bash */scripts/branch.sh *)`. One entry covers every consumer.
+#   literal `bash <plugin>/scripts/branch.sh diff foo.ts` call is allowed by the
+#   calling skill's `allowed-tools` (`Bash(bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh *)`),
+#   never by a leading-wildcard allow-list line.
 
 usage() {
     echo "usage: bash branch.sh {base|diff <paths>|log|files [--match RE] [--exclude RE] [--uncommitted-only]}" >&2

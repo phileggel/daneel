@@ -24,8 +24,9 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/flow-audit.py <start> <end> --previous <prev
 `<end>`, `<start>`, `<previous>`: the lines `batch-ends.sh` prints, in that order;
 `${CLAUDE_SKILL_DIR}/scripts/flow-audit.py` says what each figure is. If it fails, stop
 at once and reply with its message: hand-gathered figures are not comparable. Never wait
-for a release or a CI run, never retry and never publish anything: a batch end that is
-not published yet is the session's step, and the audit is run again after it. A
+for a release or a CI run, never retry and never publish anything: a release is audited from its tag and its
+draft (`records.release`: notes, assets), and whether the owner has published it is
+never a finding. A
 `truncated` list is said beside the oldest figures.
 
 ## Step 2 — Read the records
@@ -42,9 +43,9 @@ in the session's scratchpad, never `/tmp`):
   `open_flow`: the open `flow` issues.
 
 Fetch from GitHub only what they lack: an item whose `cut` names a list GitHub gave in
-part, or a record the window does not hold. Then read `${CLAUDE_SKILL_DIR}/audit.md` and
-the project's rules the batch was run under: the guides `repository.guides` lists (its
-`guides` setting).
+part, or a record the window does not hold. Then read `${CLAUDE_SKILL_DIR}/audit.md`,
+the method the batch was run under (`${CLAUDE_SKILL_DIR}/../../method.md`) and the
+project's own rules: the guides `repository.guides` lists (its `guides` setting).
 
 ## Step 3 — Count
 
@@ -69,7 +70,7 @@ What the records cannot show is itself a finding: name it, and where it belonged
 The owner's six questions (`audit.md`), each answered with its figure or
 "nothing to change". Then each open flow issue: settled by a change of the batch, or
 left. Then the issues to propose — the three strongest (`audit.md`, Hard points), only
-where a figure moved the wrong way, a rule of the project's guides was not
+where a figure moved the wrong way, a rule of the method or the project's guides was not
 followed, a guide was wrong, or the owner corrected the flow. "Keep" is a verdict: propose nothing for it. A rule not followed is
 stated as plainly as a figure — who was to do what, which pull request shows it, what it
 cost — and never softened because the same agent family did the work.
@@ -85,5 +86,5 @@ batch-audit --title "Batch <dates>"` first if it has none): `## Measured`, each 
   for the owner; the audit comment links them.
 - Then empty `logs/usage.log` (local, never committed): its figures are recorded.
 
-Reply with the audit's link and the issues filed. Nothing is committed, no figure is
-one the script did not print or you did not count, and no proposal is applied.
+Reply with the audit's link and the issues filed. Nothing is committed and no proposal
+is applied.

@@ -1,6 +1,6 @@
 ---
 name: reviewer-guides
-description: Guides lane — the documents and prompts the agent works from (the project's `guides` list: its rules, workflow, skills, agent prompts). Checks a statement against the document that owns its rule, a rule restated instead of named, a name or responsibility that differs from the setup document, and length. `release-sweep` in the prompt reads the guides changed since the last batch end's tag (`v*` or `batch/<date>`), every finding with a severity.
+description: Guides lane — the documents and prompts the agent works from (the project's `guides` list: its rules, workflow, skills, agent prompts). Checks a statement against the document that owns its rule, a rule restated instead of named, a name or responsibility that differs from the setup document, and length.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -20,7 +20,7 @@ its line. A setting the project does not give skips the check that needs it.
 
 ## Checks
 
-Read the whole changed guide, its frontmatter description included, then every sentence the diff adds. Report every instance of a kind in one pass: a second review must not find the same fault three lines lower.
+Read the whole changed guide, its frontmatter description included, then every sentence the diff adds. Report every instance of a kind in one pass.
 
 1. **Contradiction** — a statement that disagrees with the document that owns the rule (as the `owners` document assigns it; without one, the document the statement names, or the project's top-level rules) 🔴. Open the owning document and quote the sentence it contradicts. A qualification a skill adds to a rule is one unless the owning section states it; so is a rules document qualifying a branch name, a forbidden action or a budget that the top-level rules state without it. A scope the diff widens ("before a release" → every batch end) is searched in the owning document and the documents it names, on the lines the diff did not touch too.
 2. **Restated rule** — a rule written out where it should be named and pointed to 🟡; restated without one of its conditions 🔴.
