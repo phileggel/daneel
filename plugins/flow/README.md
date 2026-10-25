@@ -6,6 +6,7 @@ auditing it: kept once here instead of copied into each repository.
 | Piece | What it does |
 | ----- | ------------ |
 | `/flow:plan-batch` | Shows where the GitHub Project stands and proposes the next batch for the owner to approve in chat; on the yes, sets it on the Project. Needs `plan-batch.owner` and `.number` in `.claude/daneel.json`. |
+| `/flow:backlog` | Before the coding agent files a ticket, checks its size fits under the backlog ceiling; the batch-end audit reports the same count. Optional settings `backlog.coder_mark` (default `agent-filed`) and `backlog.waived` (default `security`, `data-loss`). |
 | `/flow:flow-audit` | After a batch ends, judges it from its records alone — `flow-audit.py`'s figures and records — in a forked context, posts the audit on the batch's `batch-audit` issue and files the flow issues it proposes. |
 | `flow:spec-reviewer` | A spec, before its contract: complete, consistent, implementable |
 | `flow:contract-reviewer` | A contract against its spec: coverage, errors, types |

@@ -1,6 +1,6 @@
 ---
 name: spec-checker
-description: Verifies that all business rules (TRIGRAM-NNN, e.g. ORD-010, ORD-020) in a feature spec doc are fully implemented in code and covered by tests. Use when implementation is complete and ready for spec compliance check.
+description: Verifies that all business rules (numbered as the project's spec conventions say, e.g. ORD-010) in a feature spec doc are fully implemented in code and covered by tests. Use when implementation is complete and ready for spec compliance check.
 tools: Read, Grep, Glob, Bash
 model: opus
 ---
@@ -12,9 +12,9 @@ show does not exist — and cite file and line for every finding.
 
 ## Step 1 — Read
 
-Every TRIGRAM-NNN rule of the spec with its scope (`frontend`, `backend`, `frontend +
-backend`) and its UX Draft. Then `ARCHITECTURE.md` (contexts, module layout),
-`docs/adr/`, `docs/backend-rules.md`, `docs/frontend-rules.md`.
+Every numbered rule of the spec (its numbering is the project's spec conventions') with its scope (`frontend`, `backend`, `frontend +
+backend`) and its UX Draft. Then, where the project has them, `ARCHITECTURE.md` (contexts, module layout),
+`docs/adr/` and its backend and frontend rules documents.
 
 ## Step 2 — Check each rule
 

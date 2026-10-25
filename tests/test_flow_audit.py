@@ -259,7 +259,7 @@ class MeasureBacklogTest(unittest.TestCase):
             self.issue("2026-10-01T00:00:00Z", labels=["batch-audit"]),
             self.issue("2026-10-01T00:00:00Z", "2026-10-02T00:00:00Z", labels=["size:L"]),
         ]
-        backlog = flow_audit.measure_backlog(issues, SINCE, UNTIL)
+        backlog = flow_audit.backlog.measure_backlog(issues, SINCE, UNTIL)
         self.assertEqual((backlog["at_start"], backlog["at_end"]), (17, 17))
 
     def test_ticket_492_a_parent_weighs_nothing_while_a_slice_is_open(self):
@@ -268,21 +268,43 @@ class MeasureBacklogTest(unittest.TestCase):
             labels=["size:XL"],
             subs=[("2026-10-01T00:00:00Z", "2026-10-04T00:00:00Z")],
         )
-        backlog = flow_audit.measure_backlog([parent], SINCE, UNTIL)
+        backlog = flow_audit.backlog.measure_backlog([parent], SINCE, UNTIL)
         self.assertEqual((backlog["at_start"], backlog["at_end"]), (0, 8))
 
     def test_ticket_492_only_the_owner_s_additions_raise_the_ceiling(self):
         issues = [
             self.issue("2026-10-01T00:00:00Z", labels=["size:M"]),
             self.issue("2026-10-04T00:00:00Z", labels=["size:L", "owner-asked"]),  # asked during the batch
-            self.issue("2026-10-04T00:00:00Z", labels=["size:S"]),  # the agent's filing
+            self.issue("2026-10-04T00:00:00Z", labels=["size:S", "agent-filed"]),  # the agent's filing
             self.issue("2026-10-01T00:00:00Z", labels=["size:XL", "owner-asked"]),  # asked before it
         ]
-        backlog = flow_audit.measure_backlog(issues, SINCE, UNTIL)
+        backlog = flow_audit.backlog.measure_backlog(issues, SINCE, UNTIL)
         self.assertEqual(backlog["at_start"], 10)
         self.assertEqual(backlog["ceiling"], 14)
         self.assertEqual(backlog["at_end"], 15)
         self.assertFalse(backlog["within_ceiling"])
+
+    def test_daneel_ticket_3_the_block_says_what_was_added_and_removed(self):
+        issues = [
+            dict(self.issue("2026-10-04T00:00:00Z", labels=["size:S", "agent-filed"]), number=1),
+            dict(self.issue("2026-10-04T00:00:00Z", labels=["size:M"]), number=2),
+            dict(self.issue("2026-10-04T00:00:00Z", labels=["size:L", "agent-filed", "security"]), number=3),
+            dict(self.issue("2026-10-01T00:00:00Z", "2026-10-04T00:00:00Z", labels=["size:M"]),
+                 number=4, stateReason="COMPLETED"),
+            dict(self.issue("2026-10-01T00:00:00Z", "2026-10-04T00:00:00Z", labels=["size:S"]),
+                 number=5, stateReason="DUPLICATE"),
+        ]
+        backlog = flow_audit.backlog.measure_backlog(issues, SINCE, UNTIL)
+        self.assertEqual(
+            {kind: [e["number"] for e in items] for kind, items in backlog["added"].items()},
+            {"coder": [1], "owner": [2], "waived": [3]},
+        )
+        self.assertEqual(
+            {kind: [e["number"] for e in items] for kind, items in backlog["removed"].items()},
+            {"done": [4], "folded": [5], "closed": []},
+        )
+        self.assertEqual(backlog["ceiling"], 3 + 2 + 4)
+        self.assertEqual(backlog["by_size"]["end"], {"L": 1, "M": 1, "S": 1})
 
 
 class QueueFiguresTest(unittest.TestCase):

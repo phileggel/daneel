@@ -23,7 +23,7 @@ against all four:
 ## Plugins
 
 One plugin for now, `flow`: working on a project with agents, from planning a batch to
-reviewing, proving and auditing it — `plan-batch`, `flow-audit`, the reviewers
+reviewing, proving and auditing it — `plan-batch`, `backlog`, `flow-audit`, the reviewers
 `spec-reviewer`, `contract-reviewer`, `adr-reviewer`, `spec-checker`, `reviewer-guides`
 with their `protocol.md`, and the skills `visual-proof` and `dep-audit`
 (`plugins/flow/README.md`). It is split only when a project needs part of it (ticket #6).
