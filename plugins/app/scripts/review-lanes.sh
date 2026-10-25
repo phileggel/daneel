@@ -27,7 +27,7 @@
 #
 # The project adds its own paths per lane in `.claude/daneel.json`, under `review.lanes`:
 # extended regular expressions, matched against the path from the repository root
-# (`{"review": {"lanes": {"infra": ["^guide-ceilings\\.json$"]}}}`). A pattern only adds:
+# (`{"review": {"lanes": {"infra": ["^tools/[^/]*\\.sh$"]}}}`). A pattern only adds:
 # a lane's defaults always hold. A lane name not listed above is an error (exit 2).
 #
 # Use, from the project's checkout:

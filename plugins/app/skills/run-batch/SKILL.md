@@ -11,7 +11,7 @@ allowed-tools:
 
 # Skill — `run-batch`
 
-A batch from its Queued items to its closing brief (`flow`'s method, `method.md`, § 5; the
+A batch from its Queued items to its closing brief (`flow`'s method, `${CLAUDE_SKILL_DIR}/../../method.md`, § 5; the
 loop, `${CLAUDE_SKILL_DIR}/../../loop.md`, § 1 and § 8); this file only puts existing skills
 and rules in order. Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and
 `.number`; under `run-batch`, all optional:

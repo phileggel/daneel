@@ -235,23 +235,22 @@ def with_version(name: str, text: str, version: str) -> str:
     data = json.loads(text)
     if "version" not in data:
         raise Stop(f'{name} has no top-level "version"')
+    old = data["version"]
     data["version"] = version
     if kind == "lockfile":
         top = data.get("packages", {}).get("")
         if not isinstance(top, dict) or "version" not in top:
             raise Stop(f'{name} carries no "version" under packages[""]')
         top["version"] = version
-    return json.dumps(data, indent=json_indent(text), ensure_ascii=False) + ("\n" if text.endswith("\n") else "")
-
-
-def json_indent(text: str) -> str | int:
-    """The indent the file is written with — its first indented line's — so the rewrite moves
-    nothing but the version; 2 for a file on one line."""
-    for line in text.splitlines()[1:]:
-        stripped = line.lstrip(" \t")
-        if stripped and stripped != line:
-            return line[: len(line) - len(stripped)]
-    return 2
+    # The text is edited in place, never re-serialised: the first `"version": "<old>"`
+    # occurrences are replaced, as many as it takes for the file to read as `data`.
+    pattern = re.compile(r'("version"\s*:\s*")' + re.escape(str(old)) + r'(")')
+    edited = text
+    for _ in pattern.finditer(text):
+        edited = pattern.sub(lambda m: m.group(1) + version + m.group(2), edited, count=1)
+        if json.loads(edited) == data:
+            return edited
+    raise Stop(f'{name}: its "version" could not be changed without moving anything else')
 
 
 def write_versions(root: Path, settings: dict, version: str) -> list[str]:
@@ -298,13 +297,12 @@ def runs_in_the_way(runs: list[dict]) -> list[str]:
 
 def required_checks(root: Path) -> list[str]:
     """The checks `required-checks.json` at the checkout's root names (`{"checks": [...]}`),
-    as `merge.py` reads them; none when the file is absent."""
+    as `merge.py` and `watch-pr.py` read them: a missing or unreadable file stops the
+    release, as it stops them."""
     path = root / "required-checks.json"
-    if not path.exists():
-        return []
     try:
         return list(json.loads(path.read_text(encoding="utf-8"))["checks"])
-    except (ValueError, KeyError, TypeError) as exc:
+    except (OSError, ValueError, KeyError, TypeError) as exc:
         raise Stop(f"required-checks.json cannot be read: {exc}")
 
 

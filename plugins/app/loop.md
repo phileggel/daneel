@@ -2,7 +2,8 @@
 
 How a task moves through a Tauri + React app that runs `app` beside `flow`. The batch
 around it — ownership, issues, the Project, the backlog, budget and stop rules, the batch
-end, the audit — is `flow`'s method (`method.md` in the `flow` plugin). The project's rules
+end, the audit — is `flow`'s method, `${CLAUDE_PLUGIN_ROOT}/method.md` (this plugin's link to `flow`'s
+own, which `app` depends on). The project's rules
 document names what is its own: its harness checks, its rules docs and IDs, where its
 mocks live, its release steps.
 
@@ -18,10 +19,10 @@ with every check green, merged by run-entry's `merge.py`.
    `README.md`) — one that would say less than what is allowed is a question; for every
    record the issue writes, the ADRs that name it — a Done when that stands against one
    is a question. For an issue with a spec the order is: spec draft, `app:spec-reviewer`,
-   then the questions, new vocabulary included. The opening brief states Task, Scope,
-   Design, Touching; the branch is made (the method's branch names) and the item moves to
-   In progress.
-2. **Design gate** (§ 2) for anything the user sees.
+   then the questions, new vocabulary included.
+2. **Design gate** (§ 2) for anything the user sees, before any branch exists. Then the
+   opening brief states Task, Scope, Design, Touching; the branch is made (the method's
+   branch names) and the item moves to In progress.
 3. **Acceptance first.** Each Done-when clause becomes a failing test: Rust for logic,
    Vitest for rendering, E2E for what a user does. Test names carry the issue number or
    the spec rule. A new business rule goes into its spec (`docs/spec/`) in the same
@@ -78,10 +79,12 @@ record.
 ## 3. The harness
 
 The harness recipe (`just {harness}`, `run-entry.recipes.harness`) runs it locally,
-scoped to the layers the branch touched; the same checks are required on every pull request (`required-checks.json`), and run-entry's `merge.py` refuses
-without them. The git hooks run only fast checks for the same scope. Nothing is run by
-hand just before a commit or a push: the hooks do it, and the harness recipe is for wanting
-CI's answer before pushing. Every app's harness holds at least:
+scoped to the layers the branch touched. The same checks are required on every pull
+request (`required-checks.json` at the root, which `merge.py`, `watch-pr.py` and
+`release.py` all refuse to run without), and CI runs on every push to `main` too:
+`release.py` cuts a release only from a `main` whose runs are green. The git hooks run
+only fast checks for the same scope. Nothing is run by hand just before a commit or a
+push: the hooks do it, and the harness recipe is for wanting CI's answer before pushing. Every app's harness holds at least:
 
 - lint, format, types and build;
 - architecture rules, today's debt frozen in `arch-allowlist.json`, which only shrinks;

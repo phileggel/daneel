@@ -61,6 +61,7 @@ if (!PORT || !HOST || !NAME) {
 }
 
 const consoleErrors = [];
+const missing = new Set();
 await mkdir(OUT_DIR, { recursive: true });
 
 const browser = await chromium.launch({ args: ["--no-sandbox"] });
@@ -87,11 +88,13 @@ try {
 
       for (const state of STATES) {
         const el = page.locator(`#state-${state}`);
-        if ((await el.count()) > 0) {
-          const path = `${OUT_DIR}/${NAME}-${scheme}-${state}.png`;
-          await el.screenshot({ path, mask: masks });
-          console.error(`  → ${path}`);
+        if ((await el.count()) === 0) {
+          missing.add(state);
+          continue;
         }
+        const path = `${OUT_DIR}/${NAME}-${scheme}-${state}.png`;
+        await el.screenshot({ path, mask: masks });
+        console.error(`  → ${path}`);
       }
     } finally {
       await context.close();
@@ -107,4 +110,10 @@ try {
   }
 } finally {
   await browser.close();
+}
+
+// A state asked for and not rendered is a capture that failed, never a silent gap.
+if (missing.size > 0) {
+  console.error(`error: no #state-{name} element for: ${[...missing].join(", ")}`);
+  process.exit(1);
 }

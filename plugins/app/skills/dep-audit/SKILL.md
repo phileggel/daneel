@@ -5,8 +5,8 @@ allowed-tools:
   - Bash(rustc --version)
   - Bash(npm outdated)
   - Bash(npm audit)
-  - Bash(cargo outdated)
-  - Bash(cargo audit)
+  - Bash(cargo outdated --manifest-path src-tauri/Cargo.toml)
+  - Bash(cargo audit --file src-tauri/Cargo.lock)
   - WebSearch
 ---
 
@@ -17,7 +17,8 @@ never called latest or outdated from model knowledge, which may be months behind
 reported is checked with WebSearch and cited with its source URL. The skill never upgrades.
 
 Settings, optional, under `dep-audit` in `.claude/daneel.json`: `licence_check`, the
-project's recipe that checks the shipped dependencies' licences (`just {licence_check}`),
+project's recipe that checks the shipped dependencies' licences (`just {licence_check}`,
+allowed by the project's own allow list, as every recipe of its own is),
 and `terms_doc`, the project's document of the services it calls and the data it copies.
 
 ## 1. Read and run
@@ -38,11 +39,11 @@ npm audit
 ```
 
 ```bash
-cargo outdated
+cargo outdated --manifest-path src-tauri/Cargo.toml
 ```
 
 ```bash
-cargo audit
+cargo audit --file src-tauri/Cargo.lock
 ```
 
 With `licence_check` set, that recipe too:

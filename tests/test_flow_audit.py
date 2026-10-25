@@ -1,6 +1,9 @@
 """Tests for the flow-audit skill's script — run with `python3 -m unittest discover -s tests`."""
 
+import contextlib
 import importlib.util
+import io
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -239,7 +242,7 @@ class MeasureOpenTest(unittest.TestCase):
 
 
 class MeasureBacklogTest(unittest.TestCase):
-    """Ticket #492: the open backlog counted by size, against a ceiling only the owner raises."""
+    """The open backlog counted by size, against a ceiling only the owner raises."""
 
     def issue(self, created, closed=None, labels=(), subs=()):
         return {
@@ -249,7 +252,7 @@ class MeasureBacklogTest(unittest.TestCase):
             "subIssues": [{"createdAt": c, "closedAt": d} for c, d in subs],
         }
 
-    def test_ticket_492_each_open_ticket_weighs_its_size_and_an_unsized_one_an_m(self):
+    def test_each_open_ticket_weighs_its_size_and_an_unsized_one_an_m(self):
         issues = [
             self.issue("2026-10-01T00:00:00Z", labels=["task", "size:S"]),
             self.issue("2026-10-01T00:00:00Z", labels=["bug", "size:M"]),
@@ -262,7 +265,7 @@ class MeasureBacklogTest(unittest.TestCase):
         backlog = flow_audit.backlog.measure_backlog(issues, SINCE, UNTIL)
         self.assertEqual((backlog["at_start"], backlog["at_end"]), (17, 17))
 
-    def test_ticket_492_a_parent_weighs_nothing_while_a_slice_is_open(self):
+    def test_a_parent_weighs_nothing_while_a_slice_is_open(self):
         parent = self.issue(
             "2026-10-01T00:00:00Z",
             labels=["size:XL"],
@@ -271,7 +274,7 @@ class MeasureBacklogTest(unittest.TestCase):
         backlog = flow_audit.backlog.measure_backlog([parent], SINCE, UNTIL)
         self.assertEqual((backlog["at_start"], backlog["at_end"]), (0, 8))
 
-    def test_ticket_492_only_the_owner_s_additions_raise_the_ceiling(self):
+    def test_only_the_owner_s_additions_raise_the_ceiling(self):
         issues = [
             self.issue("2026-10-01T00:00:00Z", labels=["size:M"]),
             self.issue("2026-10-04T00:00:00Z", labels=["size:L", "owner-asked"]),  # asked during the batch
@@ -556,7 +559,9 @@ class RangeEndTest(unittest.TestCase):
         ) as git, mock.patch.object(flow_audit, "_gh_json") as gh:
             moment = flow_audit.batch_end_moment("batch/2026-10-20")
         self.assertEqual(moment, flow_audit.parse_moment("2026-10-20T16:00:00Z"))
-        git.assert_called_once()
+        git.assert_called_once_with(
+            "for-each-ref", "refs/tags/batch/2026-10-20", "--format=%(creatordate:iso-strict)"
+        )
         gh.assert_not_called()
 
     def test_a_batch_tag_without_a_date_stops_the_audit(self):
@@ -571,6 +576,38 @@ class RangeEndTest(unittest.TestCase):
             moment = flow_audit.batch_end_moment("v0.24.7")
         self.assertEqual(moment, flow_audit.parse_moment("2026-10-17T11:11:19Z"))
         gh.assert_not_called()
+
+
+class BacklogBeforeTheFirstBatchEndTest(unittest.TestCase):
+    """Before any batch end, the backlog has nothing to shrink from: only the target holds."""
+
+    backlog = flow_audit.backlog
+
+    def run_check(self, size, target, issues):
+        out = io.StringIO()
+        with mock.patch.object(self.backlog, "project_root", return_value=Path("/nowhere")), \
+                mock.patch.object(self.backlog, "load_settings",
+                                  return_value={**self.backlog.SETTINGS, "target": target}), \
+                mock.patch.object(self.backlog, "last_batch_end", return_value=None), \
+                mock.patch.object(self.backlog, "collect_backlog", return_value=issues), \
+                contextlib.redirect_stdout(out):
+            code = self.backlog.main(["check", size])
+        return code, out.getvalue()
+
+    def test_no_tag_means_no_batch_end_yet(self):
+        done = subprocess.CompletedProcess([], 0, stdout="\n", stderr="")
+        with mock.patch.object(self.backlog.subprocess, "run", return_value=done) as run:
+            self.assertIsNone(self.backlog.last_batch_end())
+        self.assertIn("refs/tags/v*", run.call_args.args[0])
+
+    def test_without_a_target_a_ticket_fits(self):
+        code, out = self.run_check("L", None, [])
+        self.assertEqual(code, 0)
+        self.assertIn("fits", out)
+
+    def test_a_target_bounds_the_backlog(self):
+        code, out = self.run_check("XL", 1, [])
+        self.assertIn("does not fit", out)
 
 
 class CollectReleaseTest(unittest.TestCase):

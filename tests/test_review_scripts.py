@@ -143,12 +143,12 @@ class ReviewLanesTest(unittest.TestCase):
 
     def test_a_project_adds_its_own_paths_to_a_lane(self):
         self.settings({"review": {"lanes": {
-            "infra": ["^guide-ceilings\\.json$", "^\\.claude/agents/[^/]*\\.md$"],
-            "security": ["^src-tauri/src/context/sync/"],
+            "infra": ["^tools/[^/]*\\.sh$", "^\\.claude/agents/[^/]*\\.md$"],
+            "security": ["^src-tauri/src/auth/"],
         }}})
-        self.assertEqual(self.lanes("guide-ceilings.json"), ["infra"])
+        self.assertEqual(self.lanes("tools/seed.sh"), ["infra"])
         self.assertEqual(self.lanes(".claude/agents/reviewer-sql.md"), ["infra", "guides"])
-        self.assertEqual(self.lanes("src-tauri/src/context/sync/run.rs"), ["backend", "arch", "security"])
+        self.assertEqual(self.lanes("src-tauri/src/auth/token.rs"), ["backend", "arch", "security"])
         self.assertEqual(self.lanes("justfile"), ["infra"])
 
     def test_an_unknown_lane_is_an_error(self):

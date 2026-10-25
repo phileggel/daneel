@@ -52,6 +52,8 @@ SETTINGS = {
     # (its `.md` files), any other one a file.
     "record_paths": ["docs/adr/"],
 }
+# Keys of `run-entry` the skill reads, not this script: known, so not refused.
+SKILL_SETTINGS = {"recipes"}
 
 
 def git(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -76,6 +78,9 @@ def settings(top: Path) -> dict:
         own = json.loads(path.read_text(encoding="utf-8")).get("run-entry", {}) if path.exists() else {}
     except (OSError, ValueError) as exc:
         fail(f"Could not read {path}: {exc}")
+    unknown = set(own) - set(SETTINGS) - SKILL_SETTINGS
+    if unknown:
+        fail(f"Unknown run-entry settings in {path}: {', '.join(sorted(unknown))}")
     return {**SETTINGS, **{key: own[key] for key in SETTINGS if key in own}}
 
 
@@ -122,7 +127,8 @@ def _open_pull_request(branch: str, target: str) -> tuple[int, str]:
         fail(
             f"No open pull request from {branch} into {target}.",
             "Every change goes through the harness — open one and let it run:",
-            f"  git push -u origin {branch} && gh pr create --fill",
+            f"  git push -u origin {branch}",
+            f"  gh pr create --base {target} --body-file <the body's file>",
         )
     return int(prs[0]["number"]), str(prs[0]["headRefOid"])
 
@@ -435,7 +441,8 @@ def main() -> int:
             f"`{target}` is checked out in {holder}: the merge cannot run from this worktree.",
             "Merge from that folder instead, once it is clean and this worktree is pushed:",
             f"  git worktree remove {shlex.quote(here)}",
-            f"  cd {shlex.quote(holder)} && git checkout {shlex.quote(branch)} && {RERUN}",
+            f"  git -C {shlex.quote(holder)} checkout {shlex.quote(branch)}",
+            f"  then, from {shlex.quote(holder)}: {RERUN}",
         )
 
     # Pre-flight 5 — target branch exists locally.
@@ -465,8 +472,7 @@ def main() -> int:
                 f"The merge would delete origin/{branch} and lose those commits.",
                 f"  git pull --ff-only origin {branch}    # incorporate them",
                 f"  git pull --rebase origin {branch}     # if local has also diverged",
-                f"  git push --force-with-lease origin {branch}    # discard them (intentional)",
-                "Then re-run the merge.",
+                "Then re-run the merge. Discarding them is the owner's call, never the agent's.",
             )
 
     # Step 1 — sync local target with origin (skip if no remote).
@@ -483,7 +489,8 @@ def main() -> int:
             fail(
                 f"Could not fast-forward pull origin/{target}.",
                 f"Local {target} has diverged from origin/{target}, or origin is unreachable.",
-                f"Investigate: git fetch origin {target} && git log {target}..origin/{target}",
+                f"Investigate: git fetch origin {target}",
+                f"  git log {target}..origin/{target}",
             )
     else:
         print(f"{BLUE}ℹ No origin/{target} remote — skipping pull.{NC}", file=sys.stderr)
@@ -530,8 +537,10 @@ def main() -> int:
     if result.returncode != 0 or git("pull", "--ff-only", "--quiet", "origin", target, check=False).returncode != 0:
         fail(
             f"PR #{number} is merged, but the local `{target}` could not be brought up to date.",
-            f"Manually: git checkout {target} && git pull --ff-only",
-            f"  git push --delete origin {branch} && git branch -D {branch}",
+            f"Manually: git checkout {target}",
+            "  git pull --ff-only",
+            f"  git push --delete origin {branch}",
+            f"  git branch -D {branch}",
         )
 
     # Step 5 — delete the remote branch (GitHub may have deleted it already: benign).

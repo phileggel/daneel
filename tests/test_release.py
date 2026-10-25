@@ -38,15 +38,27 @@ class Versions(unittest.TestCase):
         self.assertEqual(release.next_version("1.2.3", commits("fix: a\n\nBREAKING CHANGE: b")), "2.0.0")
 
     def test_a_title_is_its_first_line_and_a_scope_is_kept(self):
-        commit = release.parse_commit("feat(transfer): move a holding\n\nRule TRF-012, backend only.")
-        self.assertEqual((commit["type"], commit["scope"], commit["title"]), ("feat", "transfer", "move a holding"))
+        commit = release.parse_commit("feat(orders): split an order\n\nRule ORD-1, backend only.")
+        self.assertEqual((commit["type"], commit["scope"], commit["title"]), ("feat", "orders", "split an order"))
         self.assertEqual(release.parse_commit("Merge branch x")["type"], "other")
+
+
+class RequiredChecks(unittest.TestCase):
+    def test_a_missing_file_stops_the_release_as_it_stops_merge_py(self):
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaises(release.Stop):
+                release.required_checks(Path(folder))
+
+    def test_the_file_names_the_checks(self):
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / "required-checks.json").write_text('{"checks": ["Quality"]}')
+            self.assertEqual(release.required_checks(Path(folder)), ["Quality"])
 
 
 class Changelog(unittest.TestCase):
     def test_the_entry_lists_breaking_then_added_then_fixed_scope_first(self):
         entry = release.changelog_entry("2.0.0", "2026-10-25", commits(
-            "feat(transfer): move a holding to another account",
+            "feat(orders): split an order in two",
             "fix: removing one line no longer deletes the whole",
             "chore: not a user's",
             "feat!: the export is one file",
@@ -54,7 +66,7 @@ class Changelog(unittest.TestCase):
         self.assertEqual(entry, (
             "## [2.0.0] - 2026-10-25\n\n"
             "### ⚠️ BREAKING CHANGES\n\n- the export is one file\n\n"
-            "### Added\n\n- [transfer] move a holding to another account\n- the export is one file\n\n"
+            "### Added\n\n- [orders] split an order in two\n- the export is one file\n\n"
             "### Fixed\n\n- removing one line no longer deletes the whole\n\n"
         ))
 
@@ -91,6 +103,11 @@ class VersionFiles(unittest.TestCase):
     def test_a_json_file_states_its_top_level_version(self):
         text = '{\n  "productName": "App",\n  "version": "1.0.0",\n  "app": {"version": "x"}\n}\n'
         self.assertEqual(json.loads(release.with_version("src-tauri/tauri.conf.json", text, "1.1.0"))["version"], "1.1.0")
+
+    def test_a_json_file_moves_nothing_but_its_version(self):
+        text = '{"name": "a", "version": "1.0.0", "files": ["dist"],\n  "deps": {"b": {"version": "1.0.0"}}}'
+        self.assertEqual(release.with_version("package.json", text, "1.1.0"),
+                         text.replace('"version": "1.0.0", "files"', '"version": "1.1.0", "files"'))
 
     def test_a_json_file_keeps_its_indent(self):
         text = '{\n    "name": "a",\n    "version": "1.0.0"\n}\n'
@@ -210,6 +227,11 @@ class FreshMain(unittest.TestCase):
 
 
 class ThroughAPullRequest(unittest.TestCase):
+    def setUp(self):
+        patcher = mock.patch.object(release, "required_checks", return_value=[])
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def github(self, checks="pass", landed="chore: release v0.12.0", same_tree=0):
         return GitHub(**{
             "git rev-parse": (0, "abc123\n"),

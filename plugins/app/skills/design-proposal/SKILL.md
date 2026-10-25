@@ -6,6 +6,8 @@ allowed-tools:
   - Bash(node ${CLAUDE_SKILL_DIR}/../visual-proof/scripts/visual-proof-capture.mjs *)
   - Bash(npx vite *)
   - Bash(curl *)
+  - Bash(rm -f preview.html)
+  - Bash(rm -rf src/__preview__)
 ---
 
 # Skill — `design-proposal`
@@ -44,8 +46,8 @@ background, wait until the preview answers, capture, stop Vite.
 node ${CLAUDE_SKILL_DIR}/../visual-proof/scripts/visual-proof-capture.mjs --port {vite_preview_port} --host {vite_preview_host} --name {id} --states {state1,state2} --out {out}
 ```
 
-Produces `{out}/{id}-{light|dark}-{state}.png`. Delete `preview.html` and
-`src/__preview__/` afterwards.
+Produces `{out}/{id}-{light|dark}-{state}.png`. Then `rm -f preview.html` and
+`rm -rf src/__preview__`, each its own call, whatever the capture did.
 
 ## Step 4 — Write the note
 

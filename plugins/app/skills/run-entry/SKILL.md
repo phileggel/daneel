@@ -16,7 +16,7 @@ allowed-tools:
 # Skill — `run-entry`
 
 One invocation, one task, through the ceremony to `main`. The rules are the loop
-(`${CLAUDE_SKILL_DIR}/../../loop.md`), `flow`'s method (`method.md`) and the project's
+(`${CLAUDE_SKILL_DIR}/../../loop.md`), `flow`'s method (`${CLAUDE_SKILL_DIR}/../../method.md`) and the project's
 rules document; this file is the checklist.
 
 Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and `.number`; under
@@ -53,7 +53,17 @@ checkout's root (`{"checks": [...]}`).
   wait for the answer before the next; write the answers on the issue. For an issue with
   a spec: spec draft, `app:spec-reviewer`, then the questions.
 
-## Step 1 — Opening brief, branch, task list
+## Step 1 — Design gate
+
+Before any branch exists, and before the item moves: anything the user sees changes and
+`Design` is not `validated` — `/app:design-proposal <id>`.
+
+- Chat: nothing is built before the human's yes to the mocks; on a no, stop.
+- Headless: the proposal is posted on the issue (loop § 2), its Design set to `needed`;
+  the item stays Queued, and is ready again once the owner validates. Back to Step 0 for
+  the next ready item. Do not implement.
+
+## Step 2 — Opening brief, branch, task list
 
 - Opening brief (chat: first message; headless: top of the PR body): **Task** — the issue
   or request in one line · **Scope** — commit type, layers · **Design** — none / validated
@@ -62,14 +72,6 @@ checkout's root (`{"checks": [...]}`).
   change's commit type; the item's Status becomes In progress (`gh project item-edit`, ids
   from `gh project field-list {number} --owner {owner} --format json`).
 - `TaskCreate` one task per step below, each `in_progress` / `completed` (none under `/app:run-batch`).
-
-## Step 2 — Design gate
-
-Anything the user sees changes and `Design` is not `validated`: `/app:design-proposal <id>`.
-
-- Chat: nothing is built before the human's yes to the mocks; on a no, stop.
-- Headless: the proposal is posted on the issue (loop § 2); back to Step 0 for the next ready
-  item. Do not implement.
 
 ## Step 3 — Acceptance first
 

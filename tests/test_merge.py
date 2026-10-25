@@ -239,6 +239,42 @@ class ChecksGreen(unittest.TestCase):
             self.guard(runs)
 
 
+class RebasedBranch(unittest.TestCase):
+    """`ensure_checks_green` when the rebase moved the branch: the one force-push, with lease."""
+
+    def guard(self, standing, pushed=0):
+        push = subprocess.CompletedProcess([], pushed, stdout="", stderr="")
+        with (
+            unittest.mock.patch.object(merge, "_open_pull_request", return_value=(7, "abc1234")),
+            unittest.mock.patch.object(merge, "_rebase_left_the_checks_standing", return_value=standing),
+            unittest.mock.patch.object(merge, "_required_checks", return_value=["PR checks"]),
+            unittest.mock.patch.object(merge, "_check_runs", return_value={"PR checks": ("completed", "success")}),
+            unittest.mock.patch.object(merge, "_reviewer_notes", return_value={}),
+            unittest.mock.patch.object(merge, "git", return_value=push) as git,
+            contextlib.redirect_stderr(io.StringIO()),
+        ):
+            try:
+                merge.ensure_checks_green("work", "main", "abc1234", "def5678", merge.SETTINGS)
+                stopped = False
+            except SystemExit:
+                stopped = True
+        return git, stopped
+
+    def test_a_moved_tree_is_pushed_with_lease_and_the_merge_waits_for_ci(self):
+        git, stopped = self.guard(standing=False)
+        git.assert_called_once_with("push", "--force-with-lease", "origin", "work", check=False)
+        self.assertTrue(stopped)
+
+    def test_a_tree_left_standing_is_not_pushed_and_lands_on_the_tested_head(self):
+        git, stopped = self.guard(standing=True)
+        git.assert_not_called()
+        self.assertFalse(stopped)
+
+    def test_a_refused_push_stops(self):
+        git, stopped = self.guard(standing=False, pushed=1)
+        self.assertTrue(stopped)
+
+
 class DeletingTheRemoteBranch(unittest.TestCase):
     """`delete_remote_branch` against a bare repository standing in for origin."""
 
@@ -349,8 +385,13 @@ class Settings(unittest.TestCase):
         self.assertEqual(merge.settings(self.root), merge.SETTINGS)
 
     def test_a_project_sets_its_own_keys_and_the_others_are_left_to_their_skills(self):
-        self.write({"run-entry": {"record_paths": ["docs/"], "lanes": "bash x.sh"}, "flow-audit": {"x": 1}})
+        self.write({"run-entry": {"record_paths": ["docs/"], "recipes": {"harness": "h"}}, "flow-audit": {"x": 1}})
         self.assertEqual(merge.settings(self.root), {"record_paths": ["docs/"]})
+
+    def test_an_unknown_key_is_refused_as_every_script_refuses_one(self):
+        self.write({"run-entry": {"land": "push"}})
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            merge.settings(self.root)
 
 
 if __name__ == "__main__":

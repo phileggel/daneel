@@ -9,6 +9,8 @@ allowed-tools:
   - Bash(git add screenshots/)
   - Bash(git restore --staged screenshots/.console-errors.json)
   - Bash(git status *)
+  - Bash(rm -f preview.html)
+  - Bash(rm -rf src/__preview__)
 ---
 
 # Skill — `visual-proof`
@@ -38,10 +40,10 @@ and says so. Its name is the file's (`LoginForm.tsx` → `LoginForm`).
 
 Read the component; infer the states it exposes from its props and logic (loading flags,
 error props, empty data, conditional renders). Idle is always one. Chat asks with
-`AskUserQuestion`: which states (the inferred ones proposed), whether an interaction needs
-a video clip (hover, a modal opening, an animation), and any selector to mask (timestamps,
-avatars, random ids). Headless takes every inferred state, no clip, and masks what plainly
-varies between runs (a timestamp, a random id).
+`AskUserQuestion`: which states (the inferred ones proposed) and any selector to mask
+(timestamps, avatars, random ids). Headless takes every inferred state and masks what
+plainly varies between runs (a timestamp, a random id). A hover or an animation is
+captured as its own state, rendered in it; the script takes stills only.
 
 ## Step 3 — The preview
 
@@ -118,7 +120,17 @@ curl -sf --retry 30 --retry-connrefused --retry-delay 1 -o /dev/null http://{vit
 node ${CLAUDE_SKILL_DIR}/scripts/visual-proof-capture.mjs --port {vite_preview_port} --host {vite_preview_host} --name {ComponentName} --states {state1,state2,...}
 ```
 
-A capture that exited non-zero is reported, and nothing is staged.
+A capture that exited non-zero is reported (a state with no `#state-{name}` element is
+one), and nothing is staged. Then, whatever the capture did, the preview files go — they
+are never committed:
+
+```bash
+rm -f preview.html
+```
+
+```bash
+rm -rf src/__preview__
+```
 
 ## Step 5 — Stage and report
 
@@ -142,14 +154,9 @@ git status --short -- screenshots/
 
 Screenshots staged ({count}):
 - screenshots/{ComponentName}-{light|dark}-{state}.png
-Video clips ({count}): (when any)
 
 No console errors detected during capture.
   — or —
 ⚠️  Console errors detected ({count}) — investigate before merging:
   [light] {error text}
-
-⚠️  Before committing — delete the preview files (never committed):
-    rm -f preview.html
-    rm -rf src/__preview__/
 ```
