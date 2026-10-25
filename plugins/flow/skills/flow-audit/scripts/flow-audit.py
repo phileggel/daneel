@@ -780,7 +780,8 @@ def main(argv: list[str] | None = None) -> int:
     }
     own = backlog.load_settings(ROOT)
     report["current"]["backlog"] = backlog.measure_backlog(
-        backlog.collect_backlog(), since, until, own["coder_mark"], tuple(own["waived"])
+        backlog.collect_backlog(), since, until, own["coder_mark"], tuple(own["waived"]),
+        own["target"],
     )
     report["records"] = collect_records(pull_requests, since, until)
     report["repository"] = measure_repository(

@@ -42,9 +42,9 @@ in the session's scratchpad, never `/tmp`):
   `open_flow`: the open `flow` issues.
 
 Fetch from GitHub only what they lack: an item whose `cut` names a list GitHub gave in
-part, or a record the window does not hold. Then read `${CLAUDE_SKILL_DIR}/audit.md` and
-the project's rules the batch was run under: the guides `repository.guides` lists (its
-`guides` setting).
+part, or a record the window does not hold. Then read `${CLAUDE_SKILL_DIR}/audit.md`,
+the method the batch was run under (`${CLAUDE_SKILL_DIR}/../../method.md`) and the
+project's own rules: the guides `repository.guides` lists (its `guides` setting).
 
 ## Step 3 — Count
 
@@ -69,7 +69,7 @@ What the records cannot show is itself a finding: name it, and where it belonged
 The owner's six questions (`audit.md`), each answered with its figure or
 "nothing to change". Then each open flow issue: settled by a change of the batch, or
 left. Then the issues to propose — the three strongest (`audit.md`, Hard points), only
-where a figure moved the wrong way, a rule of the project's guides was not
+where a figure moved the wrong way, a rule of the method or the project's guides was not
 followed, a guide was wrong, or the owner corrected the flow. "Keep" is a verdict: propose nothing for it. A rule not followed is
 stated as plainly as a figure — who was to do what, which pull request shows it, what it
 cost — and never softened because the same agent family did the work.

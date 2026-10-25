@@ -6,7 +6,9 @@ The ceiling binds the coding agent alone. It marks what it files (`coder_mark`);
 unmarked ticket is the owner's — filed on GitHub, through Cowork or by another session —
 and raises the ceiling, as do the coder's tickets the owner approved (`owner-asked`) and
 the waived ones (security, data loss). The ceiling is the backlog at the last batch end
-plus those.
+plus those, so a backlog over its healthy size can only shrink. A project may set that
+healthy size (`target`): at or under it, the agent files up to it. Before the first batch
+end only the target holds, and with no target every ticket fits.
 
 Usage, from the project's checkout:
     python3 <plugin>/scripts/backlog.py check M            # does an M fit? exit 1 if not
@@ -38,6 +40,8 @@ SETTINGS = {
     "coder_mark": "agent-filed",
     # Labels that are always filed, and raise the ceiling.
     "waived": ["security", "data-loss"],
+    # The backlog's healthy size, in weight (S 1, M 2, L 4, XL 8); null for none.
+    "target": None,
 }
 
 
@@ -91,6 +95,7 @@ def measure_backlog(
     until: datetime,
     coder_mark: str = SETTINGS["coder_mark"],
     waived: tuple[str, ...] = tuple(SETTINGS["waived"]),
+    target: int | None = SETTINGS["target"],
 ) -> dict:
     """The open backlog by size at both ends, the ceiling, and what was added and removed
     in between. A parent weighs nothing while one of its slices is open. Sizes are
@@ -136,10 +141,13 @@ def measure_backlog(
     start, end = counted(since), counted(until)
     at_start, at_end = sum(map(weight, start)), sum(map(weight, end))
     ceiling = at_start + sum(weight(i) for i in added["owner"] + added["waived"])
+    if target is not None:
+        ceiling = max(ceiling, target)
     return {
         "at_start": at_start,
         "at_end": at_end,
         "ceiling": ceiling,
+        "target": target,
         "within_ceiling": at_end <= ceiling,
         "room": ceiling - at_end,
         "tickets": {"start": len(start), "end": len(end)},
@@ -198,15 +206,16 @@ def collect_backlog() -> list[dict]:
     ]
 
 
-def last_batch_end() -> datetime:
-    """When the last batch ended: its release's publication, or its `batch/<date>` tag."""
+def last_batch_end() -> datetime | None:
+    """When the last batch ended: its release's publication, or its `batch/<date>` tag;
+    None before the first."""
     tag = subprocess.run(
         ["git", "for-each-ref", "--sort=-creatordate", "--count=1",
          "--format=%(refname:short)", "refs/tags/v*", "refs/tags/batch/"],
         check=True, capture_output=True, text=True,
     ).stdout.strip()
     if not tag:
-        raise SystemExit("backlog: no batch end yet (no `v*` or `batch/` tag)")
+        return None
     if tag.startswith("batch/"):
         made = subprocess.run(
             ["git", "for-each-ref", f"refs/tags/{tag}", "--format=%(taggerdate:iso-strict)"],
@@ -231,11 +240,22 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     settings = load_settings(project_root())
-    block = measure_backlog(
-        collect_backlog(), last_batch_end(), datetime.now(timezone.utc),
-        settings["coder_mark"], tuple(settings["waived"]),
-    )
     needed = SIZE_WEIGHTS[f"size:{args.size}"]
+    now = datetime.now(timezone.utc)
+    since = last_batch_end()
+    issues = collect_backlog()
+    if since is None:
+        # Before the first batch end there is nothing to shrink from: only the target holds.
+        at_end = sum(weight(i) for i in issues
+                     if NOT_WORK not in i["labels"] and _open_at(i, now)
+                     and not any(_open_at(s, now) for s in i.get("subIssues", [])))
+        target = settings["target"]
+        ceiling = target if target is not None else at_end + needed
+        block = {"at_end": at_end, "ceiling": ceiling, "room": ceiling - at_end}
+    else:
+        block = measure_backlog(
+            issues, since, now, settings["coder_mark"], tuple(settings["waived"]), settings["target"]
+        )
     fits = args.waived or needed <= block["room"]
     print(
         f"backlog {block['at_end']}, ceiling {block['ceiling']}, room {block['room']}: "

@@ -15,7 +15,7 @@ against all four:
   re-tested at the batch end and corrected with the owner in chat, beats a gate that
   stops the run; a rule need not hold perfectly to be worth having.
 - **Secure**: what cannot be undone is held firm. A security or data-loss finding is
-  always filed; nothing is pushed to `main`, force-pushed or released by the agent.
+  always filed; nothing is pushed to `main` or force-pushed by the agent, and a release is published by the owner alone.
 - **Quality**: a rule is measured at each batch end, so whether it works is known, not
   assumed.
 - **Fast**: a rule that adds steps to every run shows at the batch end what it pays back.
@@ -24,8 +24,8 @@ against all four:
 
 | Plugin | Holds |
 | ------ | ----- |
-| `flow` | Any project: `plan-batch`, `backlog`, `flow-audit` (`plugins/flow/README.md`) |
-| `app` | The addon for folioneer and PatientManager, Tauri + React apps: the reviewers `spec-reviewer`, `contract-reviewer`, `adr-reviewer`, `spec-checker`, `reviewer-guides` with their `protocol.md`, and the skills `visual-proof` and `dep-audit` (`plugins/app/README.md`) |
+| `flow` | Any project: the batch method (`method.md`), `init`, `plan-batch`, `backlog`, `flow-audit` (`plugins/flow/README.md`) |
+| `app` | The addon for folioneer and PatientManager, Tauri + React apps: the loop (`loop.md`), `run-entry`, `run-batch`, `design-proposal`, the document reviewers, the seven stack lanes and `reviewer-guides` with their `protocol.md`, `visual-proof`, `dep-audit` (`plugins/app/README.md`) |
 
 `flow` holds what any project can use. What only those two apps share is `app`, used
 beside `flow`; what one project alone runs stays in that project.
@@ -37,6 +37,8 @@ Once per machine:
     claude plugin marketplace add phileggel/daneel
     claude plugin install flow@daneel --scope project
     claude plugin install app@daneel --scope project     # folioneer, PatientManager
+
+Then `/flow:init` in the project adds what it lacks, asking first.
 
 In a project's `.claude/settings.json`, so headless runs and teammates get it too:
 

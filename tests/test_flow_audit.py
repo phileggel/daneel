@@ -284,6 +284,17 @@ class MeasureBacklogTest(unittest.TestCase):
         self.assertEqual(backlog["at_end"], 15)
         self.assertFalse(backlog["within_ceiling"])
 
+    def test_daneel_ticket_13_under_its_target_the_backlog_may_grow_to_it(self):
+        issues = [
+            self.issue("2026-10-01T00:00:00Z", labels=["size:M"]),
+            self.issue("2026-10-04T00:00:00Z", labels=["size:L", "agent-filed"]),
+        ]
+        grown = flow_audit.backlog.measure_backlog(issues, SINCE, UNTIL, target=10)
+        self.assertEqual((grown["ceiling"], grown["at_end"], grown["room"]), (10, 6, 4))
+        over = flow_audit.backlog.measure_backlog(issues, SINCE, UNTIL, target=1)
+        self.assertEqual(over["ceiling"], 2)
+        self.assertFalse(over["within_ceiling"])
+
     def test_daneel_ticket_3_the_block_says_what_was_added_and_removed(self):
         issues = [
             dict(self.issue("2026-10-04T00:00:00Z", labels=["size:S", "agent-filed"]), number=1),
