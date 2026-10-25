@@ -661,6 +661,27 @@ def collect_records(pull_requests: list[dict], since: datetime, until: datetime)
     }
 
 
+def collect_release(tag: str | None) -> dict | None:
+    """The batch's release as it was left — its notes and assets, draft or published; the
+    audit judges what was made, never whether the owner has published it. None for a
+    `batch/<date>` tag or an open window."""
+    if not tag or not tag.startswith("v"):
+        return None
+    release = _gh_json(
+        "release", "view", tag, "--json", "tagName,name,isDraft,createdAt,body,assets,url"
+    )
+    if not isinstance(release, dict):
+        return {"tag": tag, "missing": True}
+    return {
+        "tag": release.get("tagName", tag),
+        "name": release.get("name"),
+        "created_at": release.get("createdAt"),
+        "body": release.get("body"),
+        "assets": [asset.get("name") for asset in release.get("assets") or []],
+        "url": release.get("url"),
+    }
+
+
 def collect_reruns(earliest: datetime) -> list[dict]:
     """The runs re-run since `earliest`, each with the conclusions of its earlier attempts.
 
@@ -772,6 +793,7 @@ def main(argv: list[str] | None = None) -> int:
         own["target"],
     )
     report["records"] = collect_records(pull_requests, since, until)
+    report["records"]["release"] = collect_release(args.until)
     report["repository"] = measure_repository(
         since, until, args.until or "HEAD", args.since
     )

@@ -72,9 +72,10 @@ findings folded or filed. Then, on the final `main`:
 - **Exit 3, no `feat` or `fix`:** `bash ${CLAUDE_SKILL_DIR}/scripts/batch-end.sh` tags
   the fresh `main` `batch/<UTC date>`.
 
-Then, in both cases, `/flow:flow-audit` once the tag is pushed, while the draft step may
-still run: a batch end is dated by its tag, never by the release's publication, which is
-the owner's alone and nothing waits on.
+Then, in both cases, `/flow:flow-audit` once the batch end is made — the tag pushed, and
+for a release `release.py` done with its draft, which the audit reads. A batch end is
+dated by its tag; whether the owner publishes the release is the owner's alone, never
+audited, and nothing waits on it.
 
 ## Step 5 — The closing brief, last
 

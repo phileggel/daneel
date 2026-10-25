@@ -573,6 +573,23 @@ class RangeEndTest(unittest.TestCase):
         gh.assert_not_called()
 
 
+class CollectReleaseTest(unittest.TestCase):
+    """Daneel ticket #13: the draft release is audited, its publishing never."""
+
+    def test_a_release_is_read_as_made_and_its_publishing_is_left_out(self):
+        draft = {"tagName": "v1.2.0", "name": "v1.2.0", "isDraft": True, "createdAt": "2026-10-20T10:00:00Z",
+                 "body": "## Fixed", "assets": [{"name": "app.msi"}], "url": "u"}
+        with mock.patch.object(flow_audit, "_gh_json", return_value=draft):
+            release = flow_audit.collect_release("v1.2.0")
+        self.assertEqual(release["assets"], ["app.msi"])
+        self.assertNotIn("isDraft", release)
+
+    def test_a_batch_tag_has_no_release(self):
+        with mock.patch.object(flow_audit, "_gh_json") as gh:
+            self.assertIsNone(flow_audit.collect_release("batch/2026-10-20"))
+        gh.assert_not_called()
+
+
 def connection(nodes, total=None):
     return {"totalCount": len(nodes) if total is None else total, "nodes": nodes}
 
