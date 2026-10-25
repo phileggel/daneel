@@ -8,7 +8,10 @@ were open at its start and at its end, the backlog by size against its ceiling �
 same figures for the batch before when asked. It also reads the repository itself:
 which tools the usage log saw and which it never did, the paths the documents name that
 no longer exist, and the length of the documents and prompts the agent works from,
-beside the batch before.
+beside the batch before. Last, `records`: the window's merged pull requests with their
+commits, comments and reviews, the issues filed, closed or discussed in it with their
+threads, the last two `batch-audit` issues and the open `flow` issues — the records the
+auditor judges, read in a few GitHub calls instead of one per item.
 
 Usage, from the project's checkout:
     python3 <skill>/scripts/flow-audit.py v0.5.0                 # from that batch end to now
@@ -16,7 +19,8 @@ Usage, from the project's checkout:
     python3 <skill>/scripts/flow-audit.py v0.5.0 v0.6.0 --previous v0.4.0
     python3 <skill>/scripts/flow-audit.py v0.5.0 --pretty
 
-A release is named by its tag; its moment is when it was published on GitHub. A batch
+A release is named by its tag; its moment is when it was published on GitHub, and a
+draft stops the script at once. A batch
 that ended without a release is named by its `batch/<date>` tag, dated by the tag. The skill
 posts the figures on the batch's `batch-audit` issue. This script has
 no judgment — only counting.
@@ -581,6 +585,150 @@ def collect_backlog() -> list[dict]:
     ]
 
 
+# The records the auditor reads, fetched here in a few calls so that it judges them
+# instead of gathering them one pull request and one issue at a time.
+AUTHORED = "author { login } createdAt body"
+PULL_REQUEST_RECORD = f"""
+  number title body mergedAt
+  commits(first: 100) {{ totalCount nodes {{ commit {{ messageHeadline }} }} }}
+  comments(first: 100) {{ totalCount nodes {{ {AUTHORED} }} }}
+  reviews(first: 100) {{ totalCount nodes {{ author {{ login }} state submittedAt body
+    comments(first: 100) {{ nodes {{ path body }} }} }} }}
+"""
+ISSUE_RECORD = f"""
+  number title state stateReason createdAt closedAt body
+  labels(first: 20) {{ nodes {{ name }} }}
+  comments(first: 100) {{ totalCount nodes {{ {AUTHORED} }} }}
+"""
+ISSUE_SEARCH = f"""
+query($q: String!, $endCursor: String) {{
+  search(query: $q, type: ISSUE, first: 50, after: $endCursor) {{
+    pageInfo {{ hasNextPage endCursor }}
+    nodes {{ ... on Issue {{ {ISSUE_RECORD} }} }}
+  }}
+}}
+"""
+# Pull requests read per GraphQL call, each under its own alias.
+RECORD_BATCH = 20
+
+
+def _authored(nodes: list[dict]) -> list[dict]:
+    return [
+        {
+            "author": (node.get("author") or {}).get("login"),
+            "at": node.get("createdAt") or node.get("submittedAt"),
+            "body": node.get("body") or "",
+        }
+        for node in nodes
+    ]
+
+
+def _cut(connection: dict) -> bool:
+    """A list GitHub gave only part of: the auditor fetches the rest itself."""
+    return connection.get("totalCount", 0) > len(connection.get("nodes", []))
+
+
+def shape_pull_request(node: dict) -> dict:
+    """A pull request as the auditor reads it: its body, commits, comments and reviews."""
+    reviews = node["reviews"]["nodes"]
+    return {
+        "number": node["number"],
+        "title": node["title"],
+        "mergedAt": node["mergedAt"],
+        "body": node.get("body") or "",
+        "commits": [c["commit"]["messageHeadline"] for c in node["commits"]["nodes"]],
+        "comments": _authored(node["comments"]["nodes"]),
+        "reviews": [
+            {
+                **_authored([review])[0],
+                "state": review["state"],
+                "comments": review["comments"]["nodes"],
+            }
+            for review in reviews
+        ],
+        "cut": [
+            name for name in ("commits", "comments", "reviews") if _cut(node[name])
+        ],
+    }
+
+
+def shape_issue(node: dict) -> dict:
+    """An issue as the auditor reads it: its body, labels and thread."""
+    return {
+        "number": node["number"],
+        "title": node["title"],
+        "state": node["state"],
+        "stateReason": node.get("stateReason"),
+        "createdAt": node["createdAt"],
+        "closedAt": node.get("closedAt"),
+        "labels": [label["name"] for label in node["labels"]["nodes"]],
+        "body": node.get("body") or "",
+        "comments": _authored(node["comments"]["nodes"]),
+        "cut": ["comments"] if _cut(node["comments"]) else [],
+    }
+
+
+def issues_in_window(issues: list[dict], since: datetime, until: datetime) -> list[dict]:
+    """The issues filed, closed or discussed in the window, oldest first."""
+    return sorted(
+        (
+            issue
+            for issue in issues
+            if _within(issue["createdAt"], since, until)
+            or _within(issue["closedAt"], since, until)
+            or any(_within(c["at"], since, until) for c in issue["comments"])
+        ),
+        key=lambda issue: issue["number"],
+    )
+
+
+def collect_pull_request_records(numbers: list[int]) -> list[dict]:
+    shaped = []
+    for at in range(0, len(numbers), RECORD_BATCH):
+        aliases = " ".join(
+            f"p{n}: pullRequest(number: {n}) {{ {PULL_REQUEST_RECORD} }}"
+            for n in numbers[at : at + RECORD_BATCH]
+        )
+        query = (
+            "query($owner: String!, $repo: String!) {"
+            f" repository(owner: $owner, name: $repo) {{ {aliases} }} }}"
+        )
+        data = _gh_json(
+            "api", "graphql", "-F", "owner={owner}", "-F", "repo={repo}", "-f", f"query={query}"
+        )
+        shaped += [shape_pull_request(node) for node in data["data"]["repository"].values()]
+    return sorted(shaped, key=lambda pr: pr["number"])
+
+
+def search_issues(terms: str) -> list[dict]:
+    nodes = _gh_json_lines(
+        "api", "graphql", "--paginate", "-f", f"query={ISSUE_SEARCH}",
+        "-F", f"q=repo:{{owner}}/{{repo}} is:issue {terms}",
+        "--jq", ".data.search.nodes[]",
+    )
+    return [shape_issue(node) for node in nodes]
+
+
+def collect_records(pull_requests: list[dict], since: datetime, until: datetime) -> dict:
+    """Step 2 of the skill, read in bulk: the window's merged pull requests and issues,
+    the last two `batch-audit` issues (the audit before) and the open `flow` issues."""
+    merged = [
+        pr["number"]
+        for pr in pull_requests
+        if pr.get("mergedAt") and _within(pr["mergedAt"], since, until)
+    ]
+    window = search_issues(f"updated:>={since.isoformat().replace('+00:00', 'Z')}")
+    audits = sorted(
+        search_issues(f"label:{NOT_WORK}"), key=lambda i: i["createdAt"], reverse=True
+    )
+    return {
+        "pull_requests": collect_pull_request_records(merged),
+        "issues": issues_in_window(window, since, until),
+        "batch_audits": audits[:2],
+        "open_flow": search_issues("is:open label:flow"),
+    }
+
+
 def collect_reruns(earliest: datetime) -> list[dict]:
     """The runs re-run since `earliest`, each with the conclusions of its earlier attempts.
 
@@ -621,7 +769,11 @@ def batch_end_moment(tag: str) -> datetime:
         if not made:
             raise SystemExit(f"flow-audit: batch tag {tag} has no tagger date")
         return parse_moment(made)
-    release = _gh_json("release", "view", tag, "--json", "publishedAt")
+    release = _gh_json("release", "view", tag, "--json", "publishedAt,isDraft")
+    if isinstance(release, dict) and release.get("isDraft"):
+        raise SystemExit(
+            f"flow-audit: release {tag} is a draft; the audit runs once it is published"
+        )
     published = release.get("publishedAt") if isinstance(release, dict) else None
     if not published:
         raise SystemExit(f"flow-audit: release {tag} has no publication date")
@@ -694,6 +846,7 @@ def main(argv: list[str] | None = None) -> int:
         ),
     }
     report["current"]["backlog"] = measure_backlog(collect_backlog(), since, until)
+    report["records"] = collect_records(pull_requests, since, until)
     report["repository"] = measure_repository(
         since, until, args.until or "HEAD", args.since
     )

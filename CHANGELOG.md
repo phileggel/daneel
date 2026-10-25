@@ -2,6 +2,19 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## flow 0.3.0 — 2026-10-25
+
+- `flow-audit` is faster: `flow-audit.py` reads the records the auditor judges — the
+  window's merged pull requests with their commits, comments and reviews, the issues
+  filed, closed or discussed with their threads, the last two `batch-audit` issues, the
+  open `flow` issues — into `records` of its JSON, in a few GitHub calls. The auditor
+  reads that document instead of fetching each pull request and issue (50 to 100 turns,
+  7 to 15 minutes in PatientManager and folioneer, measured 2026-10-25). On
+  PatientManager's batch of 2026-10-24 the script took 65 s.
+- A release still a draft stops the script at once, and the skill stops with it: it
+  never waits on CI, retries or publishes.
+- Nothing to do in a project; `logs/flow-audit.json` gains the `records` key.
+
 ## flow 0.2.0 — 2026-10-24
 
 - `plan-batch`, from folioneer's and PatientManager's copies (90% alike): folioneer's

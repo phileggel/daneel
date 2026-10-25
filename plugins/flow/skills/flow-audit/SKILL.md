@@ -22,20 +22,28 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/flow-audit.py <start> <end> --previous <prev
 ```
 
 `<end>`, `<start>`, `<previous>`: the lines `batch-ends.sh` prints, in that order;
-`${CLAUDE_SKILL_DIR}/scripts/flow-audit.py` says what each figure is. If it fails, stop:
-hand-gathered figures are not comparable. A `truncated` list is said beside the oldest
-figures.
+`${CLAUDE_SKILL_DIR}/scripts/flow-audit.py` says what each figure is. If it fails, stop
+at once and reply with its message: hand-gathered figures are not comparable. Never wait
+for a release or a CI run, never retry and never publish anything: a batch end that is
+not published yet is the session's step, and the audit is run again after it. A
+`truncated` list is said beside the oldest figures.
 
 ## Step 2 — Read the records
 
-- Each pull request merged in the window (`current.pull_requests.first` to `.last`):
-  `gh pr view <n> --json title,body,commits,comments,reviews` — the graded findings are in
-  the body and the comments, beside each CI round's report.
-- The issues closed and filed in the window (`gh issue list --state all --search
-"updated:>=<start date>"`), with their threads: the owner's answers are there.
-- The last `batch-audit` issue's audit (the figures before), `${CLAUDE_SKILL_DIR}/audit.md`,
-  and the project's rules the batch was run under — `docs/workflow.md`, `CLAUDE.md`,
-  `docs/agentic-setup.md` — with its open `flow` issues.
+The script has read them into `records` (read the document in parts):
+
+- `pull_requests`: each one merged in the window, with its body, commits, comments and
+  reviews — the graded findings are in the body and the comments, beside each CI round's
+  report.
+- `issues`: those filed, closed or discussed in the window, with their threads — the
+  owner's answers are there.
+- `batch_audits`: the last two `batch-audit` issues, the audit before among them;
+  `open_flow`: the open `flow` issues.
+
+Fetch from GitHub only what they lack: an item whose `cut` names a list GitHub gave in
+part, or a record the window does not hold. Then read `${CLAUDE_SKILL_DIR}/audit.md` and
+the project's rules the batch was run under — `docs/workflow.md`, `CLAUDE.md`,
+`docs/agentic-setup.md`.
 
 ## Step 3 — Count
 
