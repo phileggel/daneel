@@ -2,6 +2,20 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## flow 0.5.0 — 2026-10-25
+
+- `backlog` (ticket #3): `/flow:backlog` checks, before the coding agent files a ticket,
+  that its size fits under the ceiling; the same count is `flow-audit`'s Backlog block,
+  now with the status by size, what was added (coder, owner, waived) and removed (done,
+  folded, closed). The coder's tickets carry a mark (`agent-filed`); every other ticket
+  is the owner's and raises the ceiling, as do `security` and `data-loss` ones.
+- `flow-audit` and `spec-checker` no longer name a project's documents (ticket #6):
+  `flow-audit` reads the project's `guides` setting, `spec-checker` the project's own
+  rule numbering.
+- To take it: the coding agent's rules say to run `/flow:backlog` before filing, and
+  mark what it files `agent-filed` (or set `backlog.coder_mark` and `backlog.waived` in
+  `.claude/daneel.json`). Until then every new ticket counts as the owner's.
+
 ## flow 0.4.0 — 2026-10-25
 
 - `app` is folded into `flow` (ticket #6): one plugin now holds `plan-batch`,

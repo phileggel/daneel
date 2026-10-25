@@ -35,6 +35,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import functools
+import importlib.util
 import json
 import re
 import shutil
@@ -113,12 +114,13 @@ RUN_FIELDS = (
 LOGGERS = ("usage_log.py", "usage-log.sh")
 # A run that ended without passing; a cancelled one is counted apart — nothing ran to its end.
 FAILED = ("failure", "timed_out", "startup_failure")
-# Ticket #492: the backlog counted by size; a ticket with none counts as an M.
-SIZE_WEIGHTS = {"size:S": 1, "size:M": 2, "size:L": 4, "size:XL": 8}
-UNSIZED_WEIGHT = 2
-# What raises the ceiling: a ticket the owner asked to add. The batch's audit issue is no work.
-OWNER_ASKED = "owner-asked"
-NOT_WORK = "batch-audit"
+# The backlog and its ceiling are measured by the `backlog` skill's script, shared with
+# the coder's check before it files a ticket.
+_BACKLOG_PATH = Path(__file__).resolve().parents[2] / "backlog" / "scripts" / "backlog.py"
+_spec = importlib.util.spec_from_file_location("backlog", _BACKLOG_PATH)
+backlog = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(backlog)
+NOT_WORK = backlog.NOT_WORK
 PULL_REQUEST_LIMIT = 500
 ISSUE_LIMIT = 500
 RUN_LIMIT = 1000
@@ -324,40 +326,6 @@ def measure_open(items: list[dict], since: datetime, until: datetime) -> dict:
     }
 
 
-def _weight(issue: dict) -> int:
-    sizes = [SIZE_WEIGHTS[label] for label in issue["labels"] if label in SIZE_WEIGHTS]
-    return max(sizes) if sizes else UNSIZED_WEIGHT
-
-
-def measure_backlog(issues: list[dict], since: datetime, until: datetime) -> dict:
-    """The open backlog by size at both ends (ticket #492): a parent weighs nothing while
-    one of its slices is open; the ceiling is the start's count plus the owner's additions.
-    Sizes are today's labels, not the ones each ticket had then."""
-    work = [issue for issue in issues if NOT_WORK not in issue["labels"]]
-
-    def weight_at(moment: datetime) -> int:
-        return sum(
-            _weight(issue)
-            for issue in work
-            if _open_at(issue, moment)
-            and not any(_open_at(sub, moment) for sub in issue["subIssues"])
-        )
-
-    asked = [
-        issue
-        for issue in work
-        if OWNER_ASKED in issue["labels"] and _within(issue["createdAt"], since, until)
-    ]
-    at_start, at_end = weight_at(since), weight_at(until)
-    ceiling = at_start + sum(_weight(issue) for issue in asked)
-    return {
-        "at_start": at_start,
-        "at_end": at_end,
-        "ceiling": ceiling,
-        "within_ceiling": at_end <= ceiling,
-    }
-
-
 def dependabot_pull_requests(pull_requests: list[dict]) -> list[dict]:
     return [
         pr
@@ -551,39 +519,6 @@ def compared(before: str, sha: str) -> str | None:
         return None
 
 
-# `{owner}` and `{repo}` are filled by `gh` from the checkout's remote.
-BACKLOG_QUERY = """
-query($owner: String!, $repo: String!, $endCursor: String) {
-  repository(owner: $owner, name: $repo) {
-    issues(first: 100, after: $endCursor) {
-      pageInfo { hasNextPage endCursor }
-      nodes {
-        createdAt closedAt
-        labels(first: 20) { nodes { name } }
-        subIssues(first: 50) { nodes { createdAt closedAt } }
-      }
-    }
-  }
-}
-"""
-
-
-def collect_backlog() -> list[dict]:
-    """Every issue with its labels and its slices, as `measure_backlog` reads them."""
-    nodes = _gh_json_lines(
-        "api", "graphql", "--paginate", "-f", f"query={BACKLOG_QUERY}",
-        "-F", "owner={owner}", "-F", "repo={repo}",
-        "--jq", ".data.repository.issues.nodes[]",
-    )
-    return [
-        {
-            "createdAt": node["createdAt"],
-            "closedAt": node["closedAt"],
-            "labels": [label["name"] for label in node["labels"]["nodes"]],
-            "subIssues": node["subIssues"]["nodes"],
-        }
-        for node in nodes
-    ]
 
 
 # The records the auditor reads, fetched here in a few calls so that it judges them
@@ -846,7 +781,10 @@ def main(argv: list[str] | None = None) -> int:
             dependabot_pull_requests(pull_requests), since, until
         ),
     }
-    report["current"]["backlog"] = measure_backlog(collect_backlog(), since, until)
+    own = backlog.load_settings(ROOT)
+    report["current"]["backlog"] = backlog.measure_backlog(
+        backlog.collect_backlog(), since, until, own["coder_mark"], tuple(own["waived"])
+    )
     report["records"] = collect_records(pull_requests, since, until)
     report["repository"] = measure_repository(
         since, until, args.until or "HEAD", args.since
