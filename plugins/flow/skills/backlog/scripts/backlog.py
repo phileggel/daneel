@@ -207,28 +207,13 @@ def collect_backlog() -> list[dict]:
 
 
 def last_batch_end() -> datetime | None:
-    """When the last batch ended: its release's publication, or its `batch/<date>` tag;
-    None before the first."""
-    tag = subprocess.run(
+    """When the last batch ended: its `v*` or `batch/<date>` tag's date; None before the first."""
+    made = subprocess.run(
         ["git", "for-each-ref", "--sort=-creatordate", "--count=1",
-         "--format=%(refname:short)", "refs/tags/v*", "refs/tags/batch/"],
+         "--format=%(creatordate:iso-strict)", "refs/tags/v*", "refs/tags/batch/"],
         check=True, capture_output=True, text=True,
     ).stdout.strip()
-    if not tag:
-        return None
-    if tag.startswith("batch/"):
-        made = subprocess.run(
-            ["git", "for-each-ref", f"refs/tags/{tag}", "--format=%(taggerdate:iso-strict)"],
-            check=True, capture_output=True, text=True,
-        ).stdout.strip()
-        return parse_moment(made)
-    published = subprocess.run(
-        ["gh", "release", "view", tag, "--json", "publishedAt", "--jq", ".publishedAt"],
-        check=True, capture_output=True, text=True,
-    ).stdout.strip()
-    if not published:
-        raise SystemExit(f"backlog: release {tag} is not published")
-    return parse_moment(published)
+    return parse_moment(made) if made else None
 
 
 def main(argv: list[str] | None = None) -> int:

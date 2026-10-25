@@ -19,8 +19,7 @@ Usage, from the project's checkout:
     python3 <skill>/scripts/flow-audit.py v0.5.0 v0.6.0 --previous v0.4.0
     python3 <skill>/scripts/flow-audit.py v0.5.0 --pretty
 
-A release is named by its tag; its moment is when it was published on GitHub, and a
-draft stops the script at once. A batch
+A release is named by its tag, dated by the tag, published or not. A batch
 that ended without a release is named by its `batch/<date>` tag, dated by the tag. The skill
 posts the figures on the batch's `batch-audit` issue. This script has
 no judgment — only counting.
@@ -693,24 +692,13 @@ BATCH_TAG_PREFIX = "batch/"
 
 
 def batch_end_moment(tag: str) -> datetime:
-    """When the batch end `tag` happened: a release's publication on GitHub, or the
-    tagger date of a `batch/<date>` tag for a batch that ended without one (FLOW-074)."""
-    if tag.startswith(BATCH_TAG_PREFIX):
-        made = _git(
-            "for-each-ref", f"refs/tags/{tag}", "--format=%(taggerdate:iso-strict)"
-        ).strip()
-        if not made:
-            raise SystemExit(f"flow-audit: batch tag {tag} has no tagger date")
-        return parse_moment(made)
-    release = _gh_json("release", "view", tag, "--json", "publishedAt,isDraft")
-    if isinstance(release, dict) and release.get("isDraft"):
-        raise SystemExit(
-            f"flow-audit: release {tag} is a draft; the audit runs once it is published"
-        )
-    published = release.get("publishedAt") if isinstance(release, dict) else None
-    if not published:
-        raise SystemExit(f"flow-audit: release {tag} has no publication date")
-    return parse_moment(published)
+    """When the batch end `tag` happened: the tag's date, a release's `v*` tag or a
+    `batch/<date>` tag alike (FLOW-074). A release is the agent's once it is tagged;
+    publishing it is the owner's and no figure waits on it."""
+    made = _git("for-each-ref", f"refs/tags/{tag}", "--format=%(creatordate:iso-strict)").strip()
+    if not made:
+        raise SystemExit(f"flow-audit: no tag {tag} in this checkout (git fetch --tags)")
+    return parse_moment(made)
 
 
 def collect() -> tuple[list[dict], list[dict]]:

@@ -142,23 +142,24 @@ marks every issue it files (`agent-filed`, or `backlog.coder_mark`).
 
 ## 5. How a batch ends
 
-Every batch ends alike: the closing brief, then the project's batch-end checks, what they
-find folded or filed (§ 2). A security issue that puts users at risk is a `fix` instead:
-a `bug` issue put to the owner, worked before the batch ends, checked again on what it
-changed, released.
+Every batch ends alike: the project's batch-end checks, what they find folded or filed
+(§ 2), then the release or the batch tag, its flow audit, and last the closing brief — the
+last thing the run says, so the owner cannot miss it. A security issue that puts users at
+risk is a `fix` instead: a `bug` issue put to the owner, worked before the batch ends,
+checked again on what it changed, released.
 
 - **A batch with a `feat` or `fix` is released**: once every pull request of the batch
   has merged and the workflow runs of `main`'s head are green, the agent cuts it: the
-  `v*` tag and its draft release, with its notes. It says everything is made but the
-  publishing, naming the draft and the runs. The owner publishes it later, outside the
-  run.
+  `v*` tag and its draft release, with its notes. Its closing brief says everything is
+  made but the publishing, naming the draft and the runs. The owner publishes it later,
+  outside the run.
 - **Any other batch** the agent closes with a `batch/<date>` tag: it publishes nothing,
   its chores ride in the next release, no fix is picked to fill a changelog.
 
-A batch is named by its dates, never by a version number. `/flow:flow-audit` then audits
-the range it closes: at once after a `batch/<date>` tag; for a release, once it is
-published — the next run (`/flow:plan-batch`, `/app:run-batch`) starts with it when a
-published release has no audit yet.
+A batch is named by its dates, never by a version number, and ends at its tag — the `v*`
+tag the agent cuts or `batch/<date>` — never at the release's publication.
+`/flow:flow-audit` audits the range it closes at once after that tag, before the closing
+brief; publishing is the owner's alone and nothing waits on it.
 
 ## 6. The flow audit
 
@@ -215,7 +216,7 @@ The checklist `/flow:init` sets up.
   none, needed or validated); `task` (Found by, Where, Observation, Size, Waits on the
   owner); `flow` (Size, Observed, Proposal, Costs, Decision). A form may add the
   project's own field, such as a no-private-data checkbox.
-- **Tags** for batch ends: releases `v*`, published on GitHub, and `batch/<date>`
+- **Tags** for batch ends: releases `v*` (cut by the agent, published by the owner) and `batch/<date>`
   annotated tags.
 - **A CI workflow** that runs on every push of a pull request (`Quality` unless
   `flow-audit.round_workflow` names another): its runs count the CI rounds.

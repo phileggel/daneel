@@ -10,7 +10,7 @@ mocks live, its release steps.
 
 A task — a Queued item (`/app:run-entry`, headless), an issue the owner names, or a chat
 request (its record is the pull request body) — lands on `main` through a pull request
-with every check green, merged by `just merge`.
+with every check green, merged by run-entry's `merge.py`.
 
 1. **Pick and brief.** The questions come first (the method's decision scan), with two
    readings the code an issue changes does not show: for an issue that changes what an
@@ -40,8 +40,8 @@ with every check green, merged by `just merge`.
    the task, each Done-when clause with the test that proves it and where it was seen red
    (or why it could not be), findings that changed something, issues filed, screenshots.
    The commit title is the changelog line.
-9. **Merge:** `just watch-pr` waits for the checks; each lane's newest comment, green or
-   not, is read and its findings graded (§ 5); then `just merge` — it refuses until every
+9. **Merge:** run-entry's `watch-pr.py` waits for the checks; each lane's newest comment, green or
+   not, is read and its findings graded (§ 5); then `merge.py` — it refuses until every
    check is green and folds `fixup!` commits, so the task lands as one commit.
 10. **Closure** in the same PR: on an issue that touched a spec, `app:spec-checker` runs
     first and what it finds is fixed; a coverage floor the run measured more than a
@@ -53,8 +53,9 @@ with every check green, merged by `just merge`.
 **At a batch end**, before the method's release or batch tag: the release sweep
 (Conventions); for a release, `/app:dep-audit` on the final `main` once every pull
 request of the batch has merged — a known vulnerability in what ships blocks the release —
-and the hand-over names its verdict and the runs. The agent then runs `just release`, which leaves
-a draft for the owner to publish, and closes any other batch with `just batch-end`.
+and the closing brief names its verdict and the runs. `/app:run-batch` then cuts the release
+with its `release.py`, which leaves a draft for the owner to publish, or closes any other
+batch with its `batch-end.sh`.
 
 ## 2. Design proposal
 
@@ -76,7 +77,7 @@ record.
 ## 3. The harness
 
 `just harness` runs it locally, scoped to the layers the branch touched; the same checks
-are required on every pull request (`required-checks.json`), and `just merge` refuses
+are required on every pull request (`required-checks.json`), and run-entry's `merge.py` refuses
 without them. The git hooks run only fast checks for the same scope. Nothing is run by
 hand just before a commit or a push: the hooks do it, and `just harness` is for wanting
 CI's answer before pushing. Every app's harness holds at least:
@@ -91,8 +92,9 @@ CI's answer before pushing. Every app's harness holds at least:
 - the reviewers (`review.yml`), one check per lane the diff touches, any 🔴 failing;
 - commit hygiene: a conventional title, no trailer;
 - dependency advisories (`security-audit.yml`), weekly;
-- the merge guard: `just merge` refuses unless the branch heads an open pull request with
-  every required check present and green; neither it nor `just release` pushes to `main`.
+- the merge guard: run-entry's `merge.py` refuses unless the branch heads an open pull request with
+  every required check present and green; run-batch's `release.py` never pushes to `main`, nor does
+  `merge.py` unless the project sets `run-entry.land` to `"push"`.
 
 The project's rules document lists its own checks beside these.
 
@@ -149,7 +151,7 @@ that changed something or was rejected goes in the PR body, or a PR comment once
 
 A CI lane stopped by its usage limit says "did not run (usage limit)" and fails: an
 unreviewed pull request does not merge. It is re-run once the limit has reset
-(`just rerun-failed <run>`).
+(`gh run rerun <run> --failed`).
 
 ## 6. Gold for new code, bit by bit for existing
 
@@ -189,7 +191,7 @@ questions. The loop runs one task per run and keeps its state in git and the Pro
 
 - **In chat:** `/app:run-entry #123`, or a plain request; `/app:run-batch` for a whole
   batch: the questions first, each remaining item through `/app:run-entry`, the batch's
-  end, then `/flow:flow-audit`.
+  end, then the closing brief.
 - **Laptop:** `just run-entry` — the first Queued item, headless, under the method's
   budget. A command outside the allow list in `.claude/settings.json` is denied, so the
   run fails instead of waiting. The allow list scopes the flow, it is not a sandbox; what
@@ -217,21 +219,21 @@ lane's comment each round. `.review/` is gitignored and safe to delete.
 The review workflow skips every lane for Dependabot (its runs get no secrets), so its
 green reviewer checks are skips, not reviews. It is on the Project as itself and
 `/flow:plan-batch` proposes it with the rest. Once queued, the agent reads the diff and
-checks each pinned commit against the upstream tag it names; runs `just merge` on its
+checks each pinned commit against the upstream tag it names; runs run-entry's `merge.py` on its
 branch, so the rebase and push are the agent's and CI runs the reviewers for real; grades
-that review (a warning is not merged past); and runs `just merge` again once every check
+that review (a warning is not merged past); and runs `merge.py` again once every check
 is green.
 
 ### Release sweep
 
 Before a batch ends, run in `release-sweep` mode the lanes
 `git diff --name-only <tag>...HEAD | bash scripts/review-lanes.sh` prints, `<tag>` the
-last batch end (`just batch-ends`), plus `reviewer-security`, which reads the whole
-command surface; and `app:spec-checker` on every spec the batch touched. Each lane's
-`## Files read` goes into the hand-over, or the closing brief of a batch without a
-release. What they find is folded or filed, not fixed in the batch, but for the method's
-user-risk case; a finding not critical and older than the batch is filed and reported,
-not asked (§ 5 keeps a 🔴 security finding for the owner).
+last batch end (`git describe --tags --abbrev=0 --match 'v*' --match 'batch/*'`), plus
+`reviewer-security`, which reads the whole command surface; and `app:spec-checker` on
+every spec the batch touched. Each lane's `## Files read` goes into the closing brief.
+What they find is folded or filed, not fixed in the batch, but for the method's user-risk
+case; a finding not critical and older than the batch is filed and reported, not asked
+(§ 5 keeps a 🔴 security finding for the owner).
 
 ### Shell calls
 

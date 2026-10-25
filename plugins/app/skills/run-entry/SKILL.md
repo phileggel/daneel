@@ -2,6 +2,15 @@
 name: run-entry
 description: Runs one task end to end under the loop — branch, design gate, acceptance tests, implementation, harness, reviewers, PR, merge on green, closure. The task is the first ready Queued item of the Project (headless, no argument), an issue the human names (#123), or a plain request typed in chat. One task per invocation.
 argument-hint: "[#123 | a request]"
+allowed-tools:
+  - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py *)
+  - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py)
+  - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/watch-pr.py *)
+  - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/watch-pr.py)
+  - Bash(gh run rerun *)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh *)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh)
+  - Bash(bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh *)
 ---
 
 # Skill — `run-entry`
@@ -11,10 +20,19 @@ One invocation, one task, through the ceremony to `main`. The rules are the loop
 rules document; this file is the checklist.
 
 Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and `.number`; under
-`run-entry`, optional, `lanes` — the command that reads changed paths and prints the
-review lanes (default `bash scripts/review-lanes.sh`) — and `recipes`, the project's
-`just` recipes by role (defaults `harness`, `push_harness` none — run once more before
-the first push —, `watch` `watch-pr`, `merge` `merge`, `rerun` `rerun-failed`).
+`run-entry`, each optional:
+
+- `recipes` — the project's `just` recipes by role: `harness` (default `harness`),
+  `push_harness` (default none; `harness` runs once more before the first push).
+- `land` — how `merge.py` lands a green pull request: `"github"` (default), GitHub merges
+  the tested head, for a `main` whose ruleset takes only checked commits in a repository
+  that allows rebase and squash merges; `"push"`, the script fast-forwards `main` and
+  pushes it.
+- `record_paths` — the files whose move of `main` leaves the checks standing (default
+  `["docs/adr/"]`; an entry ending in `/` is a folder of `.md` files).
+
+`merge.py` and `watch-pr.py` read the required checks from `required-checks.json` at the
+checkout's root (`{"checks": [...]}`).
 
 ## Step 0 — Preconditions and mode
 
@@ -25,7 +43,7 @@ the first push —, `watch` `watch-pr`, `merge` `merge`, `rerun` `rerun-failed`)
   question becomes a comment on the issue with `needs-owner` (method § 2).
 - **Chat, named issue** (`#123`): `gh issue view 123 --comments`.
 - **A Dependabot pull request** (queued or named): loop § Dependabot pull requests, not
-  Steps 1 to 9 — the diff, each pinned commit, `just {merge}` on its branch, grade, merge.
+  Steps 1 to 9 — the diff, each pinned commit, `python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` on its branch, grade, merge.
 - **Chat, plain request**: the request is the task; no issue is created — the PR body
   is its record. Write its Done when into the opening brief.
 - **Decision scan**, for an issue, before the branch exists (method § 2). Chat: its
@@ -77,7 +95,7 @@ met with tests, an architecture violation fixed in code — never a gate file lo
 
 ## Step 6 — Reviewers
 
-Exactly the lanes `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files | {lanes}` prints, in
+Exactly the lanes `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files | bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh` prints, in
 one batch (lane `x` is `app:reviewer-x`; `spec`, `contract`: `app:spec-reviewer`,
 `app:contract-reviewer`), each given the branch, the spec and the vocabulary; every finding
 graded (loop § 5); again on the fixes before the first push until no 🔴 remains.
@@ -89,18 +107,20 @@ graded (loop § 5); again on the fixes before the first push until no 🔴 remai
 ## Step 8 — Pull request and merge
 
 - Push, `gh pr create --body-file`: the body of loop § 1, step 8.
-- `just {watch}` in the background: exit 0 is green; the recipe's script lists the others.
+- `python3 ${CLAUDE_SKILL_DIR}/scripts/watch-pr.py` in the background: exit 0 is green, 1 a
+  check failed, 2 GitHub unreachable, 3 timed out, 4 not open, 5 GitHub never reached the
+  local commit, 6 only lanes the usage limit stopped.
 - A red reviewer lane: read its newest comment; grade and apply as loop § 5 says, as a
   `fixup!`; push.
 - A lane stopped by the CI account's usage limit (by exit code or comment): nothing to
   fix. Wait for the reset time it names (a wake-up in chat, a sleep headless; outside
-  Rule 4), then `just {rerun} <the run id>` and watch again.
+  Rule 4), then `gh run rerun <the run id> --failed` and watch again.
 - Any other red: read the log first. If it shows the cause, fix it; if not, the next
   push adds observation and makes the failure cheap, never a fix (method § 4). Fix with
   `git commit --fixup <sha>` (never a new titled commit, never a force-push), push, watch
   again. The same gate red three times: open question, leave the PR open, stop.
 - All green: every lane's newest comment graded in a PR comment (loop § 1, step 9);
-  `just {merge}` folds the fixups.
+  `python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` folds the fixups.
 
 ## Step 9 — Closure
 

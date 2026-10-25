@@ -1,14 +1,24 @@
 ---
 name: run-batch
-description: Runs a whole batch in chat — every Queued item of the Project through /app:run-entry, one after the other, then the batch's end (a release or a batch tag), then /flow:flow-audit. Chains the existing skills and decides nothing new. Use when the owner says to run the batch.
+description: Runs a whole batch in chat — every Queued item of the Project through /app:run-entry, one after the other, then the batch's end (a release cut to its draft, or a batch tag), /flow:flow-audit, then the closing brief. Chains the existing skills and decides nothing new. Use when the owner says to run the batch.
+allowed-tools: Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/release.py *), Bash(bash ${CLAUDE_SKILL_DIR}/scripts/batch-end.sh)
 ---
 
 # Skill — `run-batch`
 
-A batch from its Queued items to its audit (`flow`'s method, `method.md`, § 5; the loop,
-`${CLAUDE_SKILL_DIR}/../../loop.md`, § 1 and § 8); this file only puts existing skills and
-rules in order. Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and
-`.number`; optional `run-batch.release_check`, a recipe run before a release's hand-over.
+A batch from its Queued items to its closing brief (`flow`'s method, `method.md`, § 5; the
+loop, `${CLAUDE_SKILL_DIR}/../../loop.md`, § 1 and § 8); this file only puts existing skills
+and rules in order. Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and
+`.number`; under `run-batch`, all optional:
+
+- `release_check` — a recipe run before a release's hand-over (`just {release_check}`);
+- `version_files` — the files that carry the version, the first read for the current one
+  (default `["package.json"]`): `package.json`, `package-lock.json` (its two places), any
+  other `*.json` with a top-level `"version"` (`tauri.conf.json`), a `Cargo.toml` (its
+  `[package]` version; its `Cargo.lock` follows);
+- `changelog` — the file the release writes its section in (default `CHANGELOG.md`);
+- `release_workflow` — the workflow a `v*` tag starts, which makes the draft release (its
+  file name, `release.yml`); unset, `release.py` makes the draft itself.
 
 ## Step 0 — Preconditions
 
@@ -19,9 +29,10 @@ otherwise stop and report.
 
 `gh project item-list {number} --owner {owner} --format json --limit 500`: the items with
 Status Queued and the latest Batch date, in row order, and those already Done.
-`TaskCreate` one task per remaining item in order, then "Closing brief and batch end"
-and "Flow audit". Mark each task `in_progress` when it starts, `completed` once merged;
-`/app:run-entry` creates none under it.
+`TaskCreate` one task per remaining item in order, then "Batch end", "Flow audit" and
+"Closing brief".
+Mark each task `in_progress` when it starts, `completed` once merged; `/app:run-entry`
+creates none under it.
 
 ## Step 2 — Ask first
 
@@ -40,30 +51,42 @@ Stop, and say where, when `/app:run-entry` stops by its own rules (an open quest
 same gate red three times, the three-hour budget). An item that is not ready is said so
 and skipped.
 
-## Step 4 — Say what the batch achieved, then end it
+## Step 4 — End the batch
 
-When every item of the batch has been run, skipped or stopped on, the closing brief of
-the batch, before anything else: what shipped (each issue with its pull request), what a
-user notices (the `feat` and `fix` titles, or "nothing"), what was filed during the run,
-and what was left — skipped, stopped or not ready — with why.
+When every item of the batch has been run, skipped or stopped on (method § 5, loop § 1):
+the release sweep (loop § Release sweep) and the project's batch-end checks, their
+findings folded or filed. Then, on the final `main`:
 
-Then end it (method § 5, loop § 1): the release sweep (loop § Release sweep) and the
-project's batch-end checks, their findings folded or filed. With a `feat` or `fix`, on
-the final `main`: `just {release_check}` when set, `/app:dep-audit`, `just release`, then the hand-over —
-everything is made but the publishing: the draft, the dependency audit's verdict, what
-was filed and the runs; without, `just batch-end` on a fresh `main`.
+    python3 ${CLAUDE_SKILL_DIR}/scripts/release.py --preview
 
-## Step 5 — Publish and audit
+- **Exit 0, a `feat` or `fix` is in the batch:** `just {release_check}` when set,
+  `/app:dep-audit` (a known vulnerability in what ships blocks the release), then
 
-After a `batch/<date>` tag: `/flow:flow-audit`, once. After a release: the owner
-publishes it outside the run, so stop with the hand-over; the next run starts with the
-audit (method § 5).
+      python3 ${CLAUDE_SKILL_DIR}/scripts/release.py
 
-Step 0 of every run: a published release with no audit yet is audited first.
+  It bumps the version files, writes the changelog section, lands them through a pull
+  request merged once green, tags `main`'s head `v<version>` and leaves the draft release
+  with the section as its notes (after the `release_workflow` run, which can take long:
+  run it in the background). It never publishes. Stopped, it says where and what to do;
+  `--draft v<version>` redoes the draft step alone once its tag is pushed.
+- **Exit 3, no `feat` or `fix`:** `bash ${CLAUDE_SKILL_DIR}/scripts/batch-end.sh` tags
+  the fresh `main` `batch/<UTC date>`.
+
+Then, in both cases, `/flow:flow-audit` once the tag is pushed, while the draft step may
+still run: a batch end is dated by its tag, never by the release's publication, which is
+the owner's alone and nothing waits on.
+
+## Step 5 — The closing brief, last
+
+The last thing the run says, so the owner cannot miss it: what shipped (each issue with
+its pull request), what a user notices (the `feat` and `fix` titles, or "nothing"), what
+was filed during the run, what was left — skipped, stopped or not ready — with why, the
+dependency audit's verdict, the flow audit's verdict, and for a release "everything is
+made but the publishing: <the draft>, <the runs>".
 
 ## Rules
 
 1. It chains; it decides nothing. A choice a step does not settle goes to the owner.
 2. Never add to or reorder the batch, never publish a release, never skip an item
    silently.
-3. One batch per invocation: it ends with the audit.
+3. One batch per invocation: it ends with the closing brief.

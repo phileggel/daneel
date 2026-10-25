@@ -564,19 +564,13 @@ class RangeEndTest(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 flow_audit.batch_end_moment("batch/2026-10-20")
 
-    def test_a_version_tag_is_dated_by_its_publication(self):
+    def test_daneel_ticket_13_a_release_is_dated_by_its_tag_draft_or_not(self):
         with mock.patch.object(
-            flow_audit, "_gh_json", return_value={"publishedAt": "2026-10-17T11:11:19Z"}
-        ):
+            flow_audit, "_git", return_value="2026-10-17T11:11:19+00:00\n"
+        ), mock.patch.object(flow_audit, "_gh_json") as gh:
             moment = flow_audit.batch_end_moment("v0.24.7")
         self.assertEqual(moment, flow_audit.parse_moment("2026-10-17T11:11:19Z"))
-
-    def test_a_draft_release_stops_the_audit_at_once(self):
-        with mock.patch.object(
-            flow_audit, "_gh_json", return_value={"publishedAt": None, "isDraft": True}
-        ):
-            with self.assertRaisesRegex(SystemExit, "is a draft"):
-                flow_audit.batch_end_moment("v0.26.1")
+        gh.assert_not_called()
 
 
 def connection(nodes, total=None):

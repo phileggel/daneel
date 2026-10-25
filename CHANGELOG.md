@@ -26,8 +26,18 @@ converged from both projects' copies.
 - The reviewers `spec-reviewer`, `contract-reviewer`, `adr-reviewer`, `spec-checker`,
   `reviewer-guides`, and the stack lanes `reviewer-arch`, `-backend`, `-frontend`, `-sql`,
   `-e2e`, `-security`, `-infra`, with `protocol.md`, `branch.sh`, `review-path.sh`.
+- `review-lanes.sh`: the lanes a change needs, defaults for a Tauri + React app, the
+  project's own paths from `review.lanes`, the guides from `flow-audit.guides`.
+- `run-batch`'s `release.py` cuts a release to its draft, never published, and
+  `batch-end.sh` tags a batch without one; the closing brief comes last. A project sets
+  `run-batch.version_files`, `.changelog`, `.release_workflow`, drops its `release` and
+  `batch-end` recipes and its release script, and drops any deny line matching `release.py`.
 
 To take it: enable `app@daneel` beside `flow@daneel`; set `review.rules` (one list of
 rules documents per lane) and the optional `run-entry`, `run-batch`, `design-proposal`
 keys; move into the project's rules documents what only it checks (its domain, its own
-scripts and records); `just run-entry` calls `/app:run-entry`; drop the project's copies.
+scripts and records); set `review.lanes` for the paths only the project adds to a lane and `flow-audit.guides`
+for its guides; `just run-entry` is the one line of `plugins/app/README.md` § Headless
+runs, and the review workflow runs the plugin's `review-lanes.sh` with the base branch's
+`.claude/daneel.json`; drop the project's copies (`review-lanes.sh`, `run-entry.sh`, their
+tests).

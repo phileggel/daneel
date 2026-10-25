@@ -24,8 +24,8 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/flow-audit.py <start> <end> --previous <prev
 `<end>`, `<start>`, `<previous>`: the lines `batch-ends.sh` prints, in that order;
 `${CLAUDE_SKILL_DIR}/scripts/flow-audit.py` says what each figure is. If it fails, stop
 at once and reply with its message: hand-gathered figures are not comparable. Never wait
-for a release or a CI run, never retry and never publish anything: a batch end that is
-not published yet is the session's step, and the audit is run again after it. A
+for a release or a CI run, never retry and never publish anything: a release is audited from its tag, whether
+the owner has published it or not. A
 `truncated` list is said beside the oldest figures.
 
 ## Step 2 — Read the records

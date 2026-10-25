@@ -23,10 +23,6 @@ gh issue list --state open --limit 500 --json number,title,labels,body
 gh pr list --state open --json number,title,headRefName,author,statusCheckRollup
 ```
 
-First, the last batch end: a published release whose `batch-audit` issue holds no audit
-yet is audited before anything else (`/flow:flow-audit`, method § 5); a release still a
-draft is named in **Needs you** — it waits on the owner's publishing.
-
 From them: the items by Status, the `needs-owner` issues, open issues not on the Project,
 open Dependabot pull requests, open pull requests with their checks, and what the last
 batches merged (the last two `batch-audit` issues). A call that fails is reported as
