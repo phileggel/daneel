@@ -1,8 +1,0 @@
-{
-  "name": "app",
-  "version": "0.1.0",
-  "description": "The Tauri + React apps' flow: reviewers (spec, contract, ADR, spec compliance, guides) with their protocol, and visual proof.",
-  "author": { "name": "phileggel" },
-  "repository": "https://github.com/phileggel/daneel",
-  "license": "MIT"
-}

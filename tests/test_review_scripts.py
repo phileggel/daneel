@@ -1,4 +1,4 @@
-"""Tests for the app plugin's scripts — run with `python3 -m unittest discover -s tests`."""
+"""Tests for the reviewers' scripts — run with `python3 -m unittest discover -s tests`."""
 
 import subprocess
 import tempfile
@@ -6,7 +6,7 @@ import unittest
 from datetime import date
 from pathlib import Path
 
-SCRIPTS = Path(__file__).resolve().parents[1] / "plugins/app/scripts"
+SCRIPTS = Path(__file__).resolve().parents[1] / "plugins/flow/scripts"
 
 
 def git(repo, *args):
