@@ -1,7 +1,7 @@
 {
   "name": "flow",
-  "version": "0.3.1",
-  "description": "The generic flow core: skills every project runs the same way (flow-audit, plan-batch).",
+  "version": "0.4.0",
+  "description": "Working on a project with agents: plan a batch, review it, prove it, audit it (flow-audit, plan-batch, the reviewers, visual-proof, dep-audit).",
   "author": {
     "name": "phileggel"
   },

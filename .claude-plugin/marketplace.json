@@ -10,12 +10,7 @@
     {
       "name": "flow",
       "source": "./plugins/flow",
-      "description": "The generic flow core: skills every project runs the same way."
-    },
-    {
-      "name": "app",
-      "source": "./plugins/app",
-      "description": "The Tauri + React apps' flow: reviewers (spec, contract, ADR, spec compliance, guides) with their protocol, and visual proof."
+      "description": "Working on a project with agents: plan a batch, review it, prove it, audit it."
     }
   ]
 }

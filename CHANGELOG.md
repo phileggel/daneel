@@ -2,6 +2,18 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## flow 0.4.0 — 2026-10-25
+
+- `app` is folded into `flow` (ticket #6): one plugin now holds `plan-batch`,
+  `flow-audit`, the reviewers `spec-reviewer`, `contract-reviewer`, `adr-reviewer`,
+  `spec-checker` and `reviewer-guides` with `protocol.md`, `branch.sh` and
+  `review-path.sh`, and the skills `visual-proof` and `dep-audit`, unchanged
+  (`app 0.1.0` below). They are named `flow:…` instead of `app:…`.
+- To take it: nothing for a project that enables `flow` only; the new pieces arrive
+  beside the project's own copies, which stay in use until the project removes them in
+  a ticket of its own. A project that enabled `app@daneel` drops it. A CI job reading
+  `.daneel/plugins/app/` reads `.daneel/plugins/flow/` at `ref: flow--v0.4.0`.
+
 ## flow 0.3.1 — 2026-10-25
 
 - `flow-audit.py` reads a scoped or breaking pull request title as its type
