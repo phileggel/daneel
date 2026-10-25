@@ -1,6 +1,6 @@
 {
   "name": "flow",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The generic flow core: skills every project runs the same way (flow-audit, plan-batch).",
   "author": {
     "name": "phileggel"

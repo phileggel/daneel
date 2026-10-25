@@ -538,6 +538,111 @@ class RangeEndTest(unittest.TestCase):
             moment = flow_audit.batch_end_moment("v0.24.7")
         self.assertEqual(moment, flow_audit.parse_moment("2026-10-17T11:11:19Z"))
 
+    def test_a_draft_release_stops_the_audit_at_once(self):
+        with mock.patch.object(
+            flow_audit, "_gh_json", return_value={"publishedAt": None, "isDraft": True}
+        ):
+            with self.assertRaisesRegex(SystemExit, "is a draft"):
+                flow_audit.batch_end_moment("v0.26.1")
+
+
+def connection(nodes, total=None):
+    return {"totalCount": len(nodes) if total is None else total, "nodes": nodes}
+
+
+def comment(at, body="b", login="owner"):
+    return {"author": {"login": login}, "createdAt": at, "body": body}
+
+
+def pull_request_node(number, merged="2026-10-04T10:00:00Z", comments=()):
+    return {
+        "number": number,
+        "title": f"fix: {number}",
+        "body": "the body",
+        "mergedAt": merged,
+        "commits": connection([{"commit": {"messageHeadline": "fix: a"}}]),
+        "comments": connection(list(comments)),
+        "reviews": connection(
+            [
+                {
+                    "author": {"login": "reviewer"},
+                    "state": "COMMENTED",
+                    "submittedAt": "2026-10-04T09:00:00Z",
+                    "body": "",
+                    "comments": {"nodes": [{"path": "src/a.rs", "body": "x"}]},
+                }
+            ]
+        ),
+    }
+
+
+def issue_node(number, created, closed=None, comments=(), total=None):
+    return {
+        "number": number,
+        "title": f"t{number}",
+        "state": "CLOSED" if closed else "OPEN",
+        "stateReason": "COMPLETED" if closed else None,
+        "createdAt": created,
+        "closedAt": closed,
+        "body": "",
+        "labels": {"nodes": [{"name": "size:S"}]},
+        "comments": connection(list(comments), total),
+    }
+
+
+class RecordsTest(unittest.TestCase):
+    def test_a_pull_request_keeps_its_commits_comments_and_reviews(self):
+        shaped = flow_audit.shape_pull_request(
+            pull_request_node(7, comments=[comment("2026-10-04T09:30:00Z", "CI round 2")])
+        )
+        self.assertEqual(shaped["commits"], ["fix: a"])
+        self.assertEqual(shaped["comments"][0]["body"], "CI round 2")
+        self.assertEqual(shaped["reviews"][0]["author"], "reviewer")
+        self.assertEqual(shaped["reviews"][0]["comments"][0]["path"], "src/a.rs")
+        self.assertEqual(shaped["cut"], [])
+
+    def test_a_thread_github_cut_short_is_named(self):
+        shaped = flow_audit.shape_issue(
+            issue_node(1, "2026-10-04T08:00:00Z", comments=[comment("2026-10-04T08:00:00Z")], total=150)
+        )
+        self.assertEqual(shaped["cut"], ["comments"])
+
+    def test_the_window_keeps_issues_filed_closed_or_discussed_in_it(self):
+        issues = [
+            flow_audit.shape_issue(node)
+            for node in (
+                issue_node(1, "2026-10-04T08:00:00Z"),  # filed
+                issue_node(2, "2026-09-01T08:00:00Z", closed="2026-10-04T09:00:00Z"),  # closed
+                issue_node(3, "2026-09-01T08:00:00Z", comments=[comment("2026-10-04T10:00:00Z")]),
+                issue_node(4, "2026-09-01T08:00:00Z", comments=[comment("2026-10-06T10:00:00Z")]),
+                issue_node(5, "2026-10-06T08:00:00Z"),  # after the end
+            )
+        ]
+        kept = flow_audit.issues_in_window(issues, SINCE, UNTIL)
+        self.assertEqual([i["number"] for i in kept], [1, 2, 3])
+
+    def test_pull_requests_are_read_a_batch_per_call(self):
+        def answer(*args):
+            query = args[-1]
+            numbers = [int(n) for n in __import__("re").findall(r"pullRequest\(number: (\d+)\)", query)]
+            return {"data": {"repository": {f"p{n}": pull_request_node(n) for n in numbers}}}
+
+        with mock.patch.object(flow_audit, "_gh_json", side_effect=answer) as gh:
+            shaped = flow_audit.collect_pull_request_records(list(range(1, 26)))
+        self.assertEqual(gh.call_count, 2)
+        self.assertEqual([pr["number"] for pr in shaped], list(range(1, 26)))
+
+    def test_only_the_pull_requests_merged_in_the_window_are_read(self):
+        pull_requests = [
+            pull_request(1, "fix: a", "2026-10-04T08:00:00Z", merged="2026-10-04T09:00:00Z"),
+            pull_request(2, "fix: b", "2026-10-02T08:00:00Z", merged="2026-10-02T09:00:00Z"),
+            pull_request(3, "fix: c", "2026-10-04T08:00:00Z", closed="2026-10-04T09:00:00Z"),
+        ]
+        with mock.patch.object(flow_audit, "collect_pull_request_records", return_value=[]) as read, \
+                mock.patch.object(flow_audit, "search_issues", return_value=[]):
+            flow_audit.collect_records(pull_requests, SINCE, UNTIL)
+        read.assert_called_once_with([1])
+
 
 if __name__ == "__main__":
     unittest.main()

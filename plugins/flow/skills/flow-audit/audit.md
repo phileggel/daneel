@@ -11,7 +11,10 @@ and effort. Nothing of it runs during a batch.
 - **Measures** — `scripts/flow-audit.py` counts every figure beside the batch before:
   the pull requests, the batch's length, CI and its rounds sorted by cause, the open
   issues and Dependabot pull requests, the backlog by size against its ceiling, the usage
-  log, dead paths and the guides' length. The auditor counts from the pull requests what
+  log, dead paths and the guides' length; and reads the records the auditor judges (the
+  pull requests with their reviews, the issues with their threads) in a few calls, so the
+  auditor reads one document instead of gathering it. A batch end not yet published
+  stops it at once. The auditor counts from the pull requests what
   the reviewers caught, got wrong and left to CI, and reads each generic piece of the
   project's `docs/agentic-setup.md` against its line.
 - **Six questions**, asked of every batch: what would have avoided a conflict; where it
