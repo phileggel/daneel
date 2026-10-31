@@ -385,6 +385,92 @@ class Main(unittest.TestCase):
         self.assertIn(["git", "log", "HEAD", "--format=%B%x00"], github.ran)
 
 
+class LandedWithoutATag(unittest.TestCase):
+    TAG = ["git", "tag", "-a", "v1.1.0", "-m", "Version 1.1.0", "abc123"]
+    PUSH = ["git", "push", "--quiet", "origin", "refs/tags/v1.1.0"]
+
+    def github(self, **more):
+        return GitHub(**{"git log -1": (0, "abc123\n"), "git ls-remote": (2, ""),
+                         "git rev-parse --verify": (1, ""), **more})
+
+    def main(self, github, *args):
+        with tempfile.TemporaryDirectory() as folder:
+            package = Path(folder) / "package.json"
+            package.write_text('{"version": "1.1.0"}')
+            with mock.patch.object(release, "project_root", return_value=Path(folder)), \
+                    mock.patch.object(release, "fresh_main"), mock.patch.object(release, "draft") as drafted, \
+                    mock.patch.object(release.subprocess, "run", side_effect=github), \
+                    contextlib.redirect_stdout(io.StringIO()) as said, contextlib.redirect_stderr(io.StringIO()):
+                code = release.main(list(args))
+            self.assertEqual(package.read_text(), '{"version": "1.1.0"}', "no second bump")
+        return code, drafted, said.getvalue()
+
+    def test_its_commit_is_tagged_and_the_draft_made_with_no_second_release(self):
+        github = self.github()
+        code, drafted, _ = self.main(github)
+        self.assertEqual(code, 0)
+        self.assertIn(["git", "log", "-1", "--format=%H", "--grep", "^chore: release v1\\.1\\.0$"], github.ran)
+        self.assertIn(self.TAG, github.ran)
+        self.assertIn(self.PUSH, github.ran)
+        self.assertEqual(drafted.call_args.args[2], "v1.1.0")
+        self.assertFalse(github.did("gh", "pr", "create"))
+        self.assertFalse(any(c[:2] == ["git", "push"] and "main" in c for c in github.ran), "nothing is pushed to main")
+
+    def test_a_preview_says_so_and_tags_nothing(self):
+        github = self.github()
+        code, drafted, said = self.main(github, "--preview")
+        self.assertEqual(code, 0)
+        self.assertIn("v1.1.0 is on main", said)
+        self.assertFalse(github.did("git", "tag"))
+        self.assertFalse(github.did("git", "push"))
+        drafted.assert_not_called()
+
+    def test_a_tag_left_by_a_failed_push_is_pushed_as_it_is(self):
+        github = self.github(**{"git rev-parse --verify": (0, "abc123\n")})
+        self.assertEqual(self.main(github)[0], 0)
+        self.assertFalse(github.did("git", "tag"))
+        self.assertIn(self.PUSH, github.ran)
+
+    def test_a_local_tag_on_another_commit_stops_it(self):
+        github = self.github(**{"git rev-parse --verify": (0, "def456\n")})
+        code, drafted, _ = self.main(github)
+        self.assertEqual(code, 1)
+        self.assertFalse(github.did("git", "push"))
+        drafted.assert_not_called()
+
+    def test_tags_that_cannot_be_read_stop_it(self):
+        github = self.github(**{"git ls-remote": (128, "")})
+        self.assertEqual(self.main(github)[0], 1)
+        self.assertFalse(github.did("git", "tag"))
+
+    def test_a_pushed_tag_leaves_the_ordinary_way(self):
+        github = GitHub(**{"git log -1": (0, "abc123\n"), "git ls-remote": (0, "x refs/tags/v1.1.0\n"),
+                           "git describe": (0, "v1.1.0\n"), "git log": (0, "chore: a\x00")})
+        self.assertEqual(self.main(github, "--preview")[0], 3)
+        self.assertFalse(github.did("git", "tag"))
+
+
+class UsageLogTemplate(unittest.TestCase):
+    # Under BSD `date`, `%N` prints a literal N; the start must not depend on it.
+    def test_a_line_is_written_when_date_has_no_nanoseconds(self):
+        templates = SCRIPTS.parents[3] / "flow/skills/init/templates"
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "bin").mkdir()
+            fake = root / "bin" / "date"
+            fake.write_text('#!/bin/sh\necho 1700000000.N\n')
+            fake.chmod(0o755)
+            for name in ("usage-log.sh", "usage_log.py"):
+                (root / name).write_text((templates / name).read_text(encoding="utf-8"), encoding="utf-8")
+            script = root / "tool.sh"
+            script.write_text('set -euo pipefail\n. "$(dirname "${BASH_SOURCE[0]}")/usage-log.sh"\n')
+            log = root / "usage.log"
+            env = {**os.environ, "PATH": f"{root / 'bin'}:{os.environ['PATH']}", "USAGE_LOG": str(log)}
+            env.pop("CI", None)
+            subprocess.run(["bash", str(script)], check=True, env=env)
+            self.assertIn("tool.sh", log.read_text(encoding="utf-8"))
+
+
 class BatchEnd(unittest.TestCase):
     """batch-end.sh against a bare repository in a temporary folder: nothing real is tagged."""
 

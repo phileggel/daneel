@@ -357,7 +357,7 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, json.JSONDecodeError, KeyError, TypeError):
         say("CANNOT WATCH: required-checks.json cannot be read")
         return 2
-    if not isinstance(checks, list) or not checks or not all(isinstance(c, str) and c for c in checks):
+    if not isinstance(required, list) or not required or not all(isinstance(c, str) and c for c in required):
         say('CANNOT WATCH: required-checks.json: "checks" must be a non-empty list of check names')
         return 2
 

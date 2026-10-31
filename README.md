@@ -79,7 +79,7 @@ reads the agent from there:
 - uses: actions/checkout@v4
   with:
     repository: phileggel/daneel
-    ref: app--v0.1.0
+    ref: app--v0.1.1
     path: .daneel
 ```
 
@@ -108,12 +108,12 @@ A release is a tag, `<plugin>--v<version>`, made on `main` once the bump is merg
 - **Local and headless runs** follow `main`: `claude plugin update flow@daneel` (or the
   marketplace's auto-update) takes the newest version. Claude Code caches a plugin by its
   version, so a change that does not bump it never reaches a project.
-- **CI** pins a tag (`ref: app--v0.1.0`) and moves it in a pull request of the project,
+- **CI** pins a tag (`ref: app--v0.1.1`) and moves it in a pull request of the project,
   so a reviewer change is reviewed where it lands.
 
 ## Status
 
-Version 0.1.0 of both plugins. A project keeps its own copies of a piece until its own ticket removes them. A skill
+Version 0.1.1 of both plugins. A project keeps its own copies of a piece until its own ticket removes them. A skill
 moves here only after its copies are measured in the projects, never designed generic
 up front. What a skill still reads from the
 project is its own record — its rules, its usage log, its GitHub — never a script or
