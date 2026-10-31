@@ -14,7 +14,8 @@ version files and the changelog are written on `chore/release-v<version>`, commi
 pushed; its pull request merges once every check is green; the tag goes on the commit
 `main` then holds and is pushed; the draft release gets the changelog section as its notes
 — made here, or, when the project has a release workflow, once that workflow's run on the
-tag has made it. The owner publishes it.
+tag has made it. The owner publishes it. A release whose commit reached `main` but whose tag
+GitHub does not hold is not cut again: run again, this script tags that commit and goes on.
 
 Exit: 0 done (or, with --preview, a release is due) · 1 stopped, the message says where and
 what to do · 3 nothing to release: no `feat` or `fix` since the last release.
@@ -444,11 +445,42 @@ def land(root: Path, version: str, files: list[str]) -> None:
     out(root, "git", "pull", "--quiet", "--ff-only", "origin", MAIN)
     landed = out(root, "git", "log", "-1", "--format=%s", MAIN)
     if landed != title or run(root, "git", "diff", "--quiet", commit, MAIN).returncode != 0:
-        raise Stop(f"pull request #{number} merged, but {MAIN}'s head is not the release commit: nothing is tagged")
+        raise Stop(f"pull request #{number} merged, but {MAIN}'s head is not the release commit: nothing is tagged; "
+                   f"run release.py again to tag the release commit")
     out(root, "git", "tag", "-a", tag, "-m", f"Version {version}", MAIN)
     out(root, "git", "push", "--quiet", "origin", f"refs/tags/{tag}")
     run(root, "git", "branch", "-D", branch)
     print(f"release: {tag} tagged on {MAIN} and pushed")
+
+
+def untagged_release(root: Path, settings: dict) -> tuple[str, str] | None:
+    """(version, commit) when the version the files state landed on `main` as its release
+    commit but GitHub holds no tag for it; None otherwise."""
+    first = settings["version_files"][0]
+    version = read_version(first, (root / first).read_text(encoding="utf-8"))
+    title = "^chore: release v" + version.replace(".", "\\.") + "$"
+    commit = out(root, "git", "log", "-1", "--format=%H", "--grep", title)
+    if not commit:
+        return None
+    pushed = run(root, "git", "ls-remote", "--exit-code", "--tags", "origin", f"refs/tags/v{version}")
+    if pushed.returncode == 0:
+        return None
+    if pushed.returncode != 2:
+        raise Stop(f"the tags of origin cannot be read: {(pushed.stderr or pushed.stdout).strip()}")
+    return version, commit
+
+
+def tag_landed(root: Path, version: str, commit: str) -> None:
+    """The tag goes on the landed release commit and is pushed; one left here by a failed
+    push is kept if it is on that commit."""
+    tag = f"v{version}"
+    local = run(root, "git", "rev-parse", "--verify", "--quiet", f"refs/tags/{tag}^{{commit}}")
+    if local.returncode != 0:
+        out(root, "git", "tag", "-a", tag, "-m", f"Version {version}", commit)
+    elif local.stdout.strip() != commit:
+        raise Stop(f"the local tag {tag} is not on the release commit {commit[:7]}: see where it came from, then delete it")
+    out(root, "git", "push", "--quiet", "origin", f"refs/tags/{tag}")
+    print(f"release: {tag} tagged on the release commit {commit[:7]} and pushed")
 
 
 def workflow_run(root: Path, workflow: str, tag: str) -> dict:
@@ -518,6 +550,13 @@ def main(argv: list[str]) -> int:
             return 0
         if not args.preview:
             fresh_main(root)
+        landed = untagged_release(root, settings)
+        if landed:
+            print(f"release: v{landed[0]} is on {MAIN} ({landed[1][:7]}) but not tagged: this release finishes it")
+            if not args.preview:
+                tag_landed(root, *landed)
+                draft(root, settings, f"v{landed[0]}")
+            return 0
         current, version, tag, commits = plan(root, settings)
         if version is None:
             print(f"release: no feat or fix since {tag}: nothing to release; end the batch with batch-end.sh")

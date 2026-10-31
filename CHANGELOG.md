@@ -2,6 +2,24 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## app 0.1.1 — 2026-10-31
+
+- `watch-pr.py` no longer crashes on every run (a `NameError` reading `required-checks.json`).
+  `run-entry` could not wait for a pull request's checks on 0.1.0.
+- `release.py` run after a release commit landed untagged tags that commit and makes the
+  draft; on 0.1.0 it bumped the version again and wrote a second changelog section.
+
+To take it: move the project's pin (`ref:` in CI, and the marketplace's, if set) to
+`app--v0.1.1`. A project that kept its own `watch-pr.py` for this crash can drop it.
+
+## flow 0.1.1 — 2026-10-31
+
+- `/flow:init`'s `usage-log.sh` takes its start from Python, not `date +%s.%N`: under BSD
+  `date` the usage line was dropped silently.
+
+To take it: a project that already ran `/flow:init` makes the same change in its
+`scripts/usage-log.sh`.
+
 ## flow 0.1.0 — 2026-10-25
 
 The first release, for any project (daneel ticket #13).

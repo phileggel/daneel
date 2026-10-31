@@ -1,8 +1,11 @@
 """Tests for run-entry's watch-pr.py — run with `python3 -m unittest discover -s tests`."""
 
+import contextlib
 import importlib.util
+import io
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -306,6 +309,30 @@ class Parse(unittest.TestCase):
             watch_pr.parse_runs(line + "\n" + queued + "\n"),
             [Run(4, "E2E", "completed", "success", "https://x/4", "t"), Run(5, "Backend", "queued", "", "https://x/5", "")],
         )
+
+
+class Main(unittest.TestCase):
+    def main(self, content):
+        with tempfile.TemporaryDirectory() as folder:
+            if content is not None:
+                (Path(folder) / "required-checks.json").write_text(content, encoding="utf-8")
+            with mock.patch.object(watch_pr, "ROOT", Path(folder)), \
+                    mock.patch.object(watch_pr, "local_commit", return_value=SHA), \
+                    mock.patch.object(watch_pr, "watch", return_value=0) as watched, \
+                    contextlib.redirect_stdout(io.StringIO()):
+                return watch_pr.main(["12"]), watched
+
+    # The whole way in: main reads the required checks and hands them to the watch.
+    def test_the_required_checks_reach_the_watch(self):
+        code, watched = self.main('{"checks": ["Quality", "E2E"]}')
+        self.assertEqual(code, 0)
+        self.assertEqual(watched.call_args.args[2], ["Quality", "E2E"])
+
+    def test_required_checks_that_cannot_be_used_stop_the_watch(self):
+        for content in (None, "not json", "{}", '{"checks": []}', '{"checks": "Quality"}', '{"checks": [""]}'):
+            code, watched = self.main(content)
+            self.assertEqual(code, 2, content)
+            watched.assert_not_called()
 
 
 class CannotWatch(unittest.TestCase):
