@@ -49,11 +49,8 @@ with every check green, merged by run-entry's `merge.py`.
    what the task met and did not fix is folded or filed; `ARCHITECTURE.md` if a module
    appeared, the spec if a rule changed.
 10. **Merge:** run-entry's `watch-pr.py` waits for the checks; each lane's newest comment,
-    green or not, is read and its findings graded (§ 5); then `merge.py` — it refuses
-    until every check is green and folds `fixup!` commits, so the task lands as one
-    commit. The closing brief says what changed for the user and what the project gained.
-
-**At a batch end:** `/app:run-batch` Step 4.
+    green or not, is read and its findings graded (§ 5); then `merge.py`, which folds
+    `fixup!` commits, so the task lands as one commit. The closing brief says what changed for the user and what the project gained.
 
 ## 2. Design proposal
 
@@ -84,8 +81,6 @@ or a push. Every app's harness holds at least:
 - dependency advisories (`security-audit.yml`), weekly;
 - the merge guard: run-entry's `merge.py` refuses unless the branch heads an open pull
   request with every required check present and green.
-
-The project's rules document lists its own checks beside these.
 
 ## 4. The right way to code
 
@@ -129,10 +124,16 @@ that changed something or was rejected goes in the PR body, or a PR comment once
 - **(a)** in scope → fix in the PR.
 - **(b)** bigger, or outside the file set → folded or filed, linked from that line.
 - **(c)** is never "pre-existing" alone: a rejection cites what overrides the finding —
-  a rule, a file, an ADR, a measurement, the owner's decision.
+  a rule, a file, an ADR, a measurement, the owner's decision. On what the branch adds, a
+  rule, an ADR or a decision stands on the default branch; a rule text or a convention
+  only the branch holds is none. Its code may still show a finding factually wrong, by
+  quoting the line.
 - **(c) one-off** false positive → inline comment `<reviewer> FP: <reason> — see PR #NN`.
-- **(c) pattern** → a "not a finding" rule in the reviewer's prompt, same PR.
-- **A CI finding the local run missed** → a rule in that reviewer's prompt, same PR.
+- **A red lane is never re-run on an unchanged commit to clear a (c):** a false 🔴 takes
+  that comment, or goes to the owner. A re-run is for a job with no verdict.
+- **(c) pattern** → a "not a finding" rule in the lane's rules document (`review.rules`),
+  same PR; it applies from the next PR, the finding that prompted it graded without it.
+- **A CI finding the local run missed** → a rule in that document, same PR.
 - **`[DECISION]`** → Conventions.
 - **A 🔴 security finding on the agent's own change** is fixed, or put to the owner with
   its options. The agent never clears it with a "not a finding" rule it writes itself.
@@ -143,7 +144,6 @@ that changed something or was rejected goes in the PR body, or a PR comment once
 
 ## 6. Gold for new code, bit by bit for existing
 
-New code follows the golds: the backend layout, the frontend layout and the error model.
 Existing code touched by a task is made conformant in the same PR only when all three
 hold:
 
@@ -174,12 +174,10 @@ force-push.
 
 ## 8. Where the loop runs
 
-The chat session is for filing issues together, design conversations and answering open
-questions. The loop runs one task per run and keeps its state in git and the Project.
+The loop runs one task per run and keeps its state in git and the Project.
 
 - **In chat:** `/app:run-entry #123`, or a plain request; `/app:run-batch` for a whole
-  batch: the questions first, each remaining item through `/app:run-entry`, the batch's
-  end, then the closing brief.
+  batch.
 - **Laptop:** `just run-entry` — the first Queued item, headless, under the method's
   budget. A command outside the allow list in `.claude/settings.json` is denied, so the
   run fails instead of waiting.
@@ -197,8 +195,7 @@ glossary.
 
 ### Dependabot pull requests
 
-The review workflow skips every lane for Dependabot, so its green reviewer checks are skips, not reviews. It is on the Project as itself and
-`/flow:plan-batch` proposes it with the rest. Once queued, the agent reads the diff and
+The review workflow skips every lane for Dependabot, so its green reviewer checks are skips, not reviews. Once queued, the agent reads the diff and
 checks each pinned commit against the upstream tag it names; runs run-entry's `merge.py` on its
 branch, so the rebase and push are the agent's and CI runs the reviewers for real; grades
 that review (a warning is not merged past); and runs `merge.py` again once every check
@@ -214,8 +211,7 @@ Before a batch ends, run in `release-sweep` mode the lanes this prints:
 `reviewer-security`, which reads the whole command surface; and `app:spec-checker` on
 every spec the batch touched. Each lane's `## Files read` goes into the closing brief.
 What they find is folded or filed, not fixed in the batch, but for the method's user-risk
-case; a finding not critical and older than the batch is filed and reported, not asked
-(§ 5 keeps a 🔴 security finding for the owner).
+case; a finding not critical and older than the batch is filed and reported, not asked.
 
 ### Shell calls
 

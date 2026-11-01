@@ -10,8 +10,7 @@ its release); where the two disagree on what is here, this file is the rule.
   its User value and Done when, and approves the batch (§ 2).
 - **Owner** — validating a design before anything the user sees changes, where the
   project has a design step.
-- **Owner** — publishing a release, outside the agent's run; the agent does everything
-  before it (§ 5).
+- **Owner** — publishing a release, outside the agent's run.
 - **Agent** — the task issues: every observation, smell and proposal about the code. The
   owner queues from them.
 - **Agent** — the flow issues: the same about the workflow itself (checks, waits, tools,
@@ -59,7 +58,9 @@ request says `Closes #123`, so its merge closes the issue.
   issue someone else opens is given its label, its form's fields and its size.
 - **Fixed, folded, then filed**: a gap in a pull request's own files is fixed in it; one
   in the files of an open issue joins that issue with its evidence, while it stays one
-  pull request; else it is filed.
+  pull request; else it is filed. A fold puts the clause in the target's body and re-labels
+  its size in the same comment; the target stays open until the clause is done, and one
+  closing or moving with it undone hands it on, folded again or filed.
 - **A dependency** is GitHub's "blocked by"; the slices of a programme are its
   sub-issues.
 - **A gate** an issue carries ("when next touched", "not as a sweep") is honoured, or the
@@ -119,8 +120,8 @@ marks every issue it files (`agent-filed`, or `backlog.coder_mark`).
 - **A healthy size** (`backlog.target`, optional): at or under it the agent files up to
   it; over it the ceiling only lets the backlog shrink back. Before the first batch end
   only the target holds; with no target every issue fits.
-- An issue that does not fit is folded into an open one, or makes room by closing one it
-  supersedes, or — a defect a user meets — is put to the owner in chat. Never filed
+- An issue that does not fit is folded into an open one, or makes room by closing one of the
+  agent's own it supersedes, with the reason, never one the owner confirmed, or — a defect a user meets — is put to the owner in chat. Never filed
   anyway.
 
 ## 4. Budget and stop rules
@@ -159,8 +160,7 @@ checked again on what it changed, released.
 - **Any other batch** the agent closes with a `batch/<date>` tag: it publishes nothing,
   its chores ride in the next release, no fix is picked to fill a changelog.
 
-A batch is named by its dates, never by a version number, and ends at its tag — the `v*`
-tag the agent cuts or `batch/<date>` — never at the release's publication.
+A batch is named by its dates, never by a version number, and ends at its tag, never at the release's publication.
 `/flow:flow-audit` audits the range it closes at once after that tag, before the closing
 brief.
 
@@ -212,12 +212,9 @@ The checklist `/flow:init` sets up.
   `Queued`, `In progress`, `In review`, `Done`, its workflows setting In review on a
   linked pull request and Done on close — and **Batch**, holding the batch's date.
 - **Issue forms** in `.github/ISSUE_TEMPLATE/`, each adding its kind's label and the
-  Project, blank issues off: `feature` and `bug` (Size, User value, Done when, Design:
-  none, needed or validated); `task` (Found by, Where, Observation, Size, Waits on the
-  owner); `flow` (Size, Observed, Proposal, Costs, Decision). A form may add the
+  Project, blank issues off. A form may add the
   project's own field, such as a no-private-data checkbox.
-- **Tags** for batch ends: releases `v*` (cut by the agent, published by the owner) and `batch/<date>`
-  annotated tags.
+- **Tags** for batch ends: releases `v*` and `batch/<date>` annotated tags.
 - **A CI workflow** that runs on every push of a pull request (`Quality` unless
   `flow-audit.round_workflow` names another): its runs count the CI rounds.
 - **Optionally `logs/usage.log`**, gitignored (§ 7).

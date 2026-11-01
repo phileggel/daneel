@@ -2,6 +2,28 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## app 0.1.2 — 2026-11-01
+
+- `plugins/app/README.md` § Taking it gives the order, the ruleset (`ruleset.json`) and the
+  deny lines for publishing a release.
+- `loop.md` § 5: on what a branch adds, an override stands on the default branch; a red lane
+  is never re-run on an unchanged commit to clear a (c); a pattern goes in the lane's rules
+  document (`review.rules`), not the reviewer's prompt, and applies from the next pull request.
+- `run-entry`: a lane with `no report` is re-run; headless, a lane stopped by the usage limit
+  ends the run with a `needs-owner` comment instead of a sleep.
+
+To take it: move the project's pin to `app--v0.1.2`. A project whose ruleset lets someone
+bypass it or asks for no pull request compares it with `ruleset.json`; every project adds
+the deny lines. A headless run stopped at the usage limit now waits for the owner to re-run it.
+
+## flow 0.1.2 — 2026-11-01
+
+- `method.md` § 2: a fold puts its clause in the target's body and re-labels its size; the
+  target stays open until the clause is done, or hands it on. § 3: making room closes only
+  one of the agent's own issues, with the reason, never one the owner confirmed.
+
+To take it: nothing to change; the agent follows the new wording.
+
 ## app 0.1.1 — 2026-10-31
 
 - `watch-pr.py` no longer crashes on every run (a `NameError` reading `required-checks.json`).
