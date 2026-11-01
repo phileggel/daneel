@@ -1,0 +1,41 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["goal", "tests", "findings"],
+  "properties": {
+    "goal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "stated", "evidence"],
+      "properties": {
+        "status": { "enum": ["achieved", "partial", "not_achieved", "not_stated"] },
+        "stated": { "type": "string" },
+        "evidence": { "type": "string" }
+      }
+    },
+    "tests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence"],
+      "properties": {
+        "status": { "enum": ["proven", "not_testable", "missing"] },
+        "evidence": { "type": "string" }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "file", "line", "claim", "fix"],
+        "properties": {
+          "severity": { "enum": ["critical", "warning", "info"] },
+          "file": { "type": "string" },
+          "line": { "type": "integer" },
+          "claim": { "type": "string" },
+          "fix": { "type": "string" }
+        }
+      }
+    }
+  }
+}

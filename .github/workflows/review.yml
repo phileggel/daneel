@@ -1,0 +1,79 @@
+name: review
+
+# pull_request_target: this file and the reviewer come from main, so a pull request cannot
+# weaken what judges it. The branch's tree is only ever read: nothing under pr/ is run.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+concurrency:
+  group: review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: write
+
+env:
+  PR_NUMBER: ${{ github.event.pull_request.number }}
+  BASE_SHA: ${{ github.event.pull_request.base.sha }}
+  HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+  HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+
+jobs:
+  # The required check is this job's name. Never skip it with `if:`: GitHub counts a skipped
+  # required check as passed.
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Refuse a fork, which gets no reviewer
+        run: test "$HEAD_REPO" = "$GITHUB_REPOSITORY"
+
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Prepare what the reviewer reads
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 .github/review/review.py prepare pr "$RUNNER_TEMP/context.md"
+
+      # Only this step holds the Claude token, and it has no GitHub token.
+      - name: Review
+        continue-on-error: true
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: >-
+          npx --yes @anthropic-ai/claude-code -p
+          --restricted --safe-mode --tools Read,Grep,Glob
+          --model sonnet --output-format json
+          --json-schema "$(cat .github/review/verdict.schema.json)"
+          --append-system-prompt "$(cat .github/review/reviewer.md)"
+          < "$RUNNER_TEMP/context.md" > "$RUNNER_TEMP/claude.json"
+
+      - name: Decide
+        id: gate
+        continue-on-error: true
+        run: python3 .github/review/review.py gate "$RUNNER_TEMP/claude.json" "$RUNNER_TEMP/comment.md"
+
+      - name: Comment
+        if: always() && steps.gate.outcome != 'skipped'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/comment.md"
+
+      - name: Refuse unless it passed
+        run: test "${{ steps.gate.outcome }}" = "success"
