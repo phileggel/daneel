@@ -2,6 +2,13 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## app 0.2.1 — 2026-11-01
+
+- `run-entry` Step 8: at the usage limit, the wake-up and asking the owner are for a chat
+  session only; a headless run read in order could take them as its own.
+
+To take it: nothing to change; the agent follows the new wording.
+
 ## app 0.2.0 — 2026-11-01
 
 - `plugins/app/README.md` § Taking it gives the order, `required-checks.json`, the merge

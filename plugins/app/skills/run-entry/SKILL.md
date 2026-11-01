@@ -109,8 +109,8 @@ graded (loop § 5); again on the fixes before the first push until no 🔴 remai
 - A red reviewer lane: read its newest comment; grade and apply as loop § 5 says, as a
   `fixup!`; push.
 - A lane with no verdict, its comment `no report` or stopped by the CI account's usage
-  limit (by exit code or comment): nothing to fix. That lane alone is re-run: `gh run view <run id> --json jobs`
-  for its job id, `gh run rerun --job <job id>`, watch again. At the limit, first a wake-up
+  limit (by exit code or comment): nothing to fix. Re-run that lane alone: `gh run view <run id> --json jobs`
+  for its job id, `gh run rerun --job <job id>`, watch again. At the limit, in chat: a wake-up
   at the reset time it names (outside Rule 2), or with none given, ask the owner.
   Headless, at the limit: that time, or that none was given, in a file, then `gh issue
   comment <n> --body-file <file>` and `gh issue edit <n> --add-label needs-owner` (`gh pr`
