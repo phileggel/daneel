@@ -1,6 +1,6 @@
-name: Flow
-description: How the work moves — guides, scripts, hooks, workflows, the agent setup
-labels: ["flow"]
+name: Bug
+description: A correction of how something behaves
+labels: ["bug"]
 body:
   - type: markdown
     attributes:

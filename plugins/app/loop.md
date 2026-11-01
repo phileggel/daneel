@@ -131,7 +131,7 @@ that changed something or was rejected goes in the PR body, or a PR comment once
 - **A red lane is never re-run on an unchanged commit to clear a (c):** a false 🔴,
   security aside, takes that comment, or goes to the owner. A re-run is for a job with no verdict.
 - **(c) pattern** → a "not a finding" rule in the lane's rules document (`review.rules`;
-  a lane without one, a `flow` issue on daneel), same PR; a reviewer ignores a rule the
+  a lane without one, an issue on daneel), same PR; a reviewer ignores a rule the
   branch adds, so it applies from the next PR.
 - **A CI finding the local run missed** → a rule in that document, same PR.
 - **`[DECISION]`** → Conventions.

@@ -13,7 +13,7 @@ change here is reviewed against.
 - A skill comes here extracted from the projects' copies, with the differences
   between them measured and recorded in its pull request — never written
   generic first.
-- The backlog is GitHub issues (`.github/ISSUE_TEMPLATE/`), never files in git.
+- The backlog is GitHub issues (`.github/ISSUE_TEMPLATE/`, one form per kind: `feature`, `bug`, `harness`), never files in git.
 
 ## How a piece is written
 
@@ -27,7 +27,7 @@ change here is reviewed against.
   folder and in CI); anything else across plugins is named by
   skill or agent (`/flow:flow-audit`), never by path.
 - Every command a skill tells the agent to run is written literally, and its
-  `allowed-tools` covers it — a headless run approves nothing — or the skill says the
+  `allowed-tools` covers it, or the skill says the
   project's own allow list covers it (a project's `just` recipe). A skill that can run
   headless never asks: it says what it takes instead.
 - One command per shell call: no `&&`, `||`, `;`, `$(...)`, retry loop or `kill`
