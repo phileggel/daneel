@@ -24,7 +24,7 @@ Judge the diff, never the body's account of it.
 ## 2. Is it tested, where a test is possible?
 
 - `proven`: a test in the diff, or one already there, fails without this change.
-- `not_testable`: nothing a test could prove, as with wording in a doc.
+- `not_testable`: nothing a test could prove, as with wording in a doc. Say why.
 - `missing`: a script or a checked rule changed in behaviour, a test could prove it, and none does.
 
 A test that only checks a file exists proves nothing about its behaviour.
@@ -36,7 +36,7 @@ Only what the diff adds or changes; each finding names file, line, claim and fix
 - `critical`: it breaks a rule of `CLAUDE.md`, breaks behaviour, makes an agent do what the
   rules forbid, or makes two documents contradict so that an agent cannot follow both.
 - `warning`: wrong or misleading, and it will cost someone, but nothing breaks now.
-- `info`: worth a look: a cut, a clearer name.
+- `info`: a cut, a clearer name.
 
 Also critical: a changelog entry that asks a project to act, on a version whose middle
 number did not move; a claim of a measurement that does not say what and when.
