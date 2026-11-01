@@ -1,30 +1,35 @@
 # daneel
 
 A Claude Code plugin marketplace: the flow shared by phileggel's projects.
-`README.md` says what it holds. These rules are what a
-change here is reviewed against.
+`README.md` says what it holds.
+
+## Two kinds of AI content, never mixed
+
+- **Plugin content** (`plugins/`: skills, agents, method, loop) ships to child projects. It
+  is not loaded here and is no rule for developing daneel.
+- **Daneel's own** (this file, `.github/review/`, skills in `.claude/skills/`) guides work
+  on this repository and never ships.
 
 ## What belongs here
 
 - Nothing here knows one project, and nothing names one: not a skill, script, test,
   changelog, manifest or README, and no project's file path, rule ID or ticket ID.
   Examples are invented (`acme`, `ORD-1`, `src-tauri/src/auth/`). A line that needs a
-  project's name belongs in that project, or in a setting the project gives the skill.
-- A skill comes here extracted from the projects' copies, with the differences
+  project's name belongs in that project.
+- A plugin skill comes here extracted from the projects' copies, with the differences
   between them measured and recorded in its pull request — never written
   generic first.
 - The backlog is GitHub issues (`.github/ISSUE_TEMPLATE/`, one form per kind: `feature`, `bug`, `harness`), never files in git.
 
-## How a piece is written
+## How a plugin piece is written
 
 - A plugin ships every script and doc its skills and agents use, and names them through
   `${CLAUDE_SKILL_DIR}` or `${CLAUDE_PLUGIN_ROOT}`, never a bare `scripts/` and never the
   project's checkout. A script measures the checkout it runs in, and works from a plain
   checkout too.
 - A plugin never reads another plugin's folder. `app` depends on `flow`
-  (`"dependencies"` in its `plugin.json`) and reads `flow`'s method through its own
-  `method.md`, a link to it (copied in by a GitHub install, read in place from a local
-  folder and in CI); anything else across plugins is named by
+  and reads `flow`'s method through its own
+  `method.md`, a link to it; anything else across plugins is named by
   skill or agent (`/flow:flow-audit`), never by path.
 - Every command a skill tells the agent to run is written literally, and its
   `allowed-tools` covers it, or the skill says the
@@ -40,8 +45,7 @@ change here is reviewed against.
 - A script's exit codes read the same in its header and in the skill that acts on them.
 - A claim that something was measured says what, when, and covers only that.
 - Every doc an agent reads (skill, agent, loop, method, protocol) is as concise as it can
-  be: each line is one the agent acts on; no restating, no history, no rationale it
-  does not need. Each has a word ceiling in `doc-ceilings.json`, lowered with
+  be: each line is one the agent acts on. Each has a word ceiling in `doc-ceilings.json`, lowered with
   the doc; only the owner raises one.
 
 ## What the agent never does, and nothing here makes it do
@@ -57,5 +61,5 @@ the draft); bypass a hook (`--no-verify`).
 - Every change to a plugin bumps its `version` in `plugin.json` and adds its
   line to `CHANGELOG.md`, saying what a project must do.
 - `claude plugin validate .` and `python3 -m unittest discover -s tests` pass before a
-  commit; CI runs both. A pull request lands only with `validate` and `review` green. A
+  commit. A pull request lands only with `validate` and `review` green. A
   release is `claude plugin tag plugins/<plugin> --push` on `main`.

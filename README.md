@@ -7,7 +7,7 @@ Named after R. Daneel Olivaw, who kept to the Laws for twenty thousand years.
 
 ## The goal
 
-A workflow that is **fluid, secure, of quality and fast**. Every rule here is weighed
+A workflow that is **fluid, secure, of quality and fast**. Every rule the plugins ship is weighed
 against all four:
 
 - **Fluid**: a rule costs a run as little as it can. A check the agent runs itself,
@@ -31,7 +31,7 @@ against all four:
 `flow` holds what any project can use. What only the apps share is `app`, used
 beside `flow`; what one project alone runs stays in that project.
 
-## Use
+## Use in a project
 
 Once per machine:
 
@@ -125,5 +125,12 @@ up front. What a skill still reads from the
 project is its own record — its rules, its usage log, its GitHub — never a script or
 a doc of the plugin.
 
-The backlog is GitHub issues, filed from `.github/ISSUE_TEMPLATE/`.
 `CHANGELOG.md` is what a project must act on when it takes a new version.
+
+## Developing daneel
+
+Daneel holds the plugins and does not run them: `/flow:…` and `/app:…` are not loaded in
+this repository, and their method and rules are for child projects. Work here follows
+`CLAUDE.md` and lands through the `validate` and `review` checks. Daneel can have its own
+skills in `.claude/skills/`, which never ship. Its backlog is GitHub issues, filed from
+`.github/ISSUE_TEMPLATE/`: `feature`, `bug` or `harness`.

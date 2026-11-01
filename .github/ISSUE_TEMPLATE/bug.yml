@@ -9,7 +9,7 @@ body:
     id: size
     attributes:
       label: Size
-      description: "By facts, not effort. S: one pull request, one layer, nothing from the owner. M: any other single pull request. L: two or three pull requests, or mocks or a spec interview. XL: a programme, sliced before it is queued."
+      description: "By facts, not effort. S: one small pull request, nothing from the owner. M: any other single pull request. L: two or three pull requests. XL: a programme, sliced into sub-issues."
       options: [S, M, L, XL]
     validations:
       required: true
