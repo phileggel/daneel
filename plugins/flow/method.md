@@ -59,7 +59,7 @@ request says `Closes #123`, so its merge closes the issue.
 - **Fixed, folded, then filed**: a gap in a pull request's own files is fixed in it; one
   in the files of an open issue joins that issue with its evidence, while it stays one
   pull request; else it is filed. A fold puts the clause in the target's body and re-labels
-  its size in the same comment; the target stays open until the clause is done, and one
+  its size, on a feature or a bug by asking the owner; the target stays open until the clause is done, and one
   closing or moving with it undone hands it on, folded again or filed.
 - **A dependency** is GitHub's "blocked by"; the slices of a programme are its
   sub-issues.
@@ -166,8 +166,8 @@ brief.
 
 ## 6. The flow audit
 
-After a batch ends, `/flow:flow-audit` audits it once, from its records alone, on that
-batch's `batch-audit` issue; nothing of it runs during a batch.
+After a batch ends, `/flow:flow-audit` audits it once, on that
+batch's `batch-audit` issue.
 
 A flow issue carries `Observed` with its evidence — a count, a duration, a pull request —
 then a `Proposal` with what it `Costs` and what it protects. A change that buys speed
@@ -212,7 +212,7 @@ The checklist `/flow:init` sets up.
   `Queued`, `In progress`, `In review`, `Done`, its workflows setting In review on a
   linked pull request and Done on close — and **Batch**, holding the batch's date.
 - **Issue forms** in `.github/ISSUE_TEMPLATE/`, each adding its kind's label and the
-  Project, blank issues off. A form may add the
+  Project, blank issues off, each with the fields of `/flow:init`'s template. A form may add the
   project's own field, such as a no-private-data checkbox.
 - **Tags** for batch ends: releases `v*` and `batch/<date>` annotated tags.
 - **A CI workflow** that runs on every push of a pull request (`Quality` unless

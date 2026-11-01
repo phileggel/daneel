@@ -2,7 +2,7 @@
 
 `${CLAUDE_PLUGIN_ROOT}` is the folder holding this file.
 
-Each `reviewer-*` prompt names its lane: the files it owns, the rules docs it loads and the checks it adds. Everything a reviewer does that is not its lane is in this file; a check the lane's rules documents state for it is one of the lane's. Which lanes run is decided by the project (`${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh` with its `review.lanes` setting, locally and in CI), not by the reviewer.
+Each `reviewer-*` prompt names its lane: the files it owns, the rules docs it loads and the checks it adds. Everything a reviewer does that is not its lane is in this file; a check the lane's rules documents state for it is one of the lane's. Which lanes run is decided by the project (`${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh`), not by the reviewer.
 
 ## Modes
 
@@ -15,7 +15,7 @@ Each `reviewer-*` prompt names its lane: the files it owns, the rules docs it lo
 2. **Rules** — read the rules docs the lane names, together in one step, and the project's glossary for any name (`review.glossary` in `.claude/daneel.json`, if set). The docs win over the lane prompt when they disagree. A doc that does not exist is skipped, never a reason to stop.
 3. **Diff** — one call for every file: `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh diff <path> [<path> …]`. Locally, `git diff HEAD -- <path>` adds what is not committed yet (CI has none). The `+` lines are the changed set. When the invoking prompt names a commit, the files and the changed set are that commit's alone (`git show --stat <sha>`, `git show <sha> -- <path>`): the commits under it belong to a branch still in review.
 4. **Context** — read a file in full only where the lane says the diff is not enough, those reads together in one step; never a generated file in full. Search only to confirm a suspected finding, never to explore. At most 10 files beyond the diff; when the diff is larger, take the largest changes first and say so on a line under the headline.
-5. **Check** — apply the lane's checks with their default severity; move one only when the surrounding code clearly warrants it, and say why. Drop anything a "not a finding" or exception list of the lane names, without mentioning it. Cite the rule ID when one exists.
+5. **Check** — apply the lane's checks with their default severity; move one only when the surrounding code clearly warrants it, and say why. Drop anything a "not a finding" or exception list of the lane names, without mentioning it, unless the branch adds it. Cite the rule ID when one exists.
 
 ## Output
 

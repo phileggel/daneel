@@ -47,19 +47,24 @@ the helpers folder; the security lane's say which data the project holds as pers
 In this order, since a ruleset refuses a project's own push of `main` and the plugin's
 `merge.py` lands only with the pull request that enables it:
 
-1. The plugins enabled in one pull request, which the owner merges by hand.
-2. Then the ruleset, `ruleset.json`: its checks replaced by those of the project's
-   `required-checks.json`, under GitHub Actions (app 15368), the owner applying it:
-
-       gh api repos/<owner>/<repo>/rulesets --method POST --input ruleset.json
-
-   Nobody bypasses it. "Require branches to be up to date" stays off: `merge.py` needs that.
-3. In `.claude/settings.json`, the owner's edit, the deny lines for what the method
-   forbids the agent:
+1. One pull request, which the owner merges by hand: the plugins enabled;
+   `required-checks.json` at the root (`{"checks": [...]}`), its names the real job names,
+   each job already reporting; and in `.claude/settings.json` the deny lines for publishing
+   a release (the plugin's scripts run their own `gh`, which these do not stop):
 
    ```json
-   { "permissions": { "deny": ["Bash(gh release edit *--draft=false*)", "Bash(gh release edit *--draft false*)"] } }
+   { "permissions": { "deny": ["Bash(gh release create *)", "Bash(gh release edit *)", "Bash(gh api *releases*)"] } }
    ```
+
+2. In the repository's settings, rebase and squash merges allowed: `merge.py` and
+   `release.py` use both.
+3. The ruleset, every app's the same: a copy of this plugin's `ruleset.json`, its example
+   check replaced by those of `required-checks.json`, under GitHub Actions (app 15368). Nobody
+   bypasses it. "Require branches to be up to date" stays off: `merge.py` needs that. The
+   owner applies it, or replaces the one the project has:
+
+       gh api repos/<owner>/<repo>/rulesets --method POST --input <copy>
+       gh api repos/<owner>/<repo>/rulesets/<id> --method PUT --input <copy>
 
 ## Lanes
 

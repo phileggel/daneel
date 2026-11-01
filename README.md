@@ -57,7 +57,7 @@ A project adds no allow-list line for a plugin's scripts: a skill's `allowed-too
 names each one. Never add a line of the shape `Bash(python3 *<script>*)` or
 `Bash(bash *<script>*)`: its leading wildcard also allows `python3 -c '<anything>' <script>`.
 
-Measured so far, and only this: a forked skill whose `allowed-tools` is plain `Bash` runs
+Measured so far on `allowed-tools`, and only this: a forked skill whose `allowed-tools` is plain `Bash` runs
 under `claude -p` (`flow-audit`, 2026-10-25). The scoped lines the other skills use
 (`Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/… *)`, `Bash(bash ${CLAUDE_PLUGIN_ROOT}/scripts/… *)`)
 and the reviewers' scripts are not measured yet: the first headless `/app:run-entry` of a
@@ -79,7 +79,7 @@ reads the agent from there:
 - uses: actions/checkout@v4
   with:
     repository: phileggel/daneel
-    ref: app--v0.1.2
+    ref: app--v0.2.0
     path: .daneel
 ```
 
@@ -108,18 +108,18 @@ A release is a tag, `<plugin>--v<version>`, made on `main` once the bump is merg
 - **Local and headless runs** follow `main`: `claude plugin update flow@daneel` (or the
   marketplace's auto-update) takes the newest version. Claude Code caches a plugin by its
   version, so a change that does not bump it never reaches a project.
-- **CI** pins a tag (`ref: app--v0.1.2`) and moves it in a pull request of the project,
+- **CI** pins a tag (`ref: app--v0.2.0`) and moves it in a pull request of the project,
   so a reviewer change is reviewed where it lands.
 - **To pin a machine**, register the marketplace at the ref, once per machine:
   `claude plugin marketplace add phileggel/daneel#<ref>`; `update` keeps it. A `ref` in
   `extraKnownMarketplaces` is ignored once the marketplace is registered: the clone stays on
-  `main`, silently (measured 2026-10-31). Moving a pin means `marketplace remove` first,
+  `main`, silently (measured 2026-10-31). Moving a pin is the owner's step: `marketplace remove` first,
   which empties `enabledPlugins` in the project's settings;
   `claude plugin install <plugin>@daneel --scope project` restores it.
 
 ## Status
 
-Version 0.1.2 of both plugins. A project keeps its own copies of a piece until its own ticket removes them. A skill
+A project keeps its own copies of a piece until its own ticket removes them. A skill
 moves here only after its copies are measured in the projects, never designed generic
 up front. What a skill still reads from the
 project is its own record — its rules, its usage log, its GitHub — never a script or

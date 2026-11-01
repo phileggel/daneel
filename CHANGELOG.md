@@ -2,19 +2,22 @@
 
 What a project must act on when it takes a new version of a plugin.
 
-## app 0.1.2 — 2026-11-01
+## app 0.2.0 — 2026-11-01
 
-- `plugins/app/README.md` § Taking it gives the order, the ruleset (`ruleset.json`) and the
-  deny lines for publishing a release.
+- `plugins/app/README.md` § Taking it gives the order, `required-checks.json`, the merge
+  settings, the ruleset (`ruleset.json`) and the deny lines for publishing a release.
 - `loop.md` § 5: on what a branch adds, an override stands on the default branch; a red lane
   is never re-run on an unchanged commit to clear a (c); a pattern goes in the lane's rules
-  document (`review.rules`), not the reviewer's prompt, and applies from the next pull request.
-- `run-entry`: a lane with `no report` is re-run; headless, a lane stopped by the usage limit
-  ends the run with a `needs-owner` comment instead of a sleep.
+  document (`review.rules`), not the reviewer's prompt. `protocol.md`: a reviewer ignores a
+  "not a finding" entry the branch itself adds, so it applies from the next pull request.
+- `run-entry`: a lane with `no report` is re-run; only that lane is re-run (`--job`, not
+  `--failed`); headless, a lane stopped by the usage limit ends the run with a `needs-owner`
+  comment instead of a sleep, and waits for someone to re-run it.
 
-To take it: move the project's pin to `app--v0.1.2`. A project whose ruleset lets someone
-bypass it or asks for no pull request compares it with `ruleset.json`; every project adds
-the deny lines. A headless run stopped at the usage limit now waits for the owner to re-run it.
+To take it: move the project's pin to `app--v0.2.0`; add the deny lines; replace a ruleset
+that lets someone bypass it or asks for no pull request with `ruleset.json`'s. A project's
+allow list need not name `gh run view`, `gh issue comment`, `gh issue edit`, `gh pr comment`
+or `gh pr edit` for `run-entry`.
 
 ## flow 0.1.2 — 2026-11-01
 

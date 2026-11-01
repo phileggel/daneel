@@ -3,8 +3,7 @@
 `${CLAUDE_PLUGIN_ROOT}` is the folder holding this file.
 
 How a task moves through a Tauri + React app that runs `app` beside `flow`. The batch
-around it — ownership, issues, the Project, the backlog, budget and stop rules, the batch
-end, the audit — is `flow`'s method, `${CLAUDE_PLUGIN_ROOT}/method.md`. The project's rules
+around it is `flow`'s method, `${CLAUDE_PLUGIN_ROOT}/method.md`. The project's rules
 document names what is its own: its harness checks, its rules docs and IDs, where its
 mocks live, its release steps.
 
@@ -124,15 +123,16 @@ that changed something or was rejected goes in the PR body, or a PR comment once
 - **(a)** in scope → fix in the PR.
 - **(b)** bigger, or outside the file set → folded or filed, linked from that line.
 - **(c)** is never "pre-existing" alone: a rejection cites what overrides the finding —
-  a rule, a file, an ADR, a measurement, the owner's decision. On what the branch adds, a
-  rule, an ADR or a decision stands on the default branch; a rule text or a convention
-  only the branch holds is none. Its code may still show a finding factually wrong, by
-  quoting the line.
+  a rule, a file, an ADR, a measurement, the owner's decision. On what the branch adds, the
+  override stands on the default branch, in a file the branch leaves alone, or is the
+  owner's decision. A measurement may be made on the branch; its code may still show a
+  finding factually wrong, quoting the line.
 - **(c) one-off** false positive → inline comment `<reviewer> FP: <reason> — see PR #NN`.
-- **A red lane is never re-run on an unchanged commit to clear a (c):** a false 🔴 takes
-  that comment, or goes to the owner. A re-run is for a job with no verdict.
-- **(c) pattern** → a "not a finding" rule in the lane's rules document (`review.rules`),
-  same PR; it applies from the next PR, the finding that prompted it graded without it.
+- **A red lane is never re-run on an unchanged commit to clear a (c):** a false 🔴,
+  security aside, takes that comment, or goes to the owner. A re-run is for a job with no verdict.
+- **(c) pattern** → a "not a finding" rule in the lane's rules document (`review.rules`;
+  a lane without one, a `flow` issue on daneel), same PR; a reviewer ignores a rule the
+  branch adds, so it applies from the next PR.
 - **A CI finding the local run missed** → a rule in that document, same PR.
 - **`[DECISION]`** → Conventions.
 - **A 🔴 security finding on the agent's own change** is fixed, or put to the owner with
@@ -174,7 +174,7 @@ force-push.
 
 ## 8. Where the loop runs
 
-The loop runs one task per run and keeps its state in git and the Project.
+The loop keeps its state in git and the Project.
 
 - **In chat:** `/app:run-entry #123`, or a plain request; `/app:run-batch` for a whole
   batch.
@@ -211,7 +211,8 @@ Before a batch ends, run in `release-sweep` mode the lanes this prints:
 `reviewer-security`, which reads the whole command surface; and `app:spec-checker` on
 every spec the batch touched. Each lane's `## Files read` goes into the closing brief.
 What they find is folded or filed, not fixed in the batch, but for the method's user-risk
-case; a finding not critical and older than the batch is filed and reported, not asked.
+case; a finding not critical and older than the batch is filed and reported, not asked
+(§ 5 keeps a 🔴 security finding for the owner).
 
 ### Shell calls
 
