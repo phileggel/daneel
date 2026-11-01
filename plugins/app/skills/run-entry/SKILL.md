@@ -35,7 +35,7 @@ allowed-tools:
 
 # Skill — `run-entry`
 
-One invocation, one task. The rules are the loop
+The rules are the loop
 (`${CLAUDE_SKILL_DIR}/../../loop.md`), `flow`'s method (`${CLAUDE_SKILL_DIR}/../../method.md`) and the project's
 rules document.
 
@@ -57,7 +57,7 @@ Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and `.number
 - **Chat, named issue** (`#123`): `gh issue view 123 --json title,body,comments`; one with an
   open pull request resumes.
 - **Resume**: `gh pr list --state open --json number,headRefName` has its branch
-  (`<type>/123-<slug>`); `gh pr checkout <number>`, then Step 8 from the watch.
+  (`<type>/123-<slug>`); `gh pr checkout <number>`, then Step 8 from the watch, without the scan; a Dependabot pull request does not resume.
 - **A Dependabot pull request** (queued or named): loop § Dependabot pull requests, not
   Steps 1 to 10; `python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` on its branch.
 - **Chat, plain request**: no issue is created; its Done when goes in the opening brief.
@@ -78,8 +78,7 @@ Before any branch exists, and before the item moves: anything the user sees chan
 
 ## Step 2 — Opening brief, branch, task list
 
-- Opening brief (chat: first message; headless: top of the PR body): **Task** — the issue
-  or request in one line · **Scope** — commit type, layers · **Design** — none / validated
+- Opening brief (chat: first message; headless: top of the PR body): **Task** — one line · **Scope** — commit type, layers · **Design** — none / validated
   / needed · **Touching** — the paths.
 - `git checkout -b <type>/123-<slug>` (`<type>/<slug>` for a plain request); the item's Status becomes In progress (`gh project item-edit`, ids
   from `gh project field-list {number} --owner {owner} --format json`).
@@ -131,7 +130,7 @@ graded (loop § 5); again on the fixes before the first push until no 🔴 remai
 
 ## Step 9 — Closure
 
-In the same PR, before the merge:
+Before the merge:
 
 - **The source docs still match the code** (spec, contract, ADR, architecture doc); the PR body says which, or "docs: none needed".
 - What the task met and did not fix is folded or filed as loop § 5 says; a task issue the work resolved is `Closes #NN` too.
