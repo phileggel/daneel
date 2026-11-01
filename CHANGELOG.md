@@ -2,6 +2,21 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## app 0.2.2 — 2026-11-01
+
+- `run-entry` Step 0: a task stopped with its pull request open resumes at Step 8's watch on
+  its branch: an issue named in chat, or headless an In progress or In review item without
+  `needs-owner`, ahead of any Queued item.
+- `run-entry`'s `allowed-tools` cover the `git` and `gh` commands it names; the first push and
+  every later one is the literal `git push -u origin HEAD`.
+- `run-entry` and `design-proposal` read an issue with `--json title,body,comments`: outside a
+  terminal, `gh issue view --comments` prints the comments and not the body.
+
+To take it: move the pin to `app--v0.2.2`. A project's allow list need not name these
+commands for `run-entry`, but its `just` recipes stay there. `git commit -m *` also matches
+a command with `--no-verify`, so add a deny line for it if the hooks must hold headless. A
+headless run in a second checkout could resume the same item; run one at a time per project.
+
 ## app 0.2.1 — 2026-11-01
 
 - `run-entry` Step 8: at the usage limit, the wake-up and asking the owner are for a chat

@@ -1,6 +1,7 @@
 """The rules of `CLAUDE.md` a machine can check, on what a pull request changes and on every
 doc. Against BASE_SHA in CI, else against origin/main; with neither, the change rules skip."""
 
+import fnmatch
 import json
 import os
 import re
@@ -12,6 +13,13 @@ ROOT = Path(__file__).resolve().parents[1]
 INLINE_CODE = re.compile(r"`([^`\n]+)`")
 COMMAND = re.compile(r"(git|gh|python3|bash|just|npx|npm|claude) ")
 CHAINED = re.compile(r" (&&|\|\|) |; |\$\(")
+HEADLESS = [
+    "plugins/app/skills/run-entry/SKILL.md",
+    "plugins/app/skills/design-proposal/SKILL.md",
+    "plugins/app/skills/visual-proof/SKILL.md",
+    "plugins/app/skills/dep-audit/SKILL.md",
+    "plugins/flow/skills/flow-audit/SKILL.md",
+]
 
 
 def git(*args: str) -> subprocess.CompletedProcess:
@@ -98,6 +106,54 @@ class EveryDoc(unittest.TestCase):
         doc = "Run `git pull && git push`, never `$(...)` alone.\n```bash\ngh pr view; gh pr merge\n```\n"
         found = [code for _, code in commands(doc) if CHAINED.search(code)]
         self.assertEqual(found, ["git pull && git push", "gh pr view; gh pr merge"])
+
+
+def allowed(skill: str) -> list[str] | None:
+    """The patterns of a skill's `allowed-tools`, None when it allows every Bash command."""
+    front = skill.split("---")[1]
+    if re.search(r"^allowed-tools:.*\bBash\b(?!\()", front, re.MULTILINE):
+        return None
+    return re.findall(r"Bash\((.*)\)", front)
+
+
+def covered(code: str, patterns: list[str]) -> bool:
+    return any(fnmatch.fnmatchcase(code, p) or fnmatch.fnmatchcase(f"{code} ", p) for p in patterns)
+
+
+class EverySkillThatCanRunHeadless(unittest.TestCase):
+    def test_its_allowed_tools_cover_what_it_tells_the_agent_to_run(self):
+        missing = []
+        for name in HEADLESS:
+            skill = (ROOT / name).read_text(encoding="utf-8")
+            patterns = allowed(skill)
+            if patterns is None:
+                continue
+            for number, code in commands(skill):
+                if code.startswith("just "):
+                    if "allow list" not in skill:
+                        missing.append(f"{name}:{number}: {code}: say the project's allow list covers it")
+                elif not covered(code, patterns):
+                    missing.append(f"{name}:{number}: {code}")
+        self.assertEqual(missing, [], "a headless run approves nothing")
+
+    def test_it_reads_a_whole_issue(self):
+        """Outside a terminal, `gh issue view --comments` prints the comments and not the body."""
+        for name in HEADLESS:
+            with self.subTest(name):
+                self.assertNotRegex((ROOT / name).read_text(encoding="utf-8"), r"gh issue view \S+ --comments")
+
+    def test_a_pattern_covers_what_it_should_and_no_more(self):
+        patterns = ["gh issue edit *", "git push -u origin HEAD"]
+        self.assertTrue(covered("gh issue edit", patterns))
+        self.assertTrue(covered("gh issue edit 3 --add-label x", patterns))
+        self.assertTrue(covered("git push -u origin HEAD", patterns))
+        self.assertFalse(covered("git push -u origin main", patterns))
+        self.assertFalse(covered("gh issue close 3", patterns))
+
+    def test_it_reads_both_forms_of_allowed_tools(self):
+        self.assertIsNone(allowed("---\nallowed-tools: Read, Bash\n---\n"))
+        self.assertEqual(allowed("---\nallowed-tools:\n  - Bash(git status)\n---\n"), ["git status"])
+        self.assertEqual(allowed("---\nname: x\n---\n"), [])
 
 
 class EveryFile(unittest.TestCase):

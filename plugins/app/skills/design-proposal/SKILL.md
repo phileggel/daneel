@@ -25,7 +25,7 @@ Setting, optional: `design-proposal.repo` in `.claude/daneel.json`, a repository
 
 ## Step 1 — Read the task
 
-Load the issue (`gh issue view <id> --comments`) or take the chat request. From it and
+Load the issue (`gh issue view <id> --json title,body,comments`) or the chat request. From it and
 its Done when, list the screens and states that change: one state per distinct thing the
 human must see (the row with the new column, the dialog with the moved buttons, the
 empty case if it changes).
