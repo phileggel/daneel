@@ -96,6 +96,23 @@ class Gate(unittest.TestCase):
                 self.assertIn("no verdict", comment)
 
 
+class NoVerdictReason(unittest.TestCase):
+    def test_the_log_says_why(self):
+        cases = {
+            "": "wrote nothing",
+            "Credit balance too low": "not JSON: Credit balance too low",
+            "[]": "not a JSON object",
+            json.dumps({"is_error": True, "api_error_status": 401, "result": "Not logged in"}): "401: Not logged in",
+            json.dumps({"is_error": False, "result": "looks good"}): "wrong shape",
+        }
+        for output, reason in cases.items():
+            with self.subTest(output):
+                self.assertIn(reason, review.no_verdict_reason(output))
+
+    def test_a_long_error_is_cut(self):
+        self.assertLess(len(review.no_verdict_reason("x" * 5000)), 400)
+
+
 class Goal(unittest.TestCase):
     def test_it_finds_each_closed_issue_once(self):
         body = "Closes #15\nfixes #17, Resolved #18\ncloses #15\nsee #99"
