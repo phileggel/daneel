@@ -26,6 +26,7 @@ SEVERITIES = (("critical", "🔴 Critical"), ("warning", "🟡 Warning"), ("info
 GOALS = {"achieved", "partial", "not_achieved", "not_stated"}
 TESTS = {"proven", "not_testable", "missing"}
 COMMENT_LIMIT = 60000
+REASON_LIMIT = 300
 
 
 def closing_issues(body: str | None) -> list[int]:
@@ -52,6 +53,22 @@ def read_verdict(output: str) -> dict | None:
     except (KeyError, TypeError):
         return None
     return verdict if known else None
+
+
+def no_verdict_reason(output: str) -> str:
+    """What the run's log says when there is no verdict: Claude's own error, as its output
+    goes to a file nobody sees."""
+    if not output:
+        return "the reviewer wrote nothing"
+    try:
+        result = json.loads(output)
+    except ValueError:
+        return f"not JSON: {output[:REASON_LIMIT]}"
+    if not isinstance(result, dict):
+        return "not a JSON object"
+    if result.get("is_error"):
+        return f"{result.get('api_error_status')}: {str(result.get('result'))[:REASON_LIMIT]}"
+    return "the verdict is missing or has the wrong shape"
 
 
 def refusals(verdict: dict) -> list[str]:
@@ -125,6 +142,7 @@ def gate(claude_json: Path, comment: Path) -> int:
     verdict = read_verdict(output)
     comment.write_text(render(verdict), encoding="utf-8")
     if verdict is None:
+        print(f"No verdict: {no_verdict_reason(output)}", file=sys.stderr)
         return NO_VERDICT
     return REFUSED if refusals(verdict) else PASSED
 
