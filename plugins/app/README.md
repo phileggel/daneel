@@ -42,6 +42,25 @@ runs on its own checks alone. The infra lane's documents also name the files and
 project adds to it, the actions it lets go unpinned and its deny list; the e2e lane's name
 the helpers folder; the security lane's say which data the project holds as personal.
 
+## Taking it
+
+In this order, since a ruleset refuses a project's own push of `main` and the plugin's
+`merge.py` lands only with the pull request that enables it:
+
+1. The plugins enabled in one pull request, which the owner merges by hand.
+2. Then the ruleset, `ruleset.json`: its checks replaced by those of the project's
+   `required-checks.json`, under GitHub Actions (app 15368), the owner applying it:
+
+       gh api repos/<owner>/<repo>/rulesets --method POST --input ruleset.json
+
+   Nobody bypasses it. "Require branches to be up to date" stays off: `merge.py` needs that.
+3. In `.claude/settings.json`, the owner's edit, the deny lines for what the method
+   forbids the agent:
+
+   ```json
+   { "permissions": { "deny": ["Bash(gh release edit *--draft=false*)", "Bash(gh release edit *--draft false*)"] } }
+   ```
+
 ## Lanes
 
 `review-lanes.sh` fires a lane only on files its reviewer takes, with defaults for a

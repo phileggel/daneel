@@ -73,8 +73,6 @@ Before any branch exists, and before the item moves: anything the user sees chan
 - A new or changed business rule goes into its spec, a changed command into its contract,
   with their reviewer, before the code (their folder's `README.md`).
 - Every Done-when clause becomes a failing test (loop § 1, step 3).
-- A fault met in production: ask for the input that shows it before designing a fix,
-  and reproduce it in a failing test first (loop § 1).
 - Run the suites; confirm the new tests are red. A clause the agent cannot run: method § 1 (an
   E2E scenario when it needs the real window).
 
@@ -106,11 +104,13 @@ graded (loop § 5); again on the fixes before the first push until no 🔴 remai
   local commit, 6 only lanes the usage limit stopped.
 - A red reviewer lane: read its newest comment; grade and apply as loop § 5 says, as a
   `fixup!`; push.
-- A lane stopped by the CI account's usage limit (by exit code or comment): nothing to
-  fix. Wait for the reset time it names (a wake-up in chat, a sleep headless; outside
-  Rule 4), then `gh run rerun <the run id> --failed` and watch again.
+- A lane with no verdict, its comment `no report` or stopped by the CI account's usage
+  limit (by exit code or comment): nothing to fix. `gh run rerun <the run id> --failed` and
+  watch again; at the limit, first a wake-up at the reset time it names (outside Rule 4).
+  Headless, at the limit: that time, or that none was given, in a `needs-owner` comment on
+  the issue (the PR for a plain request); leave the PR open, stop.
 - Any other red: method § 4 (the log first). Fix with `git commit --fixup <sha>` (never a new titled commit, never a force-push), push, watch
-  again. The same gate red three times: open question, leave the PR open, stop.
+  again.
 - All green: every lane's newest comment graded in a PR comment (loop § 1, step 10).
 
 ## Step 9 — Closure
