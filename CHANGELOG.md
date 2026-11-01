@@ -2,6 +2,12 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## app 0.3.1 — 2026-11-01
+
+- `loop.md` § 5: an issue on daneel, as daneel's issues are no longer labelled `flow`.
+
+To take it: nothing to change; the agent follows the new wording.
+
 ## app 0.3.0 — 2026-11-01
 
 - `run-entry` Step 0: a task stopped with its pull request open resumes at Step 8's watch on
