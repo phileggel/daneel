@@ -25,6 +25,7 @@
     "plugins/flow/skills/flow-audit/audit.md": 703,
     "plugins/flow/skills/init/SKILL.md": 569,
     "plugins/flow/skills/plan-batch/SKILL.md": 724,
-    "CLAUDE.md": 598
+    "CLAUDE.md": 598,
+    ".github/review/reviewer.md": 389
   }
 }

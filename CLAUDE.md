@@ -1,7 +1,7 @@
 # daneel
 
 A Claude Code plugin marketplace: the flow shared by phileggel's projects.
-`README.md` says what it holds and how a project enables it. These rules are what a
+`README.md` says what it holds. These rules are what a
 change here is reviewed against.
 
 ## What belongs here
@@ -20,7 +20,7 @@ change here is reviewed against.
 - A plugin ships every script and doc its skills and agents use, and names them through
   `${CLAUDE_SKILL_DIR}` or `${CLAUDE_PLUGIN_ROOT}`, never a bare `scripts/` and never the
   project's checkout. A script measures the checkout it runs in, and works from a plain
-  checkout too, as CI uses it.
+  checkout too.
 - A plugin never reads another plugin's folder. `app` depends on `flow`
   (`"dependencies"` in its `plugin.json`) and reads `flow`'s method through its own
   `method.md`, a link to it (copied in by a GitHub install, read in place from a local
@@ -57,4 +57,5 @@ the draft); bypass a hook (`--no-verify`).
 - Every change to a plugin bumps its `version` in `plugin.json` and adds its
   line to `CHANGELOG.md`, saying what a project must do.
 - `claude plugin validate .` and `python3 -m unittest discover -s tests` pass before a
-  commit; CI runs both. A release is `claude plugin tag plugins/<plugin> --push` on `main`.
+  commit; CI runs both. A pull request lands only with `validate` and `review` green. A
+  release is `claude plugin tag plugins/<plugin> --push` on `main`.
