@@ -8,6 +8,11 @@ allowed-tools:
   - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/watch-pr.py *)
   - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/watch-pr.py)
   - Bash(gh run rerun *)
+  - Bash(gh run view *)
+  - Bash(gh issue comment *)
+  - Bash(gh issue edit *)
+  - Bash(gh pr comment *)
+  - Bash(gh pr edit *)
   - Bash(bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh *)
   - Bash(bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh)
   - Bash(bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh *)
@@ -17,7 +22,7 @@ allowed-tools:
 
 One invocation, one task, through the ceremony to `main`. The rules are the loop
 (`${CLAUDE_SKILL_DIR}/../../loop.md`), `flow`'s method (`${CLAUDE_SKILL_DIR}/../../method.md`) and the project's
-rules document; this file is the checklist.
+rules document.
 
 Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and `.number`; under
 `run-entry`, each optional:
@@ -27,8 +32,7 @@ Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and `.number
 - `record_paths` — the files whose move of `main` leaves the checks standing (default
   `["docs/adr/"]`; an entry ending in `/` is a folder of `.md` files).
 
-GitHub merges the tested head: `main` has a ruleset taking only a commit whose checks
-passed, rebase and squash allowed. The required checks are `required-checks.json` at the
+The required checks are `required-checks.json` at the
 root (`{"checks": [...]}`).
 
 ## Step 0 — Preconditions and mode
@@ -44,7 +48,7 @@ root (`{"checks": [...]}`).
   is its record. Write its Done when into the opening brief.
 - **Decision scan and Ready** (method § 2), for an issue, before the branch exists; a flow
   issue's Decision and a task's Observation are its Done when. Chat: each open question
-  alone, with the context to answer it cold, the answer awaited and written on the issue.
+  alone (method § 2), its answer written on the issue.
   Headless: each a comment with `needs-owner`; skip what is not ready, and if nothing is,
   say what blocks each issue and stop. With a spec, loop § 1 step 1's order.
 
@@ -78,7 +82,7 @@ Before any branch exists, and before the item moves: anything the user sees chan
 
 ## Step 4 — Implement
 
-Smallest change to green, the right way (loop § 4); Rule 2 holds.
+Smallest change to green, the right way (loop § 4); Rule 1 holds.
 
 ## Step 5 — Harness
 
@@ -105,10 +109,12 @@ graded (loop § 5); again on the fixes before the first push until no 🔴 remai
 - A red reviewer lane: read its newest comment; grade and apply as loop § 5 says, as a
   `fixup!`; push.
 - A lane with no verdict, its comment `no report` or stopped by the CI account's usage
-  limit (by exit code or comment): nothing to fix. `gh run rerun <the run id> --failed` and
-  watch again; at the limit, first a wake-up at the reset time it names (outside Rule 4).
-  Headless, at the limit: that time, or that none was given, in a `needs-owner` comment on
-  the issue (the PR for a plain request); leave the PR open, stop.
+  limit (by exit code or comment): nothing to fix. That lane alone is re-run: `gh run view <run id> --json jobs`
+  for its job id, `gh run rerun --job <job id>`, watch again. At the limit, first a wake-up
+  at the reset time it names (outside Rule 2), or with none given, ask the owner.
+  Headless, at the limit: that time, or that none was given, in a file, then `gh issue
+  comment <n> --body-file <file>` and `gh issue edit <n> --add-label needs-owner` (`gh pr`
+  for a plain request); leave the PR open, stop.
 - Any other red: method § 4 (the log first). Fix with `git commit --fixup <sha>` (never a new titled commit, never a force-push), push, watch
   again.
 - All green: every lane's newest comment graded in a PR comment (loop § 1, step 10).
@@ -132,7 +138,5 @@ request; then the closing brief with the PR number.
 
 ## Rules
 
-1. Headless never asks the human; questions are comments on the issue.
-2. The project's core rules and Step 5 hold, and the batch is never edited (method § 4).
-3. One task per invocation. Stop after Step 10.
-4. Method § 4's wall-clock budget per task; over it, open question and stop.
+1. The project's core rules and Step 5 hold, and the batch is never edited (method § 4).
+2. Method § 4's wall-clock budget per task; over it, open question and stop.

@@ -57,7 +57,7 @@ and skipped.
 
 ## Step 4 — End the batch
 
-When every item of the batch has been run, skipped or stopped on (method § 5, loop § 1):
+When every item of the batch has been run, skipped or stopped on (method § 5):
 the release sweep (loop § Release sweep) and the project's batch-end checks, their
 findings folded or filed. Then, on the final `main`:
 
