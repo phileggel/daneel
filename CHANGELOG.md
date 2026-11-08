@@ -2,6 +2,21 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## flow 0.2.0 — 2026-11-08
+
+- `flow-audit.py`: `later_rounds` gains `rebase_after_a_failed_check`, a round whose round
+  before failed and whose commit does not descend from it; `after_a_failed_check` now means
+  a commit on top. Each round counts under one key, so the keys still sum to the rounds
+  beyond the first.
+- `flow-audit.py`: `dangling_paths` is now `{"dead": …, "ignored": …}`: a path git ignores
+  (build output) is listed apart from a stale one.
+- `flow-audit`'s Step 3: a plugin's script is never in the usage log, so its absence there
+  is no data, not no failures.
+
+To take it: an audit comparing `later_rounds` with a batch before 0.2.0 says that
+`after_a_failed_check` then also held the rebases after a failed check. A script that reads
+`dangling_paths` reads its `dead` key.
+
 ## app 0.4.4 — 2026-11-08
 
 - `app:spec-checker` runs once per entry, with the lanes, when the code of a branch that

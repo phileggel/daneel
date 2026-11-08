@@ -190,12 +190,15 @@ def measure_pull_requests(
 
 
 def sort_later_rounds(runs: list[dict], relation: Callable[[str, str], str | None]) -> dict:
-    """Why each round after a branch's first came: after a failed check of the
-    round before (a failed run of any workflow on its commit); a rebase, when the round's
-    commit does not descend from the round before (the branch was rewritten onto another
-    base, the push of `merge.py` among them); a fix, a commit pushed on top; or unreadable,
-    when `relation(before, sha)` — GitHub's comparison of the two commits, `ahead`,
-    `diverged`, … — cannot be read, so that a comparison GitHub refused never passes for a fix.
+    """Why each round after a branch's first came, each under one key, so the keys sum
+    to the rounds beyond the first: after a failed check of the round before (a failed run
+    of any workflow on its commit), with a commit on top; a rebase after a failed check, when
+    the round before failed and the round's commit does not descend from it; a rebase, the
+    same with the round before green (the push of `merge.py` among them); a fix, a commit
+    pushed on top; or unreadable, when `relation(before, sha)` — GitHub's comparison of the
+    two commits, `ahead`, `diverged`, … — cannot be read after a green round, so that a
+    comparison GitHub refused never passes for a fix. After a failed round, an unreadable
+    comparison counts as after a failed check.
     """
     first_seen: dict[tuple[str, str], str] = {}
     failed: set[str] = set()
@@ -208,14 +211,15 @@ def sort_later_rounds(runs: list[dict], relation: Callable[[str, str], str | Non
     by_branch: dict[str, list[tuple[str, str]]] = {}
     for (branch, sha), seen in first_seen.items():
         by_branch.setdefault(branch, []).append((seen, sha))
-    causes = {"after_a_failed_check": 0, "rebase": 0, "fix": 0, "unreadable": 0}
+    causes = {"after_a_failed_check": 0, "rebase_after_a_failed_check": 0, "rebase": 0, "fix": 0, "unreadable": 0}
     for rounds in by_branch.values():
         shas = [sha for _, sha in sorted(rounds)]
         for before, sha in zip(shas, shas[1:]):
+            compared = relation(before, sha)
             if before in failed:
-                causes["after_a_failed_check"] += 1
+                key = "rebase_after_a_failed_check" if compared == "diverged" else "after_a_failed_check"
+                causes[key] += 1
             else:
-                compared = relation(before, sha)
                 if compared is None:
                     causes["unreadable"] += 1
                 elif compared == "diverged":
@@ -381,24 +385,39 @@ def measure_usage(
     }
 
 
-def dangling_paths(texts: dict[str, str], exists) -> dict[str, list[str]]:
-    """The paths each document names that are not in the repository.
+def dangling_paths(texts: dict[str, str], exists, ignored=lambda path: False) -> dict[str, dict[str, list[str]]]:
+    """The paths each document names that are not in the repository: `dead`, and apart
+    those git ignores (`ignored`), such as build output, which are absent from a checkout
+    without being stale pointers.
 
     Only a backticked token that starts at the repository root is read as a path; a
     pattern or a placeholder (`docs/spec/*.md`, `docs/spec/TRI-NNN.md`) is not one.
     """
-    found: dict[str, list[str]] = {}
+    found: dict[str, dict[str, list[str]]] = {"dead": {}, "ignored": {}}
     for document, text in sorted(texts.items()):
-        gone = []
+        gone: dict[str, list[str]] = {"dead": [], "ignored": []}
         for token in re.findall(r"`([^`\n]+)`", text):
             path = token.split(":", 1)[0].rstrip(".,;")
             if not path.startswith(PATH_ROOTS) or re.search(r"[{}*…<>\s]|NNN|\.\.\.", path):
                 continue
-            if not exists(path) and path not in gone:
-                gone.append(path)
-        if gone:
-            found[document] = gone
+            if exists(path) or path in gone["dead"] or path in gone["ignored"]:
+                continue
+            gone["ignored" if ignored(path) else "dead"].append(path)
+        for kind, paths in gone.items():
+            if paths:
+                found[kind][document] = paths
     return found
+
+
+def git_ignores(path: str) -> bool:
+    """Whether git ignores `path`. A folder's pattern (`__preview__/`) matches only the
+    path with its trailing slash while the folder is absent (measured 2026-11-01), so a
+    path without one is tried both ways."""
+    tries = [path] if path.endswith("/") else [path, path + "/"]
+    return any(
+        subprocess.run(["git", "check-ignore", "-q", "--", attempt], cwd=ROOT, capture_output=True).returncode == 0
+        for attempt in tries
+    )
 
 
 def compare_lengths(now: dict[str, int], before: dict[str, int]) -> dict[str, dict]:
@@ -465,7 +484,7 @@ def measure_repository(
     texts = {path: (ROOT / path).read_text(encoding="utf-8") for path in documents}
     return {
         "usage": measure_usage(log_lines, since, until, known_tools()),
-        "dangling_paths": dangling_paths(texts, lambda path: (ROOT / path).exists()),
+        "dangling_paths": dangling_paths(texts, lambda path: (ROOT / path).exists(), git_ignores),
         "guides": compare_lengths(guide_lengths(now), guide_lengths(before)),
     }
 

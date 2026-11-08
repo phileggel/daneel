@@ -3,6 +3,7 @@
 import contextlib
 import importlib.util
 import io
+import os
 import subprocess
 import tempfile
 import unittest
@@ -356,15 +357,27 @@ class LaterRoundsTest(unittest.TestCase):
         sorted_rounds = flow_audit.sort_later_rounds(self.RUNS, self.relation)
         self.assertEqual(
             sorted_rounds,
-            {"after_a_failed_check": 1, "rebase": 1, "fix": 1, "unreadable": 0},
+            {"after_a_failed_check": 1, "rebase_after_a_failed_check": 0, "rebase": 1, "fix": 1, "unreadable": 0},
         )
 
     def test_a_comparison_github_cannot_give_is_counted_apart(self):
         sorted_rounds = flow_audit.sort_later_rounds(self.RUNS, lambda before, sha: None)
         self.assertEqual(
             sorted_rounds,
-            {"after_a_failed_check": 1, "rebase": 0, "fix": 0, "unreadable": 2},
+            {"after_a_failed_check": 1, "rebase_after_a_failed_check": 0, "rebase": 0, "fix": 0, "unreadable": 2},
         )
+
+    def test_a_rebase_after_a_red_round_is_told_apart_and_counted_once(self):
+        # A branch rebased 41 seconds after another merged, following a red E2E: both a
+        # failed check and a rebase, counted once, under its own key.
+        runs = [
+            run("Quality", "branch-c", "c1", "failure", "2026-10-04T10:00:00Z", "2026-10-04T10:04:00Z"),
+            run("Quality", "branch-c", "c2", "success", "2026-10-04T11:00:00Z", "2026-10-04T11:04:00Z"),
+        ]
+        sorted_rounds = flow_audit.sort_later_rounds(runs, lambda before, sha: "diverged")
+        self.assertEqual(sorted_rounds["rebase_after_a_failed_check"], 1)
+        self.assertEqual(sorted_rounds["after_a_failed_check"], 0)
+        self.assertEqual(sum(sorted_rounds.values()), 1)
 
     def test_a_window_s_figures_carry_the_sort_when_commits_can_be_compared(self):
         prs = [
@@ -375,7 +388,7 @@ class LaterRoundsTest(unittest.TestCase):
         self.assertEqual(figures["rounds_beyond_the_first"], 3)
         self.assertEqual(
             figures["later_rounds"],
-            {"after_a_failed_check": 1, "rebase": 1, "fix": 1, "unreadable": 0},
+            {"after_a_failed_check": 1, "rebase_after_a_failed_check": 0, "rebase": 1, "fix": 1, "unreadable": 0},
         )
         self.assertNotIn("later_rounds", flow_audit.measure_ci(self.RUNS, prs, SINCE, UNTIL))
 
@@ -507,19 +520,40 @@ class MeasureUsageTest(unittest.TestCase):
 
 
 class DanglingPathsTest(unittest.TestCase):
-    def dangling(self, text):
-        return flow_audit.dangling_paths({"docs/a.md": text}, lambda path: path in ("docs/workflow.md", "scripts/"))
+    def dangling(self, text, ignored=lambda path: False):
+        return flow_audit.dangling_paths({"docs/a.md": text}, lambda path: path in ("docs/workflow.md", "scripts/"), ignored)
 
     def test_a_named_path_that_is_gone_is_reported_once(self):
         text = "See `docs/todo.md` and `docs/workflow.md`, then `docs/todo.md` again and `scripts/gone.py:12`."
-        self.assertEqual(self.dangling(text), {"docs/a.md": ["docs/todo.md", "scripts/gone.py"]})
+        self.assertEqual(self.dangling(text)["dead"], {"docs/a.md": ["docs/todo.md", "scripts/gone.py"]})
 
     def test_a_pattern_a_placeholder_or_an_unrooted_name_is_not_a_path(self):
         text = "`docs/spec/*.md`, `docs/work/todo/TODO-NNN.md`, `src/{a,b}.ts`, `workflow.md`, `docs/<domain>-contract.md`"
-        self.assertEqual(self.dangling(text), {})
+        self.assertEqual(self.dangling(text), {"dead": {}, "ignored": {}})
 
     def test_a_document_with_nothing_gone_is_left_out(self):
-        self.assertEqual(self.dangling("`docs/workflow.md` and `scripts/`"), {})
+        self.assertEqual(self.dangling("`docs/workflow.md` and `scripts/`"), {"dead": {}, "ignored": {}})
+
+    def test_a_path_git_ignores_is_listed_apart_from_the_dead(self):
+        text = "Build output in `scripts/target/app`, a stale `docs/todo.md`."
+        found = self.dangling(text, lambda path: path.startswith("scripts/target/"))
+        self.assertEqual(found["dead"], {"docs/a.md": ["docs/todo.md"]})
+        self.assertEqual(found["ignored"], {"docs/a.md": ["scripts/target/app"]})
+
+
+class GitIgnoresTest(unittest.TestCase):
+    """`git_ignores` on a throwaway repository: a folder's pattern matches the absent
+    folder only with its trailing slash, so a path named without one is tried both ways."""
+
+    def test_an_absent_ignored_folder_is_found_with_or_without_its_slash(self):
+        with tempfile.TemporaryDirectory() as folder:
+            env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+            subprocess.run(["git", "init", "-q", folder], check=True, env=env)
+            Path(folder, ".gitignore").write_text("__preview__/\n")
+            with mock.patch.object(flow_audit, "ROOT", Path(folder)), mock.patch.dict(os.environ, env, clear=True):
+                self.assertTrue(flow_audit.git_ignores("src/__preview__/"))
+                self.assertTrue(flow_audit.git_ignores("src/__preview__"))
+                self.assertFalse(flow_audit.git_ignores("src/kept.ts"))
 
 
 class CompareLengthsTest(unittest.TestCase):
