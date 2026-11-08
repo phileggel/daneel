@@ -97,7 +97,8 @@ request says `Closes #123`, so its merge closes the issue.
 - **Sized by its work**, not its number of items: the sum of the proposal's sizes stops
   at what the last batches merged (their `batch-audit` issues), both figures said. About
   a third of it goes to tasks. A programme enters as its first slice.
-- **The order**: what the owner asked to have next first; what changes the tools next; a
+- **The order**: what the owner asked to have next first; an item with an open pull
+  request next; what changes the tools next; a
   dependency before what depends on it; items that touch the same files next to each
   other, so one can be prepared on the other; small fixes a user notices early; what
   needs the owner flagged at the top. Where two disagree, the proposal says so in one
@@ -116,13 +117,13 @@ marks every issue it files (`agent-filed`, or `backlog.coder_mark`).
 
 - The ceiling is the backlog at the last batch end, raised by the owner's issues (every
   one without the coder's mark, and the coder's marked `owner-asked`) and by the waived
-  ones (`security`, `data-loss`, or `backlog.waived`), which are always filed.
+  ones (`security`, `data-loss`, `flaky`, or `backlog.waived`), which are always filed.
 - **A healthy size** (`backlog.target`, optional): at or under it the agent files up to
   it; over it the ceiling only lets the backlog shrink back. Before the first batch end
   only the target holds; with no target every issue fits.
-- An issue that does not fit is folded into an open one, or makes room by closing one of the
-  agent's own it supersedes, with the reason, never one the owner confirmed, or — a defect a user meets — is put to the owner in chat. Never filed
-  anyway.
+- An issue that does not fit, an audit's proposal included, is folded into an open one
+  that holds it; else dropped, when it is not really important; else put to the owner.
+  Never filed anyway.
 
 ## 4. Budget and stop rules
 
@@ -133,8 +134,8 @@ marks every issue it files (`agent-filed`, or `backlog.coder_mark`).
   adds observation and makes the failure cheap to reproduce, never a fix.
 - The same gate failing three times on one task → open question, stop.
 - A test that fails for a reason the change cannot explain is flaky and is never accepted
-  by re-running it: it is skipped in its own pull request and a `task` issue is filed
-  with the failure text and the run's link; the fix that re-enables it closes the issue.
+  by re-running it: it is skipped in its own pull request and a `task` issue labelled `flaky` is
+  filed with the failure text and the run's link; the fix that re-enables it closes the issue.
   The run continues.
 - **Never:** what the project's core rules forbid; nor change the batch without the
   owner's yes; nor push to the project's `main`, force-push (but the script that lands a
@@ -203,7 +204,7 @@ The checklist `/flow:init` sets up.
   - `batch-audit` — the issue that holds a batch's audit, no work;
   - `agent-filed` — the coding agent filed it (`backlog.coder_mark` renames it);
   - `owner-asked` — the agent filed it because the owner asked, so it raises the ceiling;
-  - `security`, `data-loss` — always filed, raises the ceiling (`backlog.waived`
+  - `security`, `data-loss`, `flaky` — always filed, raises the ceiling (`backlog.waived`
     replaces the list).
 
   Any other label (a roadmap stage, a priority, a design marker) is the project's own:

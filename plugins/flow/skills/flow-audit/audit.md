@@ -13,9 +13,8 @@ and effort. Nothing of it runs during a batch.
   issues and Dependabot pull requests, the backlog by size against its ceiling, the usage
   log, dead paths and the guides' length; and reads the records the auditor judges (the
   pull requests with their reviews, the issues with their threads) in a few calls, so the
-  auditor reads one document instead of gathering it. A batch end is dated by its
-  tag, a release published or not. The auditor counts from the pull requests what
-  the reviewers caught, got wrong and left to CI, and reads each generic piece of the
+  auditor reads one document instead of gathering it. The auditor counts from the pull
+  requests what the reviewers caught, got wrong and left to CI, and reads each generic piece of the
   guide that lists the agent's tools, if the project has one, against its line.
 - **Six questions**, asked of every batch: what would have avoided a conflict; where it
   waited, and what would shorten it without costing quality; what can be simplified;
@@ -23,12 +22,12 @@ and effort. Nothing of it runs during a batch.
   was false, contradicted another, or grew without earning it; what was done by hand that
   a tool should do, and which finding belongs to another repository.
 - **Hard points** — the three strongest difficulties become `flow` issues with their
-  evidence and a proposal; the rest stay in the audit's text. Where nothing should
+  evidence and a proposal, each through `/flow:backlog` (method § 3); the rest stay in the audit's text. Where nothing should
   change, "keep" is a verdict said in the audit, and no issue is filed.
 - **The ceiling** — the open backlog by size (S 1, M 2, L 4, XL 8; no size 2; a parent
   with an open slice 0; `batch-audit` none) at a batch end stays at or under the last
   end's, raised by the owner's tickets (every ticket without the coder's mark, and the
-  coder's marked `owner-asked`) and the waived ones (security, data loss). The audit's
+  coder's marked `owner-asked`) and the waived ones (security, data loss, flaky). The audit's
   Backlog block states it by size at both ends, the ceiling, what was added (coder,
   owner, waived) and removed (done, folded, closed). A project that holds no ceiling
   reads the figure and judges nothing from it.
