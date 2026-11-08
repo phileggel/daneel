@@ -66,7 +66,9 @@ project checks them, and what it finds goes in this file.
 What differs between projects is the project's own: `.claude/daneel.json` (one key per
 piece: `flow-audit`, `plan-batch`, `backlog`, `review`, `run-entry`, `run-batch`,
 `design-proposal`, `visual-proof`, `dep-audit`).
-Each skill's doc names its keys.
+Each skill's doc names its keys; the docs a project's reviewers read are `review.rules.<lane>`
+(`spec`, `contract` and `adr` naming that kind's README first), `review.glossary`,
+`flow-audit.guides` and `visual-proof.rules`.
 
 ## In CI
 

@@ -17,7 +17,7 @@ would not. Used with `flow`.
 | `app:reviewer-e2e` | WebdriverIO scenarios under `e2e/`: selectors, waits, inputs, independence, no mocks, helpers |
 | `app:reviewer-security` | Commands, test seams, XSS, storage, secrets, capabilities, cross-layer risks |
 | `app:reviewer-infra` | Workflows, Tauri and package config, scripts, hooks, justfile, records, settings |
-| `/app:visual-proof` | Screenshots of every state of a changed component, light and dark; `visual-proof.vite_preview_port`, `.vite_preview_host`, `.global_css_import`, `.i18n_import`, optional `.frontend_match`, `.frontend_exclude` |
+| `/app:visual-proof` | Screenshots of every state of a changed component, light and dark; `visual-proof.vite_preview_port`, `.vite_preview_host`, `.global_css_import`, `.i18n_import`, optional `.rules` (default `docs/visual-proof-rules.md`), `.frontend_match`, `.frontend_exclude` |
 | `/app:dep-audit` | npm and Cargo: outdated versions and CVEs, verified on the web; optional `dep-audit.licence_check`, `.terms_doc` |
 | `/app:run-entry` | One task end to end, branch to merge on green; optional `run-entry.recipes`, `.record_paths` |
 | `/app:run-batch` | A whole batch: every Queued item through `run-entry`, its end (`release.py` to a draft, or `batch-end.sh`), the closing brief last; optional `run-batch.release_check`, `.version_files`, `.changelog`, `.release_workflow` |
@@ -27,15 +27,19 @@ would not. Used with `flow`.
 `scripts/branch.sh` and `scripts/review-path.sh` are what the reviewers run, always on
 the project of the working directory; `scripts/review-lanes.sh` reads changed paths on
 stdin and prints the lanes they need (`--json` for CI), for `run-entry` and the project's
-review workflow. The reviewers read the project's own conventions
-(`docs/spec/README.md`, `docs/contracts/README.md`, `docs/adr/README.md`);
+review workflow. The reviewers read the project's own conventions from the docs
+`.claude/daneel.json` names: the first path of `review.rules.spec`, `.contract` and `.adr`
+is that kind's README (defaults `docs/spec/README.md`, `docs/contracts/README.md`,
+`docs/adr/README.md`), whose folder holds the documents and whose text defines their
+sections, ID pattern and scopes; the stack lanes read `review.rules.<lane>`;
 `reviewer-guides` and the protocol read `flow-audit.guides` and the optional
-`review.owners`, `review.setup` and `review.glossary` of `.claude/daneel.json`.
+`review.owners`, `review.setup` and `review.glossary`.
 
 The seven stack lanes hold the checks both apps share; what one project alone checks (its
 domain, its own scripts and records, an owner's decision) lives in its rules documents,
 which each lane reads from `review.rules`: one list of paths per lane, keyed `arch`,
-`backend`, `frontend`, `sql`, `e2e`, `security`, `infra`
+`backend`, `frontend`, `sql`, `e2e`, `security`, `infra`, and `spec`, `contract`, `adr`,
+whose first path is that kind's README and whose folder its lane watches
 (`"backend": ["docs/backend-rules.md", "docs/error-model.md", "docs/test-rules.md"]`). A check
 such a document states for the lane is one of the lane's; a lane the key does not list
 runs on its own checks alone. The infra lane's documents also name the files and records the
@@ -87,6 +91,9 @@ root, which only add to the defaults (a lane name it does not know is an error):
 In CI the workflow checks daneel out (see daneel's `README.md`), takes `.claude/daneel.json`
 from the base branch, so a pull request cannot turn its own reviewers off, and runs
 `git diff --name-only "origin/$BASE...HEAD" | bash .daneel/plugins/app/scripts/review-lanes.sh --json`.
+The workflow should give the reviewers the rules documents (`review.rules`, the READMEs)
+from the base branch too, or a pull request can loosen the review that judges it; daneel
+ships no step for that, the project's workflow does it.
 
 ## Headless runs
 
