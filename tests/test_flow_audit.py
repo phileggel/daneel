@@ -321,6 +321,18 @@ class MeasureBacklogTest(unittest.TestCase):
         self.assertEqual(backlog["ceiling"], 3 + 2 + 4)
         self.assertEqual(backlog["by_size"]["end"], {"L": 1, "M": 1, "S": 1})
 
+    def test_a_flaky_test_s_ticket_is_waived_by_default(self):
+        # A skipped flaky test's ticket is always filed: it raises the ceiling as a
+        # security ticket does, even when the agent files it with the backlog full.
+        issues = [
+            self.issue("2026-10-01T00:00:00Z", labels=["size:M"]),
+            dict(self.issue("2026-10-04T00:00:00Z", labels=["task", "size:S", "agent-filed", "flaky"]), number=7),
+        ]
+        backlog = flow_audit.backlog.measure_backlog(issues, SINCE, UNTIL)
+        self.assertEqual([e["number"] for e in backlog["added"]["waived"]], [7])
+        self.assertEqual(backlog["ceiling"], 2 + 1)
+        self.assertTrue(backlog["within_ceiling"])
+
 
 class QueueFiguresTest(unittest.TestCase):
     """How long the batch took."""

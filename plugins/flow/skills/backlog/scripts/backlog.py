@@ -5,14 +5,14 @@ files a ticket, and for the Backlog block of the batch-end audit (`flow-audit.py
 The ceiling binds the coding agent alone. It marks what it files (`coder_mark`); every
 unmarked ticket is the owner's — filed on GitHub, through Cowork or by another session —
 and raises the ceiling, as do the coder's tickets the owner approved (`owner-asked`) and
-the waived ones (security, data loss). The ceiling is the backlog at the last batch end
+the waived ones (security, data loss, a flaky test). The ceiling is the backlog at the last batch end
 plus those, so a backlog over its healthy size can only shrink. A project may set that
 healthy size (`target`): at or under it, the agent files up to it. Before the first batch
 end only the target holds, and with no target every ticket fits.
 
 Usage, from the project's checkout:
     python3 <plugin>/scripts/backlog.py check M            # does an M fit? exit 1 if not
-    python3 <plugin>/scripts/backlog.py check S --waived   # a security or data-loss ticket
+    python3 <plugin>/scripts/backlog.py check S --waived   # a security, data-loss or flaky-test ticket
 
 What differs between projects is read from `.claude/daneel.json`, key `backlog`
 (`SETTINGS` below).
@@ -39,7 +39,7 @@ SETTINGS = {
     # The label the coding agent puts on every ticket it files.
     "coder_mark": "agent-filed",
     # Labels that are always filed, and raise the ceiling.
-    "waived": ["security", "data-loss"],
+    "waived": ["security", "data-loss", "flaky"],
     # The backlog's healthy size, in weight (S 1, M 2, L 4, XL 8); null for none.
     "target": None,
 }
@@ -221,7 +221,7 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     check = sub.add_parser("check", help="does a ticket of this size fit under the ceiling")
     check.add_argument("size", choices=["S", "M", "L", "XL"])
-    check.add_argument("--waived", action="store_true", help="a security or data-loss ticket")
+    check.add_argument("--waived", action="store_true", help="a security, data-loss or flaky-test ticket")
     args = parser.parse_args(argv)
 
     settings = load_settings(project_root())
@@ -245,7 +245,7 @@ def main(argv: list[str] | None = None) -> int:
     print(
         f"backlog {block['at_end']}, ceiling {block['ceiling']}, room {block['room']}: "
         + ("waived, file it" if args.waived else f"an {args.size} ({needed}) "
-           + ("fits, file it" if fits else "does not fit: fold it, make room, or surface it to the owner"))
+           + ("fits, file it" if fits else "does not fit: fold it, else drop it if it is not really important, else put it to the owner"))
     )
     return 0 if fits else 1
 

@@ -2,6 +2,20 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## flow 0.3.0 — 2026-11-08
+
+- A flaky test's issue is always filed: `flaky` joins `security` and `data-loss` as waived
+  (`backlog.py`'s default, method § 3 and § 4, the label list, `/flow:backlog`).
+- Method § 3: an issue that does not fit, an audit's proposal included, is folded into an
+  open one that holds it; else dropped, when it is not really important; else put to the
+  owner. Making room by closing one of the agent's own issues is gone. The audit sends each
+  proposal through `/flow:backlog`.
+- Method § 2, The order: an item with an open pull request comes next after what the owner
+  asked for.
+
+To take it: run `/flow:init` to create the `flaky` label. A project that sets
+`backlog.waived` adds `flaky` to it.
+
 ## app 0.4.5 — 2026-11-08
 
 - Loop § 1 step 3 and `run-entry` Step 3: a Done-when clause becomes a failing test in the
