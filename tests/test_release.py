@@ -323,6 +323,17 @@ class ThroughAPullRequest(unittest.TestCase):
             release.wait_for_checks(ROOT, "42")
         self.assertEqual(slept.call_count, 1)
 
+    def test_an_answer_that_is_not_json_stops(self):
+        def answer(command, **_):
+            out = "validate\tpass\n" if command[:3] == ["gh", "pr", "checks"] else ""
+            return subprocess.CompletedProcess(command, 0, stdout=out, stderr="")
+        with mock.patch.object(release.subprocess, "run", side_effect=answer), \
+                mock.patch.object(release, "sleep") as slept:
+            with self.assertRaises(release.Stop) as stopped:
+                release.wait_for_checks(ROOT, "42")
+        self.assertEqual(slept.call_count, 0)
+        self.assertIn("answered no JSON", str(stopped.exception))
+
     def test_a_gh_without_checks_json_stops_at_once_and_says_why(self):
         # gh 2.46.0 has no `gh pr checks --json`: it printed this and exited 1, and the
         # release then waited an hour on checks that were green.
