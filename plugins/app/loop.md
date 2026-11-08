@@ -23,8 +23,9 @@ with every check green, merged by run-entry's `merge.py`.
 2. **Design gate** (§ 2) for anything the user sees, before any branch exists. Then the
    opening brief states Task, Scope, Design, Touching; the branch is made (the method's
    branch names) and the item moves to In progress.
-3. **Acceptance first.** Each Done-when clause becomes a failing test: Rust for logic,
-   Vitest for rendering, E2E for what a user does. Test names carry the issue number or
+3. **Acceptance first.** Each Done-when clause becomes a failing test in the layers the
+   project's test rules ask for (Rust for logic, E2E for what a user does); one no test
+   can prove, as a guide's wording, is closed by its diff. Test names carry the issue number or
    the spec rule. A new business rule goes into its spec (`docs/spec/`) in the same
    commit; a new or changed command updates its contract (`docs/contracts/`). Confirm red.
    A fault met in production: the input that shows it is asked for before any fix is
@@ -114,7 +115,7 @@ gets the branch, the spec and the vocabulary, never a description of the change.
 `app:spec-reviewer`, `app:contract-reviewer`, `app:adr-reviewer` when those documents
 change; `app:spec-checker` once, with the lanes, when the code of a branch that touches or
 names a spec is finished; `app:reviewer-guides`
-for guides. What every reviewer does is `protocol.md`.
+for guides.
 
 Every finding, local or from CI, is graded before any is applied; one line per finding
 that changed something or was rejected goes in the PR body, or a PR comment once pushed.
@@ -173,8 +174,6 @@ force-push.
 
 ## 8. Where the loop runs
 
-The loop keeps its state in git and the Project.
-
 - **In chat:** `/app:run-entry #123`, or a plain request; `/app:run-batch` for a whole
   batch.
 - **Laptop:** `just run-entry` — the first Queued item, headless, under the method's
@@ -194,7 +193,7 @@ glossary.
 
 ### Dependabot pull requests
 
-The review workflow skips every lane for Dependabot, so its green reviewer checks are skips, not reviews. Once queued, the agent reads the diff and
+A Dependabot pull request's green reviewer checks are skips, not reviews. Once queued, the agent reads the diff and
 checks each pinned commit against the upstream tag it names; runs run-entry's `merge.py` on its
 branch, so the rebase and push are the agent's and CI runs the reviewers for real; grades
 that review (a warning is not merged past); and runs `merge.py` again once every check

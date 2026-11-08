@@ -88,7 +88,7 @@ Before any branch exists, and before the item moves: anything the user sees chan
 
 - A new or changed business rule goes into its spec, a changed command into its contract,
   with their reviewer, before the code (their folder's `README.md`).
-- Every Done-when clause becomes a failing test, confirmed red (loop § 1, step 3). A clause the agent cannot run: method § 1 (an
+- Every Done-when clause becomes a failing test, confirmed red, unless no test can prove it (loop § 1, step 3). A clause the agent cannot run: method § 1 (an
   E2E scenario when it needs the real window).
 
 ## Step 4 — Implement
@@ -135,12 +135,11 @@ Before the merge:
 - **The source docs still match the code** (spec, contract, ADR, architecture doc); the PR body says which, or "docs: none needed".
 - What the task met and did not fix is folded or filed as loop § 5 says; a task issue the work resolved is `Closes #NN` too.
 
-A closure commit is a `fixup!` pushed like any fix; once its checks are green again:
+A closure commit is a `fixup!`; once its checks are green again:
 
 ## Step 10 — Merge
 
-`python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` lands it; then the closing brief with the
-PR number.
+`python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` lands it; then the closing brief.
 
 ## Rules
 
