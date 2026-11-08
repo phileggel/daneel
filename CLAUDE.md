@@ -14,7 +14,7 @@ simple and portable. `README.md` says what it holds.
 
 - Nothing here knows one project, and nothing names one: not a skill, script, test,
   changelog, manifest or README, and no project's file path, rule ID or ticket ID.
-  Examples are invented (`acme`, `ORD-1`, `src-tauri/src/auth/`). A line that needs a
+  Examples are invented (`acme`, `src-tauri/src/auth/`). A line that needs a
   project's name belongs in that project.
 - A plugin piece comes here extracted from the projects' copies, the differences measured
   and recorded in its pull request, never written generic first.
@@ -49,7 +49,7 @@ simple and portable. `README.md` says what it holds.
 ## What the agent never does, and nothing here makes it do
 
 Push a project's `main`; force-push, except the landing script pushing the task's own
-branch with lease after it folded or rebased it; publish a release (it cuts the tag and
+branch with lease after folding or rebasing it; publish a release (it cuts the tag and
 the draft); bypass a hook (`--no-verify`).
 
 ## Checks and releases
@@ -57,7 +57,7 @@ the draft); bypass a hook (`--no-verify`).
 - A script that pushes, tags or merges has a test for each of those paths, asserting the
   exact command; no test talks to a real remote.
 - Every change to a plugin bumps its `version` in `plugin.json` and adds its
-  line to `CHANGELOG.md`, saying what a project must do.
+  line to the plugin's `CHANGELOG.md`, saying what a project must do.
 - `claude plugin validate .` and `python3 -m unittest discover -s tests` pass before a
   commit. A pull request lands only with `validate` and `review` green. A
   release is `claude plugin tag plugins/<plugin> --push` on `main`.
