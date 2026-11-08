@@ -53,7 +53,7 @@ the helpers folder; the security lane's say which data the project holds as pers
 missing or divergent (the harness items below, and which doc plays each role the reviewers
 read: `review.rules.<lane>`, `review.rules.spec`, `.contract`, `.adr`, `review.glossary`,
 `flow-audit.guides`, `visual-proof.rules`), adds what the agent may, and names the rest for
-the owner. By hand, the same, in this order:
+the owner. By hand, the same:
 
 The machine that runs the agent needs `gh` 2.50.0 or newer, the first with `gh pr checks
 --json`, which `release.py` reads; no other command was checked against an older `gh`.

@@ -42,7 +42,7 @@ default:
 | ADR README (the gate, status values) | `review.rules.adr`, first path | `docs/adr/README.md` |
 | code and test rules, per lane | `review.rules.<lane>` | the lane's own checks alone |
 | glossary | `review.glossary` | none |
-| guides the agent reads | `flow-audit.guides` | `CLAUDE.md`, `.claude/**` |
+| guides the agent reads | `flow-audit.guides` | `CLAUDE.md`, `.claude/skills/*/SKILL.md`, `.claude/agents/*.md`, `.claude/rules/*.md` |
 | owners and setup documents | `review.owners`, `review.setup` | none |
 | visual-proof rules | `visual-proof.rules` | `docs/visual-proof-rules.md` |
 | a lane's own folders | `review.lanes.<lane>` | the plugin's folders, `review-lanes.sh`'s header |
