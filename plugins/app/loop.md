@@ -41,8 +41,7 @@ with every check green, merged by run-entry's `merge.py`.
    the task, each Done-when clause with the test that proves it and where it was seen red
    (or why it could not be), findings that changed something, issues filed, screenshots.
    The commit title is the changelog line.
-9. **Closure**, in the same PR before it merges: on an issue that touched a spec,
-   `app:spec-checker` runs first and what it finds is fixed; a coverage floor the run
+9. **Closure**, in the same PR before it merges: a coverage floor the run
    measured more than a point above rises to half a point under that figure, never down;
    what the task met and did not fix is folded or filed; `ARCHITECTURE.md` if a module
    appeared, the spec if a rule changed.
@@ -113,7 +112,8 @@ Once pushed, a fix is a `fixup!` commit pushed as is: CI runs the same lanes on 
 push. A local reviewer
 gets the branch, the spec and the vocabulary, never a description of the change. Also:
 `app:spec-reviewer`, `app:contract-reviewer`, `app:adr-reviewer` when those documents
-change; `app:spec-checker` before closing an issue with spec rules; `app:reviewer-guides`
+change; `app:spec-checker` once, with the lanes, when the code of a branch that touches or
+names a spec is finished; `app:reviewer-guides`
 for guides. What every reviewer does is `protocol.md`.
 
 Every finding, local or from CI, is graded before any is applied; one line per finding
@@ -162,9 +162,8 @@ glossary, ADR or `ARCHITECTURE.md` drifting from right code is a `task`.
 One story per pull request. The target is about 400 hand-written lines per reviewer
 lane; above about 800 in a lane, split. Generated files, lockfiles, screenshots and spec
 documents are not counted, and the total has no limit: a mechanical change that one
-check proves is one story whatever its size. Each audit checks the 400 against what CI
-found that the local lanes missed. A feature whose backend or frontend exceeds about 20
-files or 500 lines ships as one PR per layer, in order: spec, contract, migration,
+check proves is one story whatever its size. A feature whose backend or frontend exceeds
+about 20 files or 500 lines ships as one PR per layer, in order: spec, contract, migration,
 backend and bindings; then the frontend; then E2E and closure. Each is mergeable alone.
 
 While a pull request waits for its checks, the next task may be prepared on a branch not
@@ -208,11 +207,12 @@ Before a batch ends, run in `release-sweep` mode the lanes this prints:
     git diff --name-only <tag>...HEAD | bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh
 
 `<tag>` the last batch end (`git describe --tags --abbrev=0 --match 'v*' --match 'batch/*'`), plus
-`reviewer-security`, which reads the whole command surface; and `app:spec-checker` on
-every spec the batch touched. Each lane's `## Files read` goes into the closing brief.
+`reviewer-security`, which reads the whole command surface. Each lane's `## Files read` goes into the closing brief.
 What they find is folded or filed, not fixed in the batch, but for the method's user-risk
 case; a finding not critical and older than the batch is filed and reported, not asked
-(§ 5 keeps a 🔴 security finding for the owner).
+(§ 5 keeps a 🔴 security finding for the owner). Items the owner adds after it get a
+second sweep before the batch ends, on what merged since (`<tag>` the commit the first
+read up to).
 
 ### Shell calls
 

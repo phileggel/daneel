@@ -82,7 +82,7 @@ Before any branch exists, and before the item moves: anything the user sees chan
   / needed · **Touching** — the paths.
 - `git checkout -b <type>/123-<slug>` (`<type>/<slug>` for a plain request); the item's Status becomes In progress (`gh project item-edit`, ids
   from `gh project field-list {number} --owner {owner} --format json`).
-- `TaskCreate` one task per step below, each `in_progress` / `completed` (none under `/app:run-batch`).
+- `TaskCreate` one task per step below (none under `/app:run-batch`).
 
 ## Step 3 — Acceptance first
 
@@ -103,8 +103,8 @@ Smallest change to green, the right way (loop § 4).
 
 Exactly the lanes `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files | bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh` prints, in
 one batch (lane `x` is `app:reviewer-x`; `spec`, `contract`: `app:spec-reviewer`,
-`app:contract-reviewer`); every finding
-graded (loop § 5); again on the fixes before the first push until no 🔴 remains.
+`app:contract-reviewer`), and `app:spec-checker` once when the branch touches or names a
+spec; every finding graded (loop § 5); again on the fixes before the first push until no 🔴 remains.
 
 ## Step 7 — Evidence and commit
 
@@ -126,7 +126,7 @@ graded (loop § 5); again on the fixes before the first push until no 🔴 remai
   comment <n> --body-file <file>` and `gh issue edit <n> --add-label needs-owner` (`gh pr`
   for a plain request); leave the PR open, stop.
 - Any other red: method § 4 (the log first). Fix with `git commit --fixup <sha>`, push, watch again.
-- All green: every lane's newest comment graded in a PR comment (loop § 1, step 10).
+- All green: every lane's newest comment graded in a PR comment (loop § 5).
 
 ## Step 9 — Closure
 
@@ -139,8 +139,8 @@ A closure commit is a `fixup!` pushed like any fix; once its checks are green ag
 
 ## Step 10 — Merge
 
-`python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` folds the fixups and lands the pull
-request; then the closing brief with the PR number.
+`python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` lands it; then the closing brief with the
+PR number.
 
 ## Rules
 
