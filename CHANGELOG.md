@@ -2,6 +2,16 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## app 0.4.5 — 2026-11-08
+
+- Loop § 1 step 3 and `run-entry` Step 3: a Done-when clause becomes a failing test in the
+  layers the project's test rules ask for (Rust for logic, E2E for what a user does), no
+  longer "Vitest for rendering" whatever the project's rules; a clause no test can prove,
+  such as a guide's wording, is closed by its diff, and the PR body says why it was not
+  seen red.
+
+To take it: nothing to change; a project's test rules say where a frontend test is wanted.
+
 ## flow 0.2.0 — 2026-11-08
 
 - `flow-audit.py`: `later_rounds` gains `rebase_after_a_failed_check`, a round whose round
