@@ -16,6 +16,7 @@
     "plugins/app/protocol.md": 1038,
     "plugins/app/skills/dep-audit/SKILL.md": 657,
     "plugins/app/skills/design-proposal/SKILL.md": 577,
+    "plugins/app/skills/init/SKILL.md": 660,
     "plugins/app/skills/run-batch/SKILL.md": 704,
     "plugins/app/skills/run-entry/SKILL.md": 1192,
     "plugins/app/skills/visual-proof/SKILL.md": 728,
@@ -25,7 +26,7 @@
     "plugins/flow/skills/flow-audit/audit.md": 697,
     "plugins/flow/skills/init/SKILL.md": 569,
     "plugins/flow/skills/plan-batch/SKILL.md": 724,
-    "CLAUDE.md": 597,
-    ".github/review/reviewer.md": 387
+    ".github/review/reviewer.md": 387,
+    "CLAUDE.md": 597
   }
 }

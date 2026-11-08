@@ -22,6 +22,7 @@ would not. Used with `flow`.
 | `/app:run-entry` | One task end to end, branch to merge on green; optional `run-entry.recipes`, `.record_paths` |
 | `/app:run-batch` | A whole batch: every Queued item through `run-entry`, its end (`release.py` to a draft, or `batch-end.sh`), the closing brief last; optional `run-batch.release_check`, `.version_files`, `.changelog`, `.release_workflow` |
 | `/app:design-proposal` | Mocks of the target state, light and dark, and a note, for the owner to validate; optional `design-proposal.repo` |
+| `/app:init` | After `/flow:init`: the harness (`required-checks.json`, ruleset, merge settings, deny lines) and which project doc plays each role the reviewers read, asked once, added only where missing |
 
 `protocol.md` is what every reviewer shares: modes, steps, output, the CI report.
 `scripts/branch.sh` and `scripts/review-path.sh` are what the reviewers run, always on
@@ -47,6 +48,12 @@ project adds to it, the actions it lets go unpinned and its deny list; the e2e l
 the helpers folder; the security lane's say which data the project holds as personal.
 
 ## Taking it
+
+`/app:init`, after `/flow:init`, reads the project, asks the owner once about what is
+missing or divergent (the harness items below, and which doc plays each role the reviewers
+read: `review.rules.<lane>`, `review.rules.spec`, `.contract`, `.adr`, `review.glossary`,
+`flow-audit.guides`, `visual-proof.rules`), adds what the agent may, and names the rest for
+the owner. By hand, the same:
 
 The machine that runs the agent needs `gh` 2.50.0 or newer, the first with `gh pr checks
 --json`, which `release.py` reads; no other command was checked against an older `gh`.
