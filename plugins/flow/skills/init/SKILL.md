@@ -19,7 +19,7 @@ From the project's checkout, read without changing anything:
   `gh project field-list <number> --owner <owner> --format json`;
 - the tags (`git tag -l 'v*' 'batch/*'`) and `.github/workflows/`.
 
-Each checklist item: present, missing, or different (another colour or description). A label the checklist does not name is the project's:
+Each item: present, missing, or different (another colour or description). A label the checklist does not name is the project's:
 leave it.
 
 ## Step 2 — Ask
@@ -67,7 +67,7 @@ What was present, what was added, what the owner declined; the record of the run
 Step 1 also reads the pin (`extraKnownMarketplaces.daneel.source.ref` in
 `.claude/settings.json`) and the sections of `${CLAUDE_PLUGIN_ROOT}/CHANGELOG.md` newer
 than the pinned version. Step 2 adds three blocks: a `daneel.json` path that no longer
-exists or no longer says what its reader asks, a form or label drifted from the template;
+exists or no longer says what its reader asks, or a form or label drifted from the template;
 a default the project's docs now contradict with no key set; the "To
 take it" lines between the pins, one checklist. Step 3 does the mechanical ones — labels,
 forms, keys — and names the new pin for the owner, as it does every change to the

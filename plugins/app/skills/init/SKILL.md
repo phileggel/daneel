@@ -21,7 +21,7 @@ project keeps its own part only.
 
 ## Step 1 — Look
 
-From the checkout, read only:
+From the checkout, read:
 
 - `.claude/daneel.json`, `required-checks.json`,
   `.claude/settings.json`'s `permissions.deny`, `CLAUDE.md`, `docs/`;

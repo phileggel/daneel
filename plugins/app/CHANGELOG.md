@@ -8,7 +8,7 @@ What a project must act on when it takes a new version of this plugin.
   this changelog's sections newer than the pinned version, then asks the owner, in one
   message, about a pointer that no longer exists or no longer says what its reader asks, a
   default the project's docs now contradict without a key, and the "To take it" steps
-  between the pins as one checklist; it does the mechanical steps (the pin lines, keys) in one
+  between the pins as one checklist; it does the mechanical steps (keys) and names the pin lines for the owner in one
   pull request and leaves a change to the project's rules docs or CI as a proposal.
 
 To take it: nothing to change; run `/app:init` to see the drift from this version on.
