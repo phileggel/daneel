@@ -50,7 +50,7 @@ def agent_docs() -> list[Path]:
     return [
         path
         for path in (ROOT / "plugins").rglob("*.md")
-        if path.name != "README.md" and not path.is_symlink()
+        if path.name not in ("README.md", "CHANGELOG.md") and not path.is_symlink()
     ]
 
 
@@ -86,8 +86,8 @@ class EveryPluginChange(unittest.TestCase):
                 self.assertGreater(key(version("HEAD", plugin)), key(before), "bump plugin.json")
 
     def test_it_adds_its_changelog_section(self):
-        changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
         for plugin in changed_plugins(self.changed):
+            changelog = (ROOT / "plugins" / plugin / "CHANGELOG.md").read_text(encoding="utf-8")
             with self.subTest(plugin):
                 self.assertIn(f"## {plugin} {version('HEAD', plugin)} ", changelog)
 

@@ -101,7 +101,7 @@ cannot soften a reviewer: the reviewer comes from the pinned tag, never the bran
 
 Each plugin has its own version, in its `plugin.json`: semver, the middle number moving
 when a project must act (a setting renamed, a figure changed), the last for anything
-else. `CHANGELOG.md` says, per plugin and version, what a project must do.
+else. Each plugin's `CHANGELOG.md` says, per version, what a project must do.
 
 A release is a tag, `<plugin>--v<version>`, made on `main` once the bump is merged:
 
@@ -127,7 +127,7 @@ up front. What a skill still reads from the
 project is its own record — its rules, its usage log, its GitHub — never a script or
 a doc of the plugin.
 
-`CHANGELOG.md` is what a project must act on when it takes a new version.
+A plugin's `CHANGELOG.md` is what a project must act on when it takes a new version.
 
 ## Developing daneel
 
