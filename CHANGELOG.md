@@ -2,6 +2,15 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## app 0.4.3 — 2026-11-08
+
+- `protocol.md` § The report: in CI a reply without the written report file is no report,
+  and the lane fails. Rule 7: in CI each shell call is one command, never chained; Grep and
+  Read search and read files.
+
+To take it: nothing to change. A review workflow that sends a session back while it has no
+report file (a `Stop` hook) catches what this wording does not.
+
 ## app 0.4.2 — 2026-11-08
 
 - `spec-reviewer` and `spec-checker` take the scopes a rule may carry and whether a spec
