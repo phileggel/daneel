@@ -2,6 +2,17 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## flow 0.5.0 — 2026-11-09
+
+- `/flow:init` re-run on a project already set up re-aligns it: it reads the marketplace pin in `.claude/settings.json` and
+  this changelog's sections newer than the pinned version, then asks the owner, in one
+  message, about a pointer that no longer exists or no longer says what its reader asks, a
+  default the project's docs now contradict without a key, and the "To take it" steps
+  between the pins as one checklist; it does the mechanical steps (labels, forms, keys) and names the new pin for the owner in one
+  pull request and leaves a change to the project's rules docs or CI as a proposal.
+
+To take it: nothing to change; run `/flow:init` to see the drift from this version on.
+
 ## flow 0.4.1 — 2026-11-09
 
 - The changelog is this file, `plugins/flow/CHANGELOG.md`, shipped with the plugin, so a
