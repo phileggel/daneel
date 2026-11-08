@@ -383,6 +383,106 @@ class ReviewerNotes(unittest.TestCase):
         self.assertEqual(merge.reviewer_heading(comments[::-1], "reviewer-arch"), "no report")
 
 
+SPEC_LANE = """<!-- review:spec -->
+## reviewer-spec — 2 files reviewed
+
+🟡 2 warning(s) across 1 file(s).
+
+## docs/spec/orders.md
+
+### B — Rule quality
+### 🟡 Warning (should fix)
+- ORD-401 — "becomes a live order again" uses an undefined term: say which status it gets.
+- ORD-401 — "real" is overloaded in one sentence: reword one to avoid the clash.
+
+### G — Contractability
+### ℹ️ Older, not introduced by this branch
+- The spec has backend rules but no `## Entity Definition` section.
+"""
+
+BACKEND_LANE = """<!-- review:backend -->
+## reviewer-backend — 3 files reviewed
+
+## src-tauri/src/orders/service.rs
+### 🔴 Critical (must fix)
+- Line 42: an amount held as `f64` → an integer of cents (ADR-004)
+  - a sub-point of the same finding
+### 🔵 Suggestion (consider)
+- Line 50: a clearer name → `total_cents`
+"""
+
+
+def comment(body, at):
+    return {"body": body, "created_at": at, "updated_at": at}
+
+
+class GradedFindings(unittest.TestCase):
+    """`ungraded_findings`: a lane's 🔴 and 🟡 each need a newer line with its grade."""
+
+    def test_only_red_and_yellow_findings_are_read(self):
+        self.assertEqual(merge.severe_findings(BACKEND_LANE), ["Line 42: an amount held as `f64` → an in"])
+        self.assertEqual(len(merge.severe_findings(SPEC_LANE)), 2)
+
+    def test_findings_nobody_graded_are_named(self):
+        ungraded = merge.ungraded_findings([comment(SPEC_LANE, "2026-11-07T08:09:39Z")])
+        self.assertEqual(ungraded, [
+            ("spec", 'ORD-401 — "becomes a live order again" u'),
+            ("spec", 'ORD-401 — "real" is overloaded in one se'),
+        ])
+
+    def test_a_grade_line_quoting_each_finding_clears_it(self):
+        grades = ('- (a) ORD-401 — "becomes a live order again" us: says "Active" now\n'
+                  '- (c) ORD-401 — "real" is overloaded in one sen: the glossary defines both')
+        self.assertEqual(merge.ungraded_findings([
+            comment(SPEC_LANE, "2026-11-07T08:09:39Z"),
+            comment(grades, "2026-11-07T08:20:00Z"),
+        ]), [])
+
+    def test_a_line_without_a_grade_or_older_than_the_report_does_not_count(self):
+        quoted = 'ORD-401 — "becomes a live order again" us and ORD-401 — "real" is overloaded in one sen'
+        for grades in (comment(quoted, "2026-11-07T08:20:00Z"),            # no (a), (b) or (c)
+                       comment(f"(a) {quoted}", "2026-11-07T08:00:00Z")):  # before the report
+            self.assertEqual(len(merge.ungraded_findings([comment(SPEC_LANE, "2026-11-07T08:09:39Z"), grades])), 2)
+
+    def test_the_newest_report_of_a_lane_is_the_one_graded(self):
+        clean = "<!-- review:backend -->\n## reviewer-backend — 3 files reviewed\n\n✅ No issues found.\n"
+        self.assertEqual(merge.ungraded_findings([
+            comment(BACKEND_LANE, "2026-11-07T08:00:00Z"),
+            comment(clean, "2026-11-07T08:30:00Z"),
+        ]), [])
+        # A finding graded "clean" that the next round raises again needs its grade again.
+        graded = comment("(c) Line 42: an amount held as `f64` → an in: not ours", "2026-11-07T08:10:00Z")
+        again = comment(BACKEND_LANE, "2026-11-07T08:30:00Z")
+        self.assertEqual(len(merge.ungraded_findings([comment(BACKEND_LANE, "2026-11-07T08:00:00Z"), graded, again])), 1)
+
+    def test_a_sticky_comment_edited_after_the_grade_needs_it_again(self):
+        sticky = {"body": BACKEND_LANE, "created_at": "2026-11-07T08:00:00Z", "updated_at": "2026-11-07T08:30:00Z"}
+        graded = comment("(a) Line 42: an amount held as `f64` → an in", "2026-11-07T08:10:00Z")
+        self.assertEqual(len(merge.ungraded_findings([sticky, graded])), 1)
+
+    def test_the_merge_is_refused_and_each_finding_printed(self):
+        answer = subprocess.CompletedProcess([], 0, stdout=json.dumps(comment(SPEC_LANE, "2026-11-07T08:09:39Z")) + "\n", stderr="")
+        err = io.StringIO()
+        with (
+            unittest.mock.patch.object(merge, "gh", return_value=answer) as gh,
+            contextlib.redirect_stderr(err),
+            self.assertRaises(SystemExit),
+        ):
+            merge.ensure_findings_graded(7)
+        self.assertEqual(gh.call_args.args[:3], ("api", "repos/{owner}/{repo}/issues/7/comments", "--paginate"))
+        self.assertIn('reviewer-spec: ORD-401 — "real" is overloaded in one se', err.getvalue())
+        self.assertIn("gh pr comment 7 --body-file", err.getvalue())
+
+    def test_comments_that_cannot_be_read_refuse(self):
+        answer = subprocess.CompletedProcess([], 1, stdout="", stderr="HTTP 502")
+        with (
+            unittest.mock.patch.object(merge, "gh", return_value=answer),
+            contextlib.redirect_stderr(io.StringIO()),
+            self.assertRaises(SystemExit),
+        ):
+            merge.ensure_findings_graded(7)
+
+
 class Settings(unittest.TestCase):
     def setUp(self):
         self.folder = tempfile.TemporaryDirectory()

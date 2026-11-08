@@ -33,8 +33,7 @@ with every check green, merged by run-entry's `merge.py`.
    needs from it and how little.
 4. **Implement** to green, the right way (§ 4).
 5. **Self-check:** the scoped recipes while working, then the project's harness recipe
-   (`run-entry.recipes.harness`, default `just harness`; § 3). A run is judged by its
-   exit code, never by a line picked out of its output.
+   (§ 3). A run is judged by its exit code, never by a line picked out of its output.
 6. **Self-review:** the reviewer lanes the diff needs (§ 5), again on the fixes until no
    🔴 remains.
 7. **Evidence:** `/app:visual-proof` for every changed component.
@@ -49,7 +48,7 @@ with every check green, merged by run-entry's `merge.py`.
    appeared, the spec if a rule changed.
 10. **Merge:** run-entry's `watch-pr.py` waits for the checks; each lane's newest comment,
     green or not, is read and its findings graded (§ 5); then `merge.py`, which folds
-    `fixup!` commits, so the task lands as one commit. The closing brief says what changed for the user and what the project gained.
+    `fixup!` commits. The closing brief says what changed for the user and what the project gained.
 
 ## 2. Design proposal
 
@@ -78,8 +77,8 @@ or a push. Every app's harness holds at least:
 - the reviewers (`review.yml`), one check per lane the diff touches, any 🔴 failing;
 - commit hygiene: a conventional title, no trailer;
 - dependency advisories (`security-audit.yml`), weekly;
-- the merge guard: run-entry's `merge.py` refuses unless the branch heads an open pull
-  request with every required check present and green.
+- the merge guard: run-entry's `merge.py`, every required check green and every CI 🔴
+  and 🟡 graded.
 
 ## 4. The right way to code
 
@@ -118,7 +117,8 @@ change; `app:spec-checker` before closing an issue with spec rules; `app:reviewe
 for guides. What every reviewer does is `protocol.md`.
 
 Every finding, local or from CI, is graded before any is applied; one line per finding
-that changed something or was rejected goes in the PR body, or a PR comment once pushed:
+that changed something or was rejected goes in the PR body, or a PR comment once pushed.
+A CI 🔴 or 🟡's line quotes its opening words; `merge.py` refuses without it:
 
 - **(a)** in scope → fix in the PR.
 - **(b)** bigger, or outside the file set → folded or filed, linked from that line.

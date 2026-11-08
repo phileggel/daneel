@@ -6,7 +6,9 @@ Exit: 0 landed · 1 refused or failed (the reason and the way back are printed)
 
 The merge guard: the branch must be the head of an open pull request whose every check
 run is green, and every check named in `required-checks.json` (at the checkout's root)
-must be among them. When the rebase moved the tested tree (the target advanced), the
+must be among them. Every 🔴 and 🟡 of each reviewer lane's newest comment (headed
+`<!-- review:<lane> -->`) must be graded in a newer comment: a line with (a), (b) or (c)
+and the finding's first 40 characters. When the rebase moved the tested tree (the target advanced), the
 rebased branch is pushed and the merge stops until CI has run on it, unless the rebase
 changed record files only (`record_paths`) or nothing at all.
 
@@ -27,6 +29,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shlex
 import subprocess
 import sys
@@ -297,6 +300,77 @@ def _reviewer_notes(number: int, failed: list[str]) -> dict[str, str]:
     return {name: note for name, note in notes.items() if note}
 
 
+LANE_COMMENT = re.compile(r"^<!-- review:(?P<lane>[\w-]+) -->")
+GRADE = re.compile(r"\([abc]\)")
+QUOTED = 40  # the opening characters of a finding its grading line quotes
+
+
+def _words(text: str) -> str:
+    return " ".join(text.split())
+
+
+def severe_findings(body: str) -> list[str]:
+    """The 🔴 and 🟡 findings of a lane comment: each top-level `- ` item under a heading
+    that carries 🔴 or 🟡, up to the next heading. 🔵 and ℹ️ need no grade."""
+    severe, found = False, []
+    for line in body.splitlines():
+        if line.lstrip().startswith("#"):
+            severe = "🔴" in line or "🟡" in line
+        elif severe and line.startswith("- "):
+            found.append(_words(line[2:])[:QUOTED])
+    return found
+
+
+def ungraded_findings(comments: list[dict]) -> list[tuple[str, str]]:
+    """(lane, opening words) of each 🔴 or 🟡 in a lane's newest comment that no newer
+    comment grades: a line carrying (a), (b) or (c) and the finding's opening words.
+    `comments` are the pull request's, with `body` and `updated_at` (a sticky comment is
+    edited in place), else `created_at`."""
+    def when(comment: dict) -> str:
+        return comment.get("updated_at") or comment["created_at"]
+    newest: dict[str, dict] = {}
+    for comment in sorted(comments, key=when):
+        lane = LANE_COMMENT.match(comment["body"])
+        if lane:
+            newest[lane["lane"]] = comment
+    ungraded = []
+    for lane, report in newest.items():
+        grades = [
+            _words(line)
+            for comment in comments
+            if when(comment) > when(report) and not LANE_COMMENT.match(comment["body"])
+            for line in comment["body"].splitlines()
+            if GRADE.search(line)
+        ]
+        ungraded += [(lane, words) for words in severe_findings(report["body"])
+                     if not any(words in grade for grade in grades)]
+    return ungraded
+
+
+def ensure_findings_graded(number: int) -> None:
+    """Refuse the merge while a reviewer's 🔴 or 🟡 has no grade newer than its comment."""
+    result = gh(
+        "api", f"repos/{{owner}}/{{repo}}/issues/{number}/comments", "--paginate",
+        "--jq", ".[] | {body, created_at, updated_at} | @json",
+    )
+    if result.returncode != 0:
+        fail(f"Could not read the comments of PR #{number}, so not their grades.", (result.stderr or "").strip())
+    try:
+        comments = [json.loads(line) for line in result.stdout.splitlines() if line.strip()]
+    except json.JSONDecodeError as exc:
+        fail(f"The comments of PR #{number} could not be read: {exc}")
+    ungraded = ungraded_findings(comments)
+    if ungraded:
+        fail(
+            f"PR #{number}: {len(ungraded)} reviewer finding(s) with no grade newer than their comment.",
+            *(f"  reviewer-{lane}: {words}" for lane, words in ungraded),
+            "Grade each in one PR comment, one line per finding: (a), (b) or (c) and its words above (loop § 5):",
+            f"  gh pr comment {number} --body-file <the grades' file>",
+            f"Then re-run `{RERUN}`.",
+        )
+    print(f"{GREEN}✓ PR #{number}: every 🔴 and 🟡 graded.{NC}", file=sys.stderr)
+
+
 def ensure_checks_green(branch: str, target: str, before: str, after: str, config: dict) -> tuple[int, str]:
     """Refuse the merge unless CI is green on exactly the commits about to land.
 
@@ -527,6 +601,7 @@ def main() -> int:
     try:
         # Step 3 — the merge guard: green checks on exactly these commits; then land.
         number, head = ensure_checks_green(branch, target, before, after, config)
+        ensure_findings_graded(number)
         land_by_github(number, head, target, before, branch)
     except BaseException:
         # A stop, an interrupt during the wait, or a git error: the same way back.
