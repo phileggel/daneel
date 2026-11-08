@@ -311,6 +311,41 @@ class ThroughAPullRequest(unittest.TestCase):
             release.wait_for_checks(ROOT, "42")
         self.assertEqual(slept.call_count, 2)
 
+    def test_no_checks_reported_yet_is_waited_for(self):
+        # gh 2.103.3, measured 2026-11-08: a pull request with no checks exits 1 with this line.
+        answers = iter([(1, "", "no checks reported on the 'chore/release-v0.12.0' branch\n"),
+                        (0, json.dumps([{"bucket": "pass"}]), "")])
+        def answer(command, **_):
+            code, out, err = next(answers) if command[:3] == ["gh", "pr", "checks"] else (0, "", "")
+            return subprocess.CompletedProcess(command, code, stdout=out, stderr=err)
+        with mock.patch.object(release.subprocess, "run", side_effect=answer), \
+                mock.patch.object(release, "sleep") as slept:
+            release.wait_for_checks(ROOT, "42")
+        self.assertEqual(slept.call_count, 1)
+
+    def test_a_gh_without_checks_json_stops_at_once_and_says_why(self):
+        # gh 2.46.0 has no `gh pr checks --json`: it printed this and exited 1, and the
+        # release then waited an hour on checks that were green.
+        github = GitHub(**{
+            "git rev-parse": (0, "abc123\n"),
+            "gh pr create": (0, "https://github.com/o/r/pull/42\n"),
+            "gh pr checks": (1, ""),
+        })
+        def answer(command, **kwargs):
+            done = github(command, **kwargs)
+            if command[:3] == ["gh", "pr", "checks"]:
+                return subprocess.CompletedProcess(command, 1, stdout="", stderr="unknown flag: --json\n")
+            return done
+        with mock.patch.object(release.subprocess, "run", side_effect=answer), \
+                mock.patch.object(release, "sleep") as slept, contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaises(release.Stop) as stopped:
+                release.land(ROOT, "0.12.0", ["package.json", "CHANGELOG.md"])
+        self.assertEqual(slept.call_count, 0)
+        self.assertIn("unknown flag: --json", str(stopped.exception))
+        self.assertIn("gh 2.50.0 or newer", str(stopped.exception))
+        self.assertFalse(github.did("gh", "pr", "merge"))
+        self.assertFalse(github.did("git", "tag"))
+
 
 class Draft(unittest.TestCase):
     def project(self, folder, workflow=None):

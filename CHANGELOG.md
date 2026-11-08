@@ -2,6 +2,16 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## app 0.4.0 — 2026-11-08
+
+- `release.py` stops at once, naming the error, when `gh pr checks --json` fails; before, an
+  older `gh` without that flag read as checks never ending, and a release waited an hour on
+  green checks. A pull request with no checks reported yet is still waited for.
+- The plugin needs `gh` 2.50.0 or newer (`plugins/app/README.md` § Taking it).
+
+To take it: `gh --version` on the machine that runs the agent; below 2.50.0, upgrade `gh`.
+Then move the pin to `app--v0.4.0`.
+
 ## app 0.3.1 — 2026-11-01
 
 - `loop.md` § 5: an issue on daneel, as daneel's issues are no longer labelled `flow`.
