@@ -34,22 +34,22 @@ Every call reads; no `--method`.
 
 Then, per role, the doc the project's `CLAUDE.md` names, else the default:
 
-| Role | Key | The default, when unset |
+| Role | Key | The default |
 | --- | --- | --- |
-| spec README | `review.rules.spec`, first path | `docs/spec/README.md` |
-| contract README | `review.rules.contract`, first path | `docs/contracts/README.md` |
-| ADR README | `review.rules.adr`, first path | `docs/adr/README.md` |
+| spec README | `review.rules.spec` first path | `docs/spec/README.md` |
+| contract README | `review.rules.contract` first path | `docs/contracts/README.md` |
+| ADR README | `review.rules.adr` first path | `docs/adr/README.md` |
 | code and test rules | `review.rules.<lane>` | the lane's own checks |
 | glossary | `review.glossary` | none |
 | guides | `flow-audit.guides` | `CLAUDE.md`, `.claude/skills/*/SKILL.md`, `.claude/agents/*.md`, `.claude/rules/*.md` |
 | owners, setup | `review.owners`, `review.setup` | none |
 | visual-proof rules | `visual-proof.rules` | `docs/visual-proof-rules.md` |
 | a lane's own folders | `review.lanes.<lane>` | `review-lanes.sh`'s header |
-| architecture document (the document reviewers') | none: the rules name it | `ARCHITECTURE.md` |
+| architecture document (spec, contract and ADR reviewers, `spec-checker`) | none: the rules name it | `ARCHITECTURE.md` |
 
 ## Step 2 — Ask
 
-One message: the table, the doc guessed per role or "none → default", and each
+One message: the table, a doc guessed per role or "none → default", and each
 harness item missing or divergent — a required check not reporting on `main`, a deny line
 absent, a ruleset with a bypass actor or no pull-request rule, a merge method off, `gh`
 below 2.50.0. A default beside each line; one reply; nothing is done before it. A blank
@@ -57,14 +57,12 @@ role is a conscious default.
 
 ## Step 3 — Add
 
-Only what is missing, replacing nothing:
+Only what is missing:
 
 1. **`.claude/daneel.json`**: the roles answered, `review.lanes` included, merged in; a key
    already set stays.
-2. **`required-checks.json`**: when absent, the checks named in the reply, each a name CI
-   reports.
-3. **Deny lines**, for the owner to add to `.claude/settings.json`, which the agent never
-   edits: `"Bash(gh release create *)"`, `"Bash(gh release edit *)"`,
+2. **`required-checks.json`**: when absent, the checks named in the reply, names CI reports.
+3. **Deny lines**, for the owner to add to `.claude/settings.json`, never edited by the agent: `"Bash(gh release create *)"`, `"Bash(gh release edit *)"`,
    `"Bash(gh api *releases*)"` under `permissions.deny`.
 4. **Ruleset**: `${CLAUDE_PLUGIN_ROOT}/ruleset.json` with its example check replaced by
    those of `required-checks.json`, written to a file; the owner runs
@@ -78,14 +76,14 @@ origin HEAD`, `gh pr create --body-file <file>`, the body this report.
 
 ## Report
 
-Each role with its doc or "default"; each harness item present, added or left to the
-owner; what was declined; the record of the run.
+Each role with its doc or "default"; each harness item present, added or the owner's; what
+was declined; the record of the run.
 
-## Re-run — a project already set up
+## Re-run, on a project already set up
 
 Step 1 also reads `DANEEL_REF` in `.github/workflows/review.yml`, the pin in
 `.claude/settings.json` and the sections of `${CLAUDE_PLUGIN_ROOT}/CHANGELOG.md` newer
 than the pinned version. Step 2 adds three blocks: a key whose doc is gone or no longer
 defines what its reader asks; a default the project's docs contradict with no
-key set; the "To take it" lines between the pins, one checklist. Step 3 names both pins'
-new value for the owner, as the deny lines.
+key set; the "To take it" lines between the pins, one checklist. Step 3 adds the keys and names
+both pins' new value for the owner, as the deny lines.

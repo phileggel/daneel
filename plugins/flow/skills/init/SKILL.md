@@ -14,7 +14,7 @@ project keeps its own part only.
 From the project's checkout, read without changing anything:
 
 - `.claude/daneel.json`, `CLAUDE.md`, `.github/ISSUE_TEMPLATE/`, `scripts/usage_log.py`;
-- `gh repo view --json nameWithOwner`, `gh label list --limit 200 --json name`;
+- `gh repo view --json nameWithOwner`; `gh label list --limit 200 --json name`;
 - `gh project list --owner <owner> --format json`; its Project's
   `gh project field-list <number> --owner <owner> --format json`;
 - the tags (`git tag -l 'v*' 'batch/*'`) and `.github/workflows/`.
@@ -31,14 +31,14 @@ One message to the owner, only about what is missing or needs the owner's choice
   (`flow-audit.round_workflow`).
 - **Backlog**: its healthy size (`backlog.target`, a weight, method § 3), or none.
 - **Commit types**, where they differ from the default.
-- **Personal data**: can an issue hold a user's real data? If so, the forms' checkbox wording.
+- **Personal data**: can an issue hold a user's real data? If so, the checkbox wording.
 - **Usage log**: measure the project's scripts?
 
-A default beside each question; one reply; nothing is done before it.
+A default beside each question; one reply; nothing before it.
 
 ## Step 3 — Add
 
-Only what is missing, never replacing a file, a field or a label:
+Only what is missing, replacing no file, field or label:
 
 1. **Project**: `gh project create` if asked; the Status values missing, and a `Batch` text
    field if absent.
@@ -50,7 +50,7 @@ Only what is missing, never replacing a file, a field or a label:
 4. **`.claude/daneel.json`**: the keys answered, merged into the file — a key already set
    stays.
 5. **Usage log**, if asked: `templates/usage_log.py` and `templates/usage-log.sh` into
-   `scripts/` when absent, and `logs/` in `.gitignore`.
+   `scripts/` when absent; `logs/` in `.gitignore`.
 6. **CLAUDE.md**, when it does not name the flow: "This project runs daneel's
    flow (`flow@daneel`); its method is the plugin's `method.md`, and this file and the
    project's documents hold only what is this project's own."
@@ -69,6 +69,6 @@ Step 1 also reads the pin (`extraKnownMarketplaces.daneel.source.ref` in
 than the pinned version. Step 2 adds three blocks: a `daneel.json` path that no longer
 exists or no longer says what its reader asks, or a form or label drifted from the template;
 a default the project's docs now contradict with no key set; the "To
-take it" lines between the pins, one checklist. Step 3 does the mechanical ones — labels,
-forms, keys — and names the new pin for the owner, as it does every change to the
-project's rules docs, settings or CI.
+take it" lines between the pins, one checklist. Step 3 adds what is missing — labels,
+forms, keys — and names for the owner, with its new value, a drifted form or label, the
+pin, and any change to the project's rules docs, settings or CI.
