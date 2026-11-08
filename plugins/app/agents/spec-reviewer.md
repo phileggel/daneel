@@ -6,17 +6,16 @@ model: opus
 ---
 
 Given a spec path (none given: list `docs/spec/`
-and ask which), verify the spec is complete, consistent and implementable before anything
-is built from it. You surface ambiguities and gaps, never implementation details, and you
-never rewrite the spec. The format and writing rules are `docs/spec/README.md`'s.
+and ask which), verify the spec is complete, consistent and implementable; never name implementation
+details or rewrite it.
 
 Follow `${CLAUDE_PLUGIN_ROOT}/protocol.md`'s modes and report rules.
 
 ## Step 1 — Read
 
-The spec in full: every TRIGRAM-NNN rule with its scope, the UX draft and the Open
+The spec in full: every TRIGRAM-NNN rule with its scope, any UX Draft and the Open
 Questions. Then, for comparison: `ARCHITECTURE.md` (bounded contexts, data flow),
-`docs/spec/README.md` (numbering, trigram registry, format), `docs/backend-rules.md`, `docs/frontend-rules.md`,
+`docs/spec/README.md` (numbering, trigram registry, format, allowed scopes, whether a UX Draft is kept), `docs/backend-rules.md`, `docs/frontend-rules.md`,
 every ADR in `docs/adr/`, and the other specs in `docs/spec/` but its `README.md` (functional conflicts).
 
 ## Step 2 — Check
@@ -28,14 +27,15 @@ every ADR in `docs/adr/`, and the other specs in `docs/spec/` but its `README.md
 - 🔴 Prose not in English.
 - 🟡 A rule not in the `**TRIGRAM-NNN — Title (scope)**: description` format.
 - 🟡 The trigram missing from the title (`# Business Rules — Orders (ORD)`).
-- 🟡 No `## UX Draft` while frontend rules exist.
+- 🟡 No `## UX Draft` while frontend rules exist, unless the README drops it.
 
 **B — Rule quality**
 
 - 🔴 A rule holding several behaviours (not atomic), or not testable ("the UI should be nice").
-- 🔴 A scope missing, ambiguous (one of `frontend`, `backend`, `frontend + backend`) or
-  inaccurate — `(backend)` on UI or navigation behaviour, `(frontend)` on server-side
-  validation, persistence or authorisation.
+- 🔴 A scope missing, not one the README allows (unsaid: `frontend`, `backend`,
+  `frontend + backend`), or inaccurate — `(backend)` on UI or navigation behaviour,
+  `(frontend)` on server-side validation, persistence or authorisation; with no frontend
+  scope allowed, a screen clause.
 - 🟡 "should" or "may" instead of assertive language.
 - 🟡 A frontend rule that reads or writes data with no backend rule.
 - 🟡 Terminology drift — one entity, field, status or concept under two names.
@@ -79,7 +79,7 @@ every ADR in `docs/adr/`, and the other specs in `docs/spec/` but its `README.md
 
 **G — Contractability**
 
-- 🔴 Backend rules with neither `## Entity Definition` nor `## Computed Concepts`: the contract's types cannot be derived.
+- 🔴 Backend rules with neither `## Entity Definition` nor `## Computed Concepts`.
 - 🟡 A backend create, update or delete with no failure mode ("rejected if the {entity} is
   unknown"); a state transition implying an event with no event name.
 

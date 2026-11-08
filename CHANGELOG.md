@@ -2,6 +2,16 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## app 0.4.2 — 2026-11-08
+
+- `spec-reviewer` and `spec-checker` take the scopes a rule may carry and whether a spec
+  has a `## UX Draft` from the project's `docs/spec/README.md`, not from their prompt. Where
+  the README says nothing: `frontend`, `backend`, `frontend + backend`, and a UX Draft, as
+  before. With no frontend scope allowed, a screen clause in a spec is a 🔴.
+
+To take it: nothing to change. A project whose specs hold business rules only says so in
+`docs/spec/README.md`.
+
 ## app 0.4.1 — 2026-11-08
 
 - `merge.py` refuses while a 🔴 or 🟡 in a reviewer lane's newest comment (headed

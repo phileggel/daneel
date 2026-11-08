@@ -12,8 +12,7 @@ show does not exist — and cite file and line for every finding.
 
 ## Step 1 — Read
 
-Every numbered rule of the spec (its numbering is the project's spec conventions') with its scope (`frontend`, `backend`, `frontend +
-backend`) and its UX Draft. Then, where the project has them, `ARCHITECTURE.md` (contexts, module layout),
+Every numbered rule of the spec (its numbering is the project's spec conventions') with its scope (those `docs/spec/README.md` allows) and any UX Draft. Then, where the project has them, `ARCHITECTURE.md` (contexts, module layout),
 `docs/adr/` and its backend and frontend rules documents.
 
 ## Step 2 — Check each rule
@@ -22,7 +21,7 @@ backend`) and its UX Draft. Then, where the project has them, `ARCHITECTURE.md` 
   values, constraints; factories used, the right service called, the right event
   published; the active ADRs respected (types, libraries, patterns).
 - **Frontend** (`src/features/`): the component, hook or gateway call — the right command
-  and arguments, an error path, `t()` for text; the structure matches the UX Draft.
+  and arguments, an error path, `t()` for text; the structure matches any UX Draft.
 - **Test**: a test that exercises this rule's behaviour (`#[test]` / `#[tokio::test]`,
   `*.test.ts(x)`) — a test file existing is not one.
 
