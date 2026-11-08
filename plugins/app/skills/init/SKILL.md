@@ -27,7 +27,7 @@ From the checkout, read only:
   `.claude/settings.json`'s `permissions.deny`, `CLAUDE.md`, `docs/`;
 - `gh repo view --json nameWithOwner,rebaseMergeAllowed,squashMergeAllowed`;
 - `gh api repos/{owner}/{repo}/rulesets`, then each one's bypass actors and required checks;
-- the names CI reports on `main`: `gh api 'repos/{owner}/{repo}/commits/main/check-runs?per_page=100' --jq '[.check_runs[].name]'`;
+- the check names on `main`: `gh api 'repos/{owner}/{repo}/commits/main/check-runs?per_page=100' --jq '[.check_runs[].name]'`;
 - `gh --version`.
 
 Every call reads; no `--method`.
@@ -45,13 +45,13 @@ Then, per role, the doc the project's `CLAUDE.md` names, else the default:
 | owners, setup | `review.owners`, `review.setup` | none |
 | visual-proof rules | `visual-proof.rules` | `docs/visual-proof-rules.md` |
 | a lane's own folders | `review.lanes.<lane>` | `review-lanes.sh`'s header |
-| architecture document (the document reviewers read it) | none: the rules name it | `ARCHITECTURE.md` |
+| architecture document (the document reviewers') | none: the rules name it | `ARCHITECTURE.md` |
 
 ## Step 2 — Ask
 
-One message: the table with the doc guessed per role or "none → default", and each
+One message: the table, the doc guessed per role or "none → default", and each
 harness item missing or divergent — a required check not reporting on `main`, a deny line
-absent, a ruleset with a bypass actor or no pull request rule, a merge method off, `gh`
+absent, a ruleset with a bypass actor or no pull-request rule, a merge method off, `gh`
 below 2.50.0. A default beside each line; one reply; nothing is done before it. A blank
 role is a conscious default.
 
@@ -79,13 +79,13 @@ origin HEAD`, `gh pr create --body-file <file>`, the body this report.
 ## Report
 
 Each role with its doc or "default"; each harness item present, added or left to the
-owner; what the owner declined; the record of the run.
+owner; what was declined; the record of the run.
 
 ## Re-run — a project already set up
 
 Step 1 also reads `DANEEL_REF` in `.github/workflows/review.yml`, the pin in
-`.claude/settings.json`, and the sections of `${CLAUDE_PLUGIN_ROOT}/CHANGELOG.md` newer
+`.claude/settings.json` and the sections of `${CLAUDE_PLUGIN_ROOT}/CHANGELOG.md` newer
 than the pinned version. Step 2 adds three blocks: a key whose doc is gone or no longer
-defines what its reader asks; a default the project's docs now contradict with
-no key set; the "To take it" lines between the pins, one checklist. Step 3 moves the pin
-lines.
+defines what its reader asks; a default the project's docs contradict with no
+key set; the "To take it" lines between the pins, one checklist. Step 3 names both pins'
+new value for the owner, as the deny lines.

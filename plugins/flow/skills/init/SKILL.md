@@ -19,20 +19,20 @@ From the project's checkout, read without changing anything:
   `gh project field-list <number> --owner <owner> --format json`;
 - the tags (`git tag -l 'v*' 'batch/*'`) and `.github/workflows/`.
 
-Each checklist item: present, missing, or different (another colour or description). A label the checklist does not name is the project's
-own: leave it.
+Each checklist item: present, missing, or different (another colour or description). A label the checklist does not name is the project's:
+leave it.
 
 ## Step 2 — Ask
 
 One message to the owner, only about what is missing or needs the owner's choice:
 
-- **The Project**: an existing one (which), or a new one.
+- **The Project**: an existing one (which), or new.
 - **Batch ends**: `v*` releases or `batch/<date>` tags; the workflow run on every push
   (`flow-audit.round_workflow`).
-- **Backlog**: its healthy size (`backlog.target`, a weight), or none.
+- **Backlog**: its healthy size (`backlog.target`, a weight, method § 3), or none.
 - **Commit types**, where they differ from the default.
 - **Personal data**: can an issue hold a user's real data? If so, the forms' checkbox wording.
-- **Usage log**: measure the project's scripts, or not.
+- **Usage log**: measure the project's scripts?
 
 A default beside each question; one reply; nothing is done before it.
 
@@ -51,12 +51,12 @@ Only what is missing, never replacing a file, a field or a label:
    stays.
 5. **Usage log**, if asked: `templates/usage_log.py` and `templates/usage-log.sh` into
    `scripts/` when absent, and `logs/` in `.gitignore`.
-6. **CLAUDE.md**: when it does not name the flow, one line: "This project runs daneel's
+6. **CLAUDE.md**, when it does not name the flow: "This project runs daneel's
    flow (`flow@daneel`); its method is the plugin's `method.md`, and this file and the
    project's documents hold only what is this project's own."
 
 Then one pull request on its own branch (`chore: set up daneel's flow`), never on `main`;
-its body lists the Project and labels made.
+its body lists what was made.
 
 ## Report
 
@@ -64,10 +64,11 @@ What was present, what was added, what the owner declined; the record of the run
 
 ## Re-run — a project already set up
 
-Step 1 also reads the pins (`extraKnownMarketplaces.daneel.source.ref` in
-`.claude/settings.json`; Grep `--v` under `.github`) and the sections of
-`${CLAUDE_PLUGIN_ROOT}/CHANGELOG.md` newer than the pinned version. Step 2 adds three blocks: a `daneel.json` path that no longer exists, a form or label drifted from
-the template; a convention the project's docs now state against a default it never
-overrode; the "To take it" lines between the pins, one checklist. Step 3 does the
-mechanical ones — labels, forms, keys, the pin line — and leaves a change to the
-project's rules docs or CI as a proposal.
+Step 1 also reads the pin (`extraKnownMarketplaces.daneel.source.ref` in
+`.claude/settings.json`) and the sections of `${CLAUDE_PLUGIN_ROOT}/CHANGELOG.md` newer
+than the pinned version. Step 2 adds three blocks: a `daneel.json` path that no longer
+exists or no longer says what its reader asks, a form or label drifted from the template;
+a default the project's docs now contradict with no key set; the "To
+take it" lines between the pins, one checklist. Step 3 does the mechanical ones — labels,
+forms, keys — and names the new pin for the owner, as it does every change to the
+project's rules docs, settings or CI.
