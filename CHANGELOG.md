@@ -2,6 +2,20 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## app 0.6.0 — 2026-11-08
+
+- `/app:init`: after `/flow:init`, sets a project up for `app`. It reads the harness
+  (`required-checks.json`, the ruleset's bypass actors and required checks, the merge
+  settings, the deny lines, `gh --version`) and guesses which project doc plays each role
+  the reviewers read (the spec, contract and ADR READMEs, the code rules per lane, the
+  glossary, the guides, the visual-proof rules), asks the owner once about what is missing
+  or divergent with a default beside each line, adds only what is missing (`daneel.json`
+  keys, `required-checks.json`), and names for the owner what the agent may not touch (the
+  deny lines, the ruleset, the merge settings). `README.md` § Taking it points to it.
+
+To take it: nothing to change. A project already set up may run it to see which roles run
+on defaults.
+
 ## app 0.5.0 — 2026-11-08
 
 - The document reviewers (`spec-reviewer`, `contract-reviewer`, `adr-reviewer`),
