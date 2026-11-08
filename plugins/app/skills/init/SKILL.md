@@ -3,8 +3,9 @@ name: init
 description: Sets a project up for `app`, after `/flow:init` — the harness (`required-checks.json`, the ruleset, the merge settings, the deny lines) and where the project keeps the rules its reviewers read — adding only what is missing, after asking the owner once. Never overwrites. Use when a project enables `app`, and again when its rules move.
 disable-model-invocation: true
 allowed-tools:
-  - Bash(gh repo view *)
-  - Bash(gh api repos/*)
+  - Bash(gh repo view --json nameWithOwner,rebaseMergeAllowed,squashMergeAllowed)
+  - Bash(gh api repos/{owner}/{repo}/rulesets*)
+  - Bash(gh api 'repos/{owner}/{repo}/commits/main/check-runs?per_page=100' *)
   - Bash(gh --version)
   - Bash(git checkout -b chore/take-app)
   - Bash(git add *)
@@ -28,6 +29,8 @@ From the project's checkout, read without changing anything:
 - `gh api repos/{owner}/{repo}/rulesets`, then each ruleset's bypass actors and required checks;
 - the names CI reports on `main`: `gh api 'repos/{owner}/{repo}/commits/main/check-runs?per_page=100' --jq '[.check_runs[].name]'`;
 - `gh --version`.
+
+Every call reads; the skill runs no `--method`.
 
 Then, for each role below, the doc the project's `CLAUDE.md` names for it, else the
 default:
