@@ -2,6 +2,15 @@
 name: init
 description: Sets a project up for `app`, after `/flow:init` — the harness (`required-checks.json`, the ruleset, the merge settings, the deny lines) and where the project keeps the rules its reviewers read — adding only what is missing, after asking the owner once. Never overwrites. Use when a project enables `app`, and again when its rules move.
 disable-model-invocation: true
+allowed-tools:
+  - Bash(gh repo view *)
+  - Bash(gh api repos/*)
+  - Bash(gh --version)
+  - Bash(git checkout -b chore/take-app)
+  - Bash(git add *)
+  - Bash(git commit -m *)
+  - Bash(git push -u origin HEAD)
+  - Bash(gh pr create *)
 ---
 
 # Skill — `init` (app)
@@ -34,7 +43,7 @@ default:
 | owners and setup documents | `review.owners`, `review.setup` | none |
 | visual-proof rules | `visual-proof.rules` | `docs/visual-proof-rules.md` |
 | a lane's own folders | `review.lanes.<lane>` | the plugin's folders, `review-lanes.sh`'s header |
-| architecture document | none: the rules name it | `ARCHITECTURE.md` |
+| architecture document (read by the spec, contract and ADR reviewers, `spec-checker`) | none: the rules name it | `ARCHITECTURE.md` |
 
 ## Step 2 — Ask
 
@@ -63,11 +72,11 @@ Only what is missing, never replacing a file, a key or a setting:
    the one Step 1 found.
 5. **Merge settings** off: the setting named, for the owner.
 
-Then one pull request from a branch `chore/take-app`, never from `main`, titled, as its
-commit, `chore: set up daneel's app`.
+Then one pull request, never from `main`: `git checkout -b chore/take-app`, `git add
+<path>` for each file written, `git commit -m "chore: set up daneel's app"`, `git push -u
+origin HEAD`, `gh pr create --body-file <file>`, the body this report.
 
 ## Report
 
 Each role with its doc or "default"; each harness item present, added or left to the
-owner; what the owner declined. A missing item the owner declined is not asked again
-unless the owner runs the skill to change it.
+owner; what the owner declined. The report is the record of the run.
