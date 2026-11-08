@@ -63,7 +63,8 @@ for lane, patterns in own.items():
     for pattern in patterns:
         print(lane, pattern)
 # The spec, contract and ADR lanes watch the folder of the README of their kind, the first
-# path of `review.rules.<kind>`; that README holds conventions, never a document to review.
+# path of `review.rules.<kind>`; a spec or contract README holds conventions, never a document
+# to review, while the ADR README is the index the adr lane reads, so it does fire.
 rules = review.get("rules", {})
 for kind, default in (("spec", "docs/spec"), ("contract", "docs/contracts"), ("adr", "docs/adr")):
     first = (rules.get(kind) or [None])[0]
