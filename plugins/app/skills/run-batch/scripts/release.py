@@ -20,6 +20,8 @@ GitHub does not hold is not cut again: run again, this script tags that commit a
 Exit: 0 done (or, with --preview, a release is due) · 1 stopped, the message says where and
 what to do · 3 nothing to release: no `feat` or `fix` since the last release.
 
+It needs `gh` 2.50.0 or newer, the first with `gh pr checks --json`.
+
 What differs between projects is read from `.claude/daneel.json`, key `run-batch`:
 `version_files`, `changelog`, `release_workflow` (the skill's SKILL.md says what each holds).
 """
@@ -41,6 +43,7 @@ CHECKS_TIMEOUT = 3600  # seconds the release pull request may wait for its check
 WORKFLOW_TIMEOUT = 4 * 3600  # seconds the release workflow may take to make the draft
 WORKFLOW_APPEARS = 300  # seconds for the workflow's run on the tag to be listed
 POLL = 30
+GH_MIN = "2.50.0"  # the first gh with `gh pr checks --json`
 sleep = time.sleep  # replaced in tests
 
 # What a project may set in `.claude/daneel.json` under `run-batch`, with its default.
@@ -362,15 +365,28 @@ def checks_verdict(checks: list[dict], required: list[str] = ()) -> tuple[str, l
     return "green", []
 
 
+def listed_checks(root: Path, number: str) -> list[dict]:
+    """The pull request's checks, empty while GitHub reports none. Any other failure of the
+    command stops: an older `gh` has no `--json` here and would read as checks never ending."""
+    command = ("gh", "pr", "checks", number, "--json", "name,bucket,link")
+    listed = run(root, *command)
+    error = (listed.stderr or listed.stdout).strip()
+    if listed.returncode != 0:
+        if "no checks reported" in error:
+            return []
+        raise Stop(f"`{' '.join(command)}` failed: {error or f'exit {listed.returncode}'}. "
+                   f"It needs gh {GH_MIN} or newer: gh --version")
+    try:
+        return json.loads(listed.stdout) if listed.stdout.strip() else []
+    except json.JSONDecodeError:
+        raise Stop(f"`{' '.join(command)}` answered no JSON: {listed.stdout.strip()[:200]}")
+
+
 def wait_for_checks(root: Path, number: str) -> None:
     required = required_checks(root)
     waited = 0
     while True:
-        listed = run(root, "gh", "pr", "checks", number, "--json", "name,bucket,link")
-        try:
-            checks = json.loads(listed.stdout) if listed.stdout.strip() else []
-        except json.JSONDecodeError:
-            checks = []
+        checks = listed_checks(root, number)
         verdict, failed = checks_verdict(checks, required)
         if verdict == "green":
             return
