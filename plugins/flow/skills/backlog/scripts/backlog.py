@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -221,6 +222,13 @@ def last_batch_end() -> datetime | None:
     return parse_moment(made) if made else None
 
 
+def _names(text: str, key: str) -> bool:
+    """`key` stands whole in `text`: `ORD-1` is not found in `ORD-10`, nor `order` in
+    `place_order`; a folder (`src/orders/`) is found at the head of a longer path."""
+    tail = "" if key.endswith("/") else r"(?![\w-])"
+    return re.search(r"(?<![\w./-])" + re.escape(key) + tail, text) is not None
+
+
 def match_keys(keys: list[str], issues: list[dict]) -> dict[str, list[tuple[int, str, bool]]]:
     """For each key of a draft (a path, a rule ID, a symbol), the open issues that name it
     in their title, body or a comment: (number, title, by its folder). A path is also
@@ -233,9 +241,9 @@ def match_keys(keys: list[str], issues: list[dict]) -> dict[str, list[tuple[int,
         for issue in sorted(issues, key=lambda i: i["number"]):
             text = "\n".join([issue.get("title") or "", issue.get("body") or ""]
                              + [c.get("body") or "" for c in issue.get("comments") or []])
-            if key in text:
+            if _names(text, key):
                 hits.append((issue["number"], issue.get("title") or "", False))
-            elif folder and folder in text:
+            elif folder and _names(text, folder):
                 hits.append((issue["number"], issue.get("title") or "", True))
         found[key] = hits
     return found

@@ -640,6 +640,11 @@ class MatchKeysTest(unittest.TestCase):
         self.assertEqual(found["src/orders/refund.rs"],
                          [(8, "Refunds round twice", False), (9, "Another file", True)])
 
+    def test_a_key_is_matched_whole(self):
+        issues = [{"number": 3, "title": "t", "body": "ORD-10 and `place_order`", "comments": []}]
+        found = flow_audit.backlog.match_keys(["ORD-1", "order", "ORD-10", "place_order"], issues)
+        self.assertEqual([k for k, hits in found.items() if hits], ["ORD-10", "place_order"])
+
     def test_a_key_nobody_names_has_no_hit(self):
         self.assertEqual(flow_audit.backlog.match_keys(["place_order"], self.ISSUES), {"place_order": []})
 
