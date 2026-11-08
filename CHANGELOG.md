@@ -2,6 +2,17 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## flow 0.4.0 — 2026-11-08
+
+- `/flow:backlog` Step 2: before filing, `backlog.py match <key> …` lists the open issues
+  whose title, body or comments name each key of the draft's Where (a path, also by its
+  folder, a rule ID, a symbol), read in one call; the agent folds into a hit that holds the
+  same observation, or files and lists the hits.
+- `/flow:init`'s `task` form: Where asks for the spec rule IDs and symbols beside the paths.
+
+To take it: in the project's `.github/ISSUE_TEMPLATE/task.yml`, give the Where field the
+template's new description; `/flow:init` does not replace a form the project has.
+
 ## flow 0.3.0 — 2026-11-08
 
 - A flaky test's issue is always filed: `flaky` joins `security` and `data-loss` as waived
