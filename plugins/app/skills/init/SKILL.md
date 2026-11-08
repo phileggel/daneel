@@ -33,6 +33,7 @@ default:
 | guides the agent reads | `flow-audit.guides` | `CLAUDE.md`, `.claude/**` |
 | owners and setup documents | `review.owners`, `review.setup` | none |
 | visual-proof rules | `visual-proof.rules` | `docs/visual-proof-rules.md` |
+| a lane's own folders | `review.lanes.<lane>` | the plugin's folders, `review-lanes.sh`'s header |
 | architecture document | none: the rules name it | `ARCHITECTURE.md` |
 
 ## Step 2 — Ask
@@ -48,18 +49,21 @@ report says so.
 
 Only what is missing, never replacing a file, a key or a setting:
 
-1. **`.claude/daneel.json`**: the roles answered, merged in; a key already set stays.
+1. **`.claude/daneel.json`**: the roles answered, `review.lanes` included, merged in; a key
+   already set stays.
 2. **`required-checks.json`**: when absent, the required checks named in the reply, each a
    name CI reports.
-3. **Deny lines**: proposed as the JSON the owner adds to `.claude/settings.json`; the
-   agent never edits that file.
+3. **Deny lines**: the README's JSON, proposed for the owner to add to
+   `.claude/settings.json`; the agent never edits that file.
 4. **Ruleset**: `${CLAUDE_PLUGIN_ROOT}/ruleset.json` with its example check replaced by
-   those of `required-checks.json`, written to a file, and the `gh api … rulesets` line that
-   applies it, for the owner to run.
+   those of `required-checks.json`, written to a file, and the line for the owner to run:
+   `gh api repos/<owner>/<repo>/rulesets --method POST --input <file>` when the project has
+   none, `gh api repos/<owner>/<repo>/rulesets/<id> --method PUT --input <file>` to replace
+   the one Step 1 found.
 5. **Merge settings** off: the setting named, for the owner.
 
-Then one pull request on a branch of its own (`chore: set up daneel's app`), never on
-`main`.
+Then one pull request from a branch `chore/take-app`, never from `main`, titled, as its
+commit, `chore: set up daneel's app`.
 
 ## Report
 
