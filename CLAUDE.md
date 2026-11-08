@@ -1,7 +1,7 @@
 # daneel
 
-A Claude Code plugin marketplace: the flow shared by phileggel's projects.
-`README.md` says what it holds.
+A Claude Code plugin marketplace: the flow and the harness phileggel's projects share,
+simple and portable. `README.md` says what it holds.
 
 ## Two kinds of AI content, never mixed
 
@@ -16,9 +16,8 @@ A Claude Code plugin marketplace: the flow shared by phileggel's projects.
   changelog, manifest or README, and no project's file path, rule ID or ticket ID.
   Examples are invented (`acme`, `ORD-1`, `src-tauri/src/auth/`). A line that needs a
   project's name belongs in that project.
-- A plugin skill comes here extracted from the projects' copies, with the differences
-  between them measured and recorded in its pull request — never written
-  generic first.
+- A plugin piece comes here extracted from the projects' copies, the differences measured
+  and recorded in its pull request, never written generic first.
 - The backlog is GitHub issues (`.github/ISSUE_TEMPLATE/`, one form per kind: `feature`, `bug`, `harness`), never files in git.
 
 ## How a plugin piece is written
@@ -27,26 +26,25 @@ A Claude Code plugin marketplace: the flow shared by phileggel's projects.
   `${CLAUDE_SKILL_DIR}` or `${CLAUDE_PLUGIN_ROOT}`, never a bare `scripts/` and never the
   project's checkout. A script measures the checkout it runs in, and works from a plain
   checkout too.
-- A plugin never reads another plugin's folder. `app` depends on `flow`
-  and reads `flow`'s method through its own
-  `method.md`, a link to it; anything else across plugins is named by
-  skill or agent (`/flow:flow-audit`), never by path.
+- A plugin never reads another plugin's folder: `app` reads `flow`'s method through its own
+  `method.md` link, and names anything else by skill or agent (`/flow:flow-audit`).
 - Every command a skill tells the agent to run is written literally, and its
   `allowed-tools` covers it, or the skill says the
-  project's own allow list covers it (a project's `just` recipe). A skill that can run
+  project's own allow list covers it. A skill that can run
   headless never asks: it says what it takes instead.
 - One command per shell call: no `&&`, `||`, `;`, `$(...)`, retry loop or `kill`
   pipeline, in a skill as in the recovery lines a script prints.
-- Every per-project difference is a key in `.claude/daneel.json`, under the piece's own
-  name, documented in the skill that reads it, and listed in its plugin's README and the
-  root README. A script refuses a key of its section that no piece reads (`review-lanes.sh`
-  for `review`), and treats a shared file (`required-checks.json`) exactly as the other
-  scripts do.
+- What a project's guidelines define (scopes, sections, folders) is read from its docs,
+  the piece keeping only its checks and a default; any other per-project difference is a
+  key in `.claude/daneel.json`, under the piece's own name, documented in the skill that
+  reads it, and listed in its plugin's README and the root README. A script refuses a key
+  of its section that no piece reads, and treats a shared file (`required-checks.json`)
+  exactly as the other scripts do.
 - A script's exit codes read the same in its header and in the skill that acts on them.
 - A claim that something was measured says what, when, and covers only that.
-- Every doc an agent reads (skill, agent, loop, method, protocol) is as concise as it can
-  be: each line is one the agent acts on. Each has a word ceiling in `doc-ceilings.json`, lowered with
-  the doc; only the owner raises one.
+- Every doc an agent reads is as concise as it can be: each line is one the agent acts
+  on. Each has a word ceiling in `doc-ceilings.json`, lowered with the doc; only the owner
+  raises one.
 
 ## What the agent never does, and nothing here makes it do
 
