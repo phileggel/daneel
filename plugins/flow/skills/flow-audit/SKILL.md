@@ -31,8 +31,7 @@ never a finding. A
 
 ## Step 2 — Read the records
 
-The script has read them into `records` (read the document in parts; a working file goes
-in the session's scratchpad, never `/tmp`):
+The script has read them into `records` (read the document in parts):
 
 - `pull_requests`: each one merged in the window, with its body, commits, comments and
   reviews — the graded findings are in the body and the comments, beside each CI round's
@@ -60,8 +59,9 @@ State a count only when you counted it; otherwise write "not counted".
 - Every statement in a guide that a pull request shows to be false or contradicted, and
   each generic piece of the guide that lists the agent's tools, if the project has one,
   against its line.
-- Tool failures only where the log has an outcome. A tool only CI runs is never in the
-  usage log: never propose removing it for that.
+- Tool failures only where the log has an outcome. A tool only CI runs, or a plugin's
+  script, is never logged: its absence there is no data, not no failures, nor a reason to
+  remove it.
 
 What the records cannot show is itself a finding: name it, and where it belonged.
 
