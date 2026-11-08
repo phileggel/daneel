@@ -38,7 +38,8 @@ sections, ID pattern and scopes; the stack lanes read `review.rules.<lane>`;
 The seven stack lanes hold the checks both apps share; what one project alone checks (its
 domain, its own scripts and records, an owner's decision) lives in its rules documents,
 which each lane reads from `review.rules`: one list of paths per lane, keyed `arch`,
-`backend`, `frontend`, `sql`, `e2e`, `security`, `infra`
+`backend`, `frontend`, `sql`, `e2e`, `security`, `infra`, and `spec`, `contract`, `adr`,
+whose first path is that kind's README and whose folder its lane watches
 (`"backend": ["docs/backend-rules.md", "docs/error-model.md", "docs/test-rules.md"]`). A check
 such a document states for the lane is one of the lane's; a lane the key does not list
 runs on its own checks alone. The infra lane's documents also name the files and records the

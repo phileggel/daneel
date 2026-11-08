@@ -23,6 +23,8 @@
 #   spec      docs/spec/*.md but README.md                  spec-reviewer
 #   contract  docs/contracts/*.md but README.md             contract-reviewer
 #   adr       docs/adr/*.md                                 adr-reviewer
+#             (these three folders follow the first path of `review.rules.spec`,
+#             `.contract` and `.adr` when a project sets them)
 #   guides    the `flow-audit.guides` globs (reviewer-guides reads the same list)
 #
 # The project adds its own paths per lane in `.claude/daneel.json`, under `review.lanes`:
@@ -60,6 +62,16 @@ if unknown:
 for lane, patterns in own.items():
     for pattern in patterns:
         print(lane, pattern)
+# The spec, contract and ADR lanes watch the folder of the README of their kind, the first
+# path of `review.rules.<kind>`; that README holds conventions, never a document to review.
+rules = review.get("rules", {})
+for kind, default in (("spec", "docs/spec"), ("contract", "docs/contracts"), ("adr", "docs/adr")):
+    first = (rules.get(kind) or [None])[0]
+    folder = first.rsplit("/", 1)[0] if first and "/" in first else default
+    if folder != default:
+        print(kind, "^" + re.escape(folder) + ("/[^/]*\\.md$" if kind == "adr" else "/.*\\.md$"))
+    if kind != "adr":
+        print("readme", "^" + re.escape(folder) + "/README\\.md$")
 guides = settings.get("flow-audit", {}).get("guides") or [
     "CLAUDE.md", ".claude/skills/*/SKILL.md", ".claude/agents/*.md", ".claude/rules/*.md"]
 for glob in guides:
@@ -88,7 +100,8 @@ infra=$(fires infra '^(\.github/workflows/[^/]*\.ya?ml|\.githooks/.*|scripts/[^/
 security=$(fires security '^src-tauri/(src/.*/api\.rs|src/(.*/)?specta_builder\.rs|capabilities/.*\.json)$')
 e2e=$(fires e2e '^e2e/.*\.test\.ts$')
 # A folder's README.md is its conventions, not a spec or a contract.
-not_readme=$(grep -Ev '^docs/(spec|contracts)/README\.md$' <<<"$files" || true)
+readmes=$(grep '^readme ' <<<"$extras" | cut -d' ' -f2 | paste -sd'|')
+not_readme=$(grep -Ev "$readmes" <<<"$files" || true)
 spec=$(fires spec '^docs/spec/.*\.md$' "$not_readme")
 contract=$(fires contract '^docs/contracts/.*\.md$' "$not_readme")
 adr=$(fires adr '^docs/adr/[^/]*\.md$')

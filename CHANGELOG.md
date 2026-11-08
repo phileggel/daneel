@@ -10,7 +10,8 @@ What a project must act on when it takes a new version of a plugin.
   `review.rules.spec`, `.contract` and `.adr` (defaults `docs/spec/README.md`, `docs/contracts/README.md`,
   `docs/adr/README.md`), and define their folder, sections, ID pattern and structure; the
   code rules are `review.rules`; the glossary `review.glossary`; the visual-proof rules
-  `visual-proof.rules` (default `docs/visual-proof-rules.md`). Loop § 4 says the code rules
+  `visual-proof.rules` (default `docs/visual-proof-rules.md`); `review-lanes.sh` fires the
+  spec, contract and ADR lanes on that README's folder. Loop § 4 says the code rules
   win over it where they disagree. Every `docs/` path left in an agent doc is a default.
 
 To take it: move the pin to `app--v0.5.0`. Where the defaults hold, no key to set; a

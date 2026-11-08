@@ -132,6 +132,15 @@ class ReviewLanesTest(unittest.TestCase):
             ["spec", "contract", "adr"],
         )
 
+    def test_the_spec_contract_and_adr_folders_follow_the_project_s_readmes(self):
+        self.settings({"review": {"rules": {
+            "spec": ["specs/README.md", "docs/glossary.md"], "contract": ["api/contracts/README.md"], "adr": ["decisions/README.md"],
+        }}})
+        self.assertEqual(self.lanes("specs/orders.md", "api/contracts/orders.md", "decisions/003-x.md"), ["spec", "contract", "adr"])
+        # Each kind's README is its conventions, not a document of it; the defaults still fire.
+        self.assertEqual(self.lanes("specs/README.md", "api/contracts/README.md"), [])
+        self.assertEqual(self.lanes("docs/spec/a.md", "docs/adr/003-x.md"), ["spec", "adr"])
+
     def test_the_guides_are_flow_audit_s(self):
         self.assertEqual(self.lanes("CLAUDE.md"), ["guides"])
         self.assertEqual(self.lanes(".claude/skills/run-entry/SKILL.md"), ["guides"])
