@@ -1,6 +1,6 @@
 ---
 name: backlog
-description: Before the coding agent files a ticket, checks that its size fits under the backlog ceiling, set at the last batch end and raised by the owner's tickets and the waived ones (security, data loss, flaky). Use every time the agent is about to file a ticket.
+description: Before the coding agent files a ticket, finds an open one to fold it into and checks its size fits under the backlog ceiling. Use every time the agent is about to file a ticket.
 allowed-tools: Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/backlog.py *)
 ---
 
@@ -10,12 +10,14 @@ The ceiling binds the coding agent alone; its rules, `backlog.target` included, 
 `${CLAUDE_SKILL_DIR}/../../method.md` § 3.
 
 1. A finding that belongs to the ticket under way is folded into it; nothing is filed.
-2. Otherwise run, from the project's checkout:
+2. The draft's Where keys (paths, rule IDs, symbols):
 
-       python3 ${CLAUDE_SKILL_DIR}/scripts/backlog.py check <S|M|L|XL>            # --waived: security, data loss, flaky test
+       python3 ${CLAUDE_SKILL_DIR}/scripts/backlog.py match <key> [<key> ...]
 
-3. It fits: file the ticket with the coder's mark (`agent-filed` unless the project's
-   `.claude/daneel.json` sets `backlog.coder_mark`) and its `size:` label.
-   It does not fit: method § 3.
+   Fold into a hit holding the same observation; else the ticket lists the hits.
+3. Then:
 
-The batch end's audit reports the result (`/flow:flow-audit`, its Backlog block).
+       python3 ${CLAUDE_SKILL_DIR}/scripts/backlog.py check <S|M|L|XL>            # --waived: security, data loss, flaky
+
+4. It fits: file the ticket with the coder's mark (`agent-filed` unless
+   `backlog.coder_mark` is set) and its `size:` label. It does not fit: method § 3.

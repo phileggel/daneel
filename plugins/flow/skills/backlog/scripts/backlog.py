@@ -10,7 +10,12 @@ plus those, so a backlog over its healthy size can only shrink. A project may se
 healthy size (`target`): at or under it, the agent files up to it. Before the first batch
 end only the target holds, and with no target every ticket fits.
 
+Before filing, `match` lists the open issues that name each key of the draft (its paths,
+also by folder, its rule IDs, its symbols), read in one call: the agent folds into a hit
+that holds the same observation, or files and lists the hits.
+
 Usage, from the project's checkout:
+    python3 <plugin>/scripts/backlog.py match src/auth/service.rs ORD-010 place_order
     python3 <plugin>/scripts/backlog.py check M            # does an M fit? exit 1 if not
     python3 <plugin>/scripts/backlog.py check S --waived   # a security, data-loss or flaky-test ticket
 
@@ -216,13 +221,47 @@ def last_batch_end() -> datetime | None:
     return parse_moment(made) if made else None
 
 
+def match_keys(keys: list[str], issues: list[dict]) -> dict[str, list[tuple[int, str, bool]]]:
+    """For each key of a draft (a path, a rule ID, a symbol), the open issues that name it
+    in their title, body or a comment: (number, title, by its folder). A path is also
+    matched by its folder (`src/auth/` for `src/auth/service.rs`), and such a hit says so.
+    Nothing is folded here: the agent reads each hit."""
+    found: dict[str, list[tuple[int, str, bool]]] = {}
+    for key in keys:
+        folder = key.rsplit("/", 1)[0] + "/" if "/" in key.rstrip("/") and not key.endswith("/") else None
+        hits = []
+        for issue in sorted(issues, key=lambda i: i["number"]):
+            text = "\n".join([issue.get("title") or "", issue.get("body") or ""]
+                             + [c.get("body") or "" for c in issue.get("comments") or []])
+            if key in text:
+                hits.append((issue["number"], issue.get("title") or "", False))
+            elif folder and folder in text:
+                hits.append((issue["number"], issue.get("title") or "", True))
+        found[key] = hits
+    return found
+
+
+def open_issues() -> list[dict]:
+    """Every open issue with its title, body and comments, in one call."""
+    return _gh_json_lines("issue", "list", "--state", "open", "--limit", "1000",
+                          "--json", "number,title,body,comments", "--jq", ".[]")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     sub = parser.add_subparsers(dest="command", required=True)
     check = sub.add_parser("check", help="does a ticket of this size fit under the ceiling")
     check.add_argument("size", choices=["S", "M", "L", "XL"])
     check.add_argument("--waived", action="store_true", help="a security, data-loss or flaky-test ticket")
+    match = sub.add_parser("match", help="the open issues naming each key of a draft")
+    match.add_argument("keys", nargs="+", help="the draft's paths, rule IDs and symbols")
     args = parser.parse_args(argv)
+
+    if args.command == "match":
+        for key, hits in match_keys(args.keys, open_issues()).items():
+            named = ", ".join(f"#{n} {title}" + (" (its folder)" if by_folder else "") for n, title, by_folder in hits)
+            print(f"{key}: {named or 'none'}")
+        return 0
 
     settings = load_settings(project_root())
     needed = SIZE_WEIGHTS[f"size:{args.size}"]

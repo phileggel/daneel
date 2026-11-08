@@ -624,6 +624,41 @@ class RangeEndTest(unittest.TestCase):
         gh.assert_not_called()
 
 
+class MatchKeysTest(unittest.TestCase):
+    """`backlog.py match`: the open issues naming each key of a draft, before it is filed."""
+
+    ISSUES = [
+        {"number": 8, "title": "Refunds round twice", "body": "In `src/orders/refund.rs`.", "comments": []},
+        {"number": 5, "title": "A test gap", "body": "", "comments": [{"body": "ORD-066A has no test."}]},
+        {"number": 9, "title": "Another file", "body": "`src/orders/` holds two services.", "comments": []},
+    ]
+
+    def test_a_rule_id_in_a_comment_and_a_path_in_a_body_are_found(self):
+        found = flow_audit.backlog.match_keys(["ORD-066A", "src/orders/refund.rs"], self.ISSUES)
+        self.assertEqual(found["ORD-066A"], [(5, "A test gap", False)])
+        # The path itself, then its folder, each said.
+        self.assertEqual(found["src/orders/refund.rs"],
+                         [(8, "Refunds round twice", False), (9, "Another file", True)])
+
+    def test_a_key_nobody_names_has_no_hit(self):
+        self.assertEqual(flow_audit.backlog.match_keys(["place_order"], self.ISSUES), {"place_order": []})
+
+    def test_the_command_reads_the_issues_once_and_prints_each_key(self):
+        out = io.StringIO()
+        with mock.patch.object(flow_audit.backlog, "open_issues", return_value=self.ISSUES) as read, \
+                contextlib.redirect_stdout(out):
+            code = flow_audit.backlog.main(["match", "ORD-066A", "place_order"])
+        self.assertEqual(code, 0)
+        read.assert_called_once_with()
+        self.assertEqual(out.getvalue().splitlines(), ["ORD-066A: #5 A test gap", "place_order: none"])
+
+    def test_the_issues_are_read_in_one_gh_call_with_their_comments(self):
+        with mock.patch.object(flow_audit.backlog, "_gh_json_lines", return_value=[]) as gh:
+            flow_audit.backlog.open_issues()
+        gh.assert_called_once_with("issue", "list", "--state", "open", "--limit", "1000",
+                                   "--json", "number,title,body,comments", "--jq", ".[]")
+
+
 class BacklogBeforeTheFirstBatchEndTest(unittest.TestCase):
     """Before any batch end, the backlog has nothing to shrink from: only the target holds."""
 
