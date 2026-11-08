@@ -1,6 +1,6 @@
 {
   "name": "flow",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Working on a project with agents: plan a batch, check the backlog, audit the batch (plan-batch, backlog, flow-audit).",
   "author": {
     "name": "phileggel"

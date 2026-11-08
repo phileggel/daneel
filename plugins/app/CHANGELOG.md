@@ -2,6 +2,17 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.7.0 — 2026-11-09
+
+- `/app:init` re-run on a project already set up re-aligns it: it reads `DANEEL_REF` in the review workflow and the marketplace pin and
+  this changelog's sections newer than the pinned version, then asks the owner, in one
+  message, about a pointer that no longer exists or no longer says what its reader asks, a
+  default the project's docs now contradict without a key, and the "To take it" steps
+  between the pins as one checklist; it does the mechanical steps (the pin lines, keys) in one
+  pull request and leaves a change to the project's rules docs or CI as a proposal.
+
+To take it: nothing to change; run `/app:init` to see the drift from this version on.
+
 ## app 0.6.1 — 2026-11-09
 
 - The changelog is this file, `plugins/app/CHANGELOG.md`, shipped with the plugin, so a
