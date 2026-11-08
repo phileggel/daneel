@@ -2,6 +2,16 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## app 0.4.1 — 2026-11-08
+
+- `merge.py` refuses while a 🔴 or 🟡 in a reviewer lane's newest comment (headed
+  `<!-- review:<lane> -->`) has no line in a newer comment carrying (a), (b) or (c) and the
+  finding's first 40 characters; it prints each such finding. 🔵 and ℹ️ need no grade.
+- `loop.md` § 5: a CI 🔴 or 🟡's grading line quotes its opening words.
+
+To take it: nothing to change; the agent grades as `merge.py` prints. A lane comment that
+does not start with `<!-- review:<lane> -->` is not read, as before.
+
 ## app 0.4.0 — 2026-11-08
 
 - `release.py` stops at once, naming the error, when `gh pr checks --json` fails; before, an
