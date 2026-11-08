@@ -23,7 +23,7 @@ From the project's checkout, read without changing anything:
 Then, for each role below, the doc the project's `CLAUDE.md` names for it, else the
 default:
 
-| Role | Key | Default when unset |
+| Role | Key | The default, when unset |
 | --- | --- | --- |
 | spec README (format, sections, IDs, scopes) | `review.rules.spec`, first path | `docs/spec/README.md` |
 | contract README | `review.rules.contract`, first path | `docs/contracts/README.md` |
