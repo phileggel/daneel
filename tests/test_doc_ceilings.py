@@ -10,8 +10,9 @@ CEILINGS = json.loads((ROOT / "doc-ceilings.json").read_text(encoding="utf-8"))[
 
 
 def agent_docs() -> list[str]:
-    """Every `.md` under `plugins/` but the READMEs and changelogs (written for people) and
-    links to another doc, the root `CLAUDE.md` and the reviewer of this repository."""
+    """Every `.md` under `plugins/` but the READMEs (written for people), the changelogs
+    (records a skill scans by version, growing with each one, not instructions it follows)
+    and links to another doc, the root `CLAUDE.md` and the reviewer of this repository."""
     found = [
         str(path.relative_to(ROOT))
         for path in (ROOT / "plugins").rglob("*.md")

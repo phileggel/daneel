@@ -14,7 +14,7 @@ simple and portable. `README.md` says what it holds.
 
 - Nothing here knows one project, and nothing names one: not a skill, script, test,
   changelog, manifest or README, and no project's file path, rule ID or ticket ID.
-  Examples are invented (`acme`, `ORD-1`, `src-tauri/src/auth/`). A line that needs a
+  Examples are invented (`acme`, `src-tauri/src/auth/`). A line that needs a
   project's name belongs in that project.
 - A plugin piece comes here extracted from the projects' copies, the differences measured
   and recorded in its pull request, never written generic first.
@@ -59,5 +59,5 @@ the draft); bypass a hook (`--no-verify`).
 - Every change to a plugin bumps its `version` in `plugin.json` and adds its
   line to the plugin's `CHANGELOG.md`, saying what a project must do.
 - `claude plugin validate .` and `python3 -m unittest discover -s tests` pass before a
-  commit. A pull request lands with `validate` and `review` green. A
+  commit. A pull request lands only with `validate` and `review` green. A
   release is `claude plugin tag plugins/<plugin> --push` on `main`.
