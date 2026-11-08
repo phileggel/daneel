@@ -160,11 +160,13 @@ class EveryFile(unittest.TestCase):
     def test_a_project_s_doc_is_named_only_as_a_default(self):
         """A plugin piece reads a project's rules from the docs the project names; a path
         under `docs/` in an agent doc is only ever the default for when the project says
-        nothing, so the paragraph that names it says `default`."""
+        nothing, or the example value of a `daneel.json` key, so the paragraph that names
+        it says `default` or names `daneel.json`."""
         bare = []
         for doc in agent_docs():
             for paragraph in doc.read_text(encoding="utf-8").split("\n\n"):
-                if "`docs/" in paragraph and "default" not in paragraph:
+                if re.search(r"`[^`\n]*docs/", paragraph) and "default" not in paragraph \
+                        and "daneel.json" not in paragraph:
                     bare.append(f"{doc.relative_to(ROOT)}: {paragraph.strip()[:80]}")
         self.assertEqual(bare, [])
 

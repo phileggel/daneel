@@ -27,10 +27,13 @@ would not. Used with `flow`.
 `scripts/branch.sh` and `scripts/review-path.sh` are what the reviewers run, always on
 the project of the working directory; `scripts/review-lanes.sh` reads changed paths on
 stdin and prints the lanes they need (`--json` for CI), for `run-entry` and the project's
-review workflow. The reviewers read the project's own conventions
-(`docs/spec/README.md`, `docs/contracts/README.md`, `docs/adr/README.md`);
+review workflow. The reviewers read the project's own conventions from the docs
+`.claude/daneel.json` names: the first path of `review.rules.spec`, `.contract` and `.adr`
+is that kind's README (defaults `docs/spec/README.md`, `docs/contracts/README.md`,
+`docs/adr/README.md`), whose folder holds the documents and whose text defines their
+sections, ID pattern and scopes; the stack lanes read `review.rules.<lane>`;
 `reviewer-guides` and the protocol read `flow-audit.guides` and the optional
-`review.owners`, `review.setup` and `review.glossary` of `.claude/daneel.json`.
+`review.owners`, `review.setup` and `review.glossary`.
 
 The seven stack lanes hold the checks both apps share; what one project alone checks (its
 domain, its own scripts and records, an owner's decision) lives in its rules documents,
@@ -85,10 +88,11 @@ root, which only add to the defaults (a lane name it does not know is an error):
 ```
 
 In CI the workflow checks daneel out (see daneel's `README.md`), takes `.claude/daneel.json`
-from the base branch, so a pull request cannot turn its own reviewers off; the rules
-documents the reviewers read (`review.rules` and the READMEs the document reviewers
-name) are taken from the base branch for the same reason; and runs
+from the base branch, so a pull request cannot turn its own reviewers off, and runs
 `git diff --name-only "origin/$BASE...HEAD" | bash .daneel/plugins/app/scripts/review-lanes.sh --json`.
+The workflow should give the reviewers the rules documents (`review.rules`, the READMEs)
+from the base branch too, or a pull request can loosen the review that judges it; daneel
+ships no step for that, the project's workflow does it.
 
 ## Headless runs
 

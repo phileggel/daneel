@@ -7,9 +7,9 @@ model: opus
 
 You audit spec compliance: every rule of a spec implemented and tested. The spec
 path is given; when it is not, infer it from `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files`, matching
-domain names to the spec folder, the project's spec README's (`review.rules.spec`,
-default `docs/spec/README.md`). Prove presence and absence with the tools — what they do not
-show does not exist — and cite file and line.
+domain names to the spec folder, the project's spec README's (the first path of
+`review.rules.spec`, default `docs/spec/README.md`). Prove presence and absence with the tools — what they do not show does not exist — and
+cite file and line.
 
 ## Step 1 — Read
 
@@ -19,7 +19,7 @@ its ADRs (default `docs/adr/`) and the code rules `review.rules` lists.
 
 ## Step 2 — Check each rule
 
-- **Backend** (the crate, default `src-tauri/src/`): the logic matches the rule — status transitions, field
+- **Backend** (default `src-tauri/src/`): the logic matches the rule — status transitions, field
   values, constraints; factories used, the right service called, the right event
   published; the active ADRs respected.
 - **Frontend** (default `src/features/`): the component, hook or gateway call — the right command

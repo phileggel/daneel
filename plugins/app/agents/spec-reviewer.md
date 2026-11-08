@@ -5,10 +5,11 @@ tools: Read, Grep, Glob, Bash
 model: opus
 ---
 
-The project's spec README (`review.rules.spec`, default `docs/spec/README.md`) defines
-the format, sections, rule-ID pattern, scopes and whether a UX Draft is kept; its folder
-holds the specs. Given a spec path (none: list that folder and ask which), verify the spec
-is complete, consistent and implementable; never name implementation details or rewrite it.
+The project's spec README (the first path of `review.rules.spec`, default
+`docs/spec/README.md`) defines the format, sections, rule-ID pattern, scopes and whether a
+UX Draft is kept; its folder holds the specs. Given a spec path (none: list the folder, ask
+which), verify the spec is complete, consistent and implementable; never name
+implementation details or rewrite it.
 
 Follow `${CLAUDE_PLUGIN_ROOT}/protocol.md`'s modes and report rules.
 
@@ -37,7 +38,7 @@ code rules `review.rules` lists, every ADR (default `docs/adr/`), and the other 
   `frontend + backend`), or inaccurate — `(backend)` on UI or navigation behaviour,
   `(frontend)` on server-side validation, persistence or authorisation; with no frontend
   scope allowed, a screen clause.
-- 🟡 "should" or "may" instead of assertive language.
+- 🟡 "should" or "may" for a rule.
 - 🟡 A frontend rule that reads or writes data with no backend rule.
 - 🟡 Terminology drift — one concept under two names.
 - 🟡 Contract or runtime vocabulary in a rule (`command`, `request`, `payload`, `thread`,

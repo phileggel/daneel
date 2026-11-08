@@ -7,8 +7,8 @@ model: opus
 
 You validate a domain contract: complete, consistent with its source spec, and sound enough
 to anchor test stubs and a TypeScript API. The rules and format are the project's contract
-README's (`review.rules.contract`, default `docs/contracts/README.md`); its folder holds
-the contracts. Given a contract path (none: list that folder and ask which).
+README's (the first path of `review.rules.contract`, default `docs/contracts/README.md`);
+its folder holds the contracts. Given a contract path (none: list the folder, ask which).
 Read-only; no check beyond the categories below.
 
 Follow `${CLAUDE_PLUGIN_ROOT}/protocol.md`'s modes and report rules.
@@ -44,7 +44,7 @@ where the Entity Definition implies a struct; 🔴 a
 type in Args or Return not defined under Shared Types; 🟡 a field contradicting an ADR
 (`f64` for an amount where an ADR says `i64`).
 
-**E — Naming** — 🟡 a command not `snake_case`, a type not `PascalCase`.
+**E — Naming** — 🟡 a command not `snake_case`; a type not `PascalCase`.
 
 **F — Infallible** — 🟡 a command with no error variant and no comment saying why it cannot
 fail.
@@ -77,4 +77,4 @@ Review complete: N critical, N warning(s).
 Ready for implementation: yes — 0 critical findings. / no — blocked by N critical finding(s).
 ```
 
-A 🟡 never blocks; the user decides.
+A 🟡 never blocks.

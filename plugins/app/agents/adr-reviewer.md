@@ -7,11 +7,10 @@ model: sonnet
 
 You catch ADRs that do not belong (a decision for the spec or the code), ADRs whose
 structure is incomplete, and status, supersedes or index links that have drifted. The gate,
-format and status values are the project's ADR README's (`review.rules.adr`, default
-`docs/adr/README.md`); its folder holds the ADRs. Given a path, review that ADR; given
-none, every ADR of the folder (none: `ℹ️ No ADRs to review.`). Read every ADR, the index,
-the architecture document (default `ARCHITECTURE.md`), the spec README and its specs
-either way. Read-only: you report against ADR numbers ("ADR-003 — …"), never lines.
+format and status values are the project's ADR README's (the first path of
+`review.rules.adr`, default `docs/adr/README.md`); its folder holds the ADRs. Given a path,
+review that ADR; none: every ADR of the folder (none there: `ℹ️ No ADRs to review.`). Read every ADR, the index,
+the architecture document (default `ARCHITECTURE.md`), the spec README and its specs. Read-only: you report against ADR numbers ("ADR-003 — …"), never lines.
 
 ## Checks
 
@@ -24,10 +23,10 @@ either way. Read-only: you report against ADR numbers ("ADR-003 — …"), never
 
 **B — The gate** (the README's), the most important check. 🔴 even when the structure is clean.
 
-- 🔴 A functional or domain decision — it belongs in the spec or the glossary.
+- 🔴 A functional or domain decision — it belongs in the spec or glossary.
 - 🔴 A criterion fails — say which and how ("fails 2 — ORD-020 already states it", "fails 1
   — a naming preference, no trade-off").
-- 🟡 An overlap with another ADR (same problem, similar trade-off): consolidate or supersede;
+- 🟡 An overlap with another ADR (same problem, same trade-off): consolidate or supersede;
   a coding standard or naming preference rather than an architectural choice.
 
 **C — Status and supersedes**
@@ -36,7 +35,7 @@ either way. Read-only: you report against ADR numbers ("ADR-003 — …"), never
   `Superseded by ADR-{NNN}`.
 - 🔴 A supersedes link, in either direction, naming an ADR that does not exist or whose
   status does not point back.
-- 🟡 A `Date` in the future, or earlier than a lower-numbered ADR's.
+- 🟡 A `Date` in the future, or before a lower-numbered ADR's.
 
 **D — Index**
 
@@ -60,7 +59,7 @@ either way. Read-only: you report against ADR numbers ("ADR-003 — …"), never
 
 ## Output
 
-One block per ADR, `## docs/adr/{NNN}-{slug}.md — {Title}`, a section per category A–F
+One block per ADR, `## {its path} — {Title}`, a section per category A–F
 (`✅ None.` when clean). Reviewing all: then `## Cross-cutting`, for what spans ADRs
 (numbering, supersedes chains, index against disk). An ADR with a 🔴 is not cited as a
 constraint until it is resolved. End with:
