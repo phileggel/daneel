@@ -2,6 +2,17 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## app 0.4.4 — 2026-11-08
+
+- `app:spec-checker` runs once per entry, with the lanes, when the code of a branch that
+  touches or names a spec is finished, before the first push (`run-entry` Step 6, loop § 5);
+  no longer at closure, after the push, and no longer in the release sweep. A headless
+  `run-entry` now runs it; before, it did not name it.
+- Loop § Release sweep: items the owner adds after the sweep get a second one before the
+  batch ends, on what merged since the commit the first read up to.
+
+To take it: nothing to change; the agent follows the new wording.
+
 ## app 0.4.3 — 2026-11-08
 
 - `protocol.md` § The report: in CI a reply without the written report file is no report,
