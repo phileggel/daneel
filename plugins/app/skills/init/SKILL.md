@@ -57,7 +57,7 @@ role is a conscious default.
 
 ## Step 3 — Add
 
-Only what is missing:
+Only what is missing, replacing nothing:
 
 1. **`.claude/daneel.json`**: the roles answered, `review.lanes` included, merged in; a key
    already set stays.
@@ -79,7 +79,7 @@ origin HEAD`, `gh pr create --body-file <file>`, the body this report.
 Each role with its doc or "default"; each harness item present, added or the owner's; what
 was declined; the record of the run.
 
-## Re-run, on a project already set up
+## Re-run on a set-up project
 
 Step 1 also reads `DANEEL_REF` in `.github/workflows/review.yml`, the pin in
 `.claude/settings.json` and the sections of `${CLAUDE_PLUGIN_ROOT}/CHANGELOG.md` newer
