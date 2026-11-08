@@ -6,8 +6,8 @@ disable-model-invocation: true
 
 # Skill — `init` (app)
 
-`plugins/app/README.md` § Taking it says what a project needs; the keys are each
-piece's. The project keeps its own part only.
+`${CLAUDE_PLUGIN_ROOT}/README.md` § Taking it says what a project needs and in which
+order; the keys are each piece's. The project keeps its own part only.
 
 ## Step 1 — Look
 
@@ -17,7 +17,7 @@ From the project's checkout, read without changing anything:
   `.claude/settings.json`'s `permissions.deny`, `CLAUDE.md`, `docs/`;
 - `gh repo view --json nameWithOwner,rebaseMergeAllowed,squashMergeAllowed`;
 - `gh api repos/{owner}/{repo}/rulesets`, then each ruleset's bypass actors and required checks;
-- the names CI reports on `main`: `gh api repos/{owner}/{repo}/commits/main/check-runs --jq '[.check_runs[].name]'`;
+- the names CI reports on `main`: `gh api 'repos/{owner}/{repo}/commits/main/check-runs?per_page=100' --jq '[.check_runs[].name]'`;
 - `gh --version`.
 
 Then, for each role below, the doc the project's `CLAUDE.md` names for it, else the
@@ -53,8 +53,9 @@ Only what is missing, never replacing a file, a key or a setting:
    already set stays.
 2. **`required-checks.json`**: when absent, the required checks named in the reply, each a
    name CI reports.
-3. **Deny lines**: the README's JSON, proposed for the owner to add to
-   `.claude/settings.json`; the agent never edits that file.
+3. **Deny lines**, proposed for the owner to add to `.claude/settings.json`, which the agent
+   never edits: `"Bash(gh release create *)"`, `"Bash(gh release edit *)"`,
+   `"Bash(gh api *releases*)"` under `permissions.deny`.
 4. **Ruleset**: `${CLAUDE_PLUGIN_ROOT}/ruleset.json` with its example check replaced by
    those of `required-checks.json`, written to a file, and the line for the owner to run:
    `gh api repos/<owner>/<repo>/rulesets --method POST --input <file>` when the project has
