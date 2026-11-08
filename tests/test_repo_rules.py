@@ -157,6 +157,17 @@ class EverySkillThatCanRunHeadless(unittest.TestCase):
 
 
 class EveryFile(unittest.TestCase):
+    def test_a_project_s_doc_is_named_only_as_a_default(self):
+        """A plugin piece reads a project's rules from the docs the project names; a path
+        under `docs/` in an agent doc is only ever the default for when the project says
+        nothing, so the paragraph that names it says `default`."""
+        bare = []
+        for doc in agent_docs():
+            for paragraph in doc.read_text(encoding="utf-8").split("\n\n"):
+                if "`docs/" in paragraph and "default" not in paragraph:
+                    bare.append(f"{doc.relative_to(ROOT)}: {paragraph.strip()[:80]}")
+        self.assertEqual(bare, [])
+
     def test_it_names_no_project(self):
         """The names are the repository variable PROJECT_NAMES (comma-separated), since listing
         them here would break the rule."""

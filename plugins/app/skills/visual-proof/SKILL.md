@@ -15,16 +15,17 @@ allowed-tools:
 
 # Skill — `visual-proof`
 
-The steps of the project's `docs/visual-proof-rules.md`, which owns the rules. Every state is captured
+The steps of the project's visual-proof rules (`visual-proof.rules`, default
+`docs/visual-proof-rules.md`), which own them. Every state is captured
 in light and dark; the console errors seen during the capture are reported.
 
-Chat, it asks; headless (under `/app:run-entry` with no one to ask), it never does: it
+Chat, it asks; headless (under `/app:run-entry`), it never does: it
 takes what it infers and says so in the report.
 
 ## Step 0 — The config
 
 `visual-proof` in `.claude/daneel.json`: `vite_preview_port`, `vite_preview_host`,
-`global_css_import`, `i18n_import`, and optionally `frontend_match` and
+`global_css_import`, `i18n_import`, and optionally `rules`, `frontend_match` and
 `frontend_exclude` (extended regular expressions; default `^src/.*\.tsx$` and none).
 
 ## Step 1 — The component
@@ -46,8 +47,8 @@ captured as its own state, rendered in it; the script takes stills only.
 
 ## Step 3 — The preview
 
-Read the component, `src/bindings.ts` and, when one exists for its domain,
-`docs/contracts/{domain}-contract.md`, for realistic data shapes.
+Read the component, the bindings (default `src/bindings.ts`) and, when one exists for its
+domain, its contract (default folder `docs/contracts/`), for realistic data shapes.
 
 The config's paths are from the repository root; from `src/__preview__/main.tsx` strip
 the leading `src/` and prefix `../` (`src/lib/i18n.ts` → `../lib/i18n`).
@@ -70,11 +71,11 @@ the leading `src/` and prefix `../` (`src/lib/i18n.ts` → `../lib/i18n`).
 ```
 
 **`src/__preview__/main.tsx`**: the real component, the real `i18n_import` (imported for
-its side effect, which initialises i18n) and `global_css_import` — no stub. Each state is
+its side effect) and `global_css_import` — no stub. Each state is
 rendered with hard-coded realistic data shaped by the contract and the bindings (no
 invented type, no `invoke()`; a store is mocked), inside `<div id="state-{name}"
-style={{ padding: 24 }}>`: the capture targets that id, never a label or a text. A component using router or context hooks (`useNavigate`, `useLocation`) is wrapped
-in its provider with mock values — otherwise it throws and the capture is silently blank.
+style={{ padding: 24 }}>`: the capture targets that id, never a label or a text. A component using router or context hooks is wrapped in its provider with mock values,
+else the capture is silently blank.
 
 ```tsx
 import React from "react";

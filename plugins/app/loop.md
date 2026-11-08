@@ -21,13 +21,13 @@ with every check green, merged by run-entry's `merge.py`.
    is a question. For an issue with a spec the order is: spec draft, `app:spec-reviewer`,
    then the questions, new vocabulary included.
 2. **Design gate** (§ 2) for anything the user sees, before any branch exists. Then the
-   opening brief states Task, Scope, Design, Touching; the branch is made (the method's
-   branch names) and the item moves to In progress.
+   opening brief states Task, Scope, Design, Touching; the branch is made and the item
+   moves to In progress.
 3. **Acceptance first.** Each Done-when clause becomes a failing test in the layers the
    project's test rules ask for (Rust for logic, E2E for what a user does); one no test
    can prove, as a guide's wording, is closed by its diff. Test names carry the issue number or
-   the spec rule. A new business rule goes into its spec (`docs/spec/`) in the same
-   commit; a new or changed command updates its contract (`docs/contracts/`). Confirm red.
+   the spec rule. A new business rule goes into its spec in the same commit; a new or
+   changed command updates its contract. Confirm red.
    A fault met in production: the input that shows it is asked for before any fix is
    designed — a log says what failed, not why — and a failing test that reproduces it is
    the fix's acceptance test; when the input holds private data, the agent says what it
@@ -44,8 +44,8 @@ with every check green, merged by run-entry's `merge.py`.
    The commit title is the changelog line.
 9. **Closure**, in the same PR before it merges: a coverage floor the run
    measured more than a point above rises to half a point under that figure, never down;
-   what the task met and did not fix is folded or filed; `ARCHITECTURE.md` if a module
-   appeared, the spec if a rule changed.
+   what the task met and did not fix is folded or filed; the architecture document if a
+   module appeared, the spec if a rule changed.
 10. **Merge:** run-entry's `watch-pr.py` waits for the checks; each lane's newest comment,
     green or not, is read and its findings graded (§ 5); then `merge.py`, which folds
     `fixup!` commits. The closing brief says what changed for the user and what the project gained.
@@ -82,24 +82,24 @@ or a push. Every app's harness holds at least:
 
 ## 4. The right way to code
 
+The code rules (`review.rules`) win where they disagree.
+
 - **Logic in Rust, the frontend renders.** A business rule, a validation, an aggregation
   or a derivation is a Rust command with its Rust tests, so every surface follows the
   same rule. The frontend renders, holds ephemeral UI state and maps error codes to
   translations. Logic that lands in the frontend is a harness failure, not a style remark.
-- **Gold layouts** for new code (`docs/backend-rules.md`, `docs/frontend-rules.md`, their
-  gold rules); bit by bit for existing code (§ 6).
-- **Typed errors** on the wire (`docs/error-model.md`); factories and aggregate-root
-  methods on domain objects.
+- **Gold layouts** for new code (the code rules' gold rules); bit by bit for existing code (§ 6).
+- **Typed errors** on the wire; factories and aggregate-root methods on domain objects.
 - **Stable ids** on every interactive element; text from i18n.
-- **Ubiquitous language** in every identifier (`docs/ubiquitous-language.md`).
+- **Ubiquitous language** in every identifier (`review.glossary`).
 - **No private data** in logs, commits, fixtures or PR text.
 - **Surgical:** touch the file set the task needs; boyscout inside it, never beyond.
-- **Read the gold first.** Before changing a pattern that has a named reference, open
-  and read it; if it contradicts the design in mind, the gold wins.
+- **Read the gold first.** Before changing a pattern with a named reference, read it; it
+  wins over the design in mind.
 - **Check the ADRs before writing "cannot".** Before stating that something cannot be
-  done, tested or automated, grep `docs/adr/`: a solved constraint is recorded there.
-- **A moved or removed symbol** is searched by its bare name and by every re-export, not
-  by its canonical path alone.
+  done, grep the ADRs: a solved constraint is recorded there.
+- **A moved or removed symbol** is searched by its bare name and by every re-export, not its
+  canonical path alone.
 
 ## 5. Reviewers and the triage policy
 
@@ -156,7 +156,7 @@ hold:
 Otherwise the touched code keeps its current standard; a mixed codebase is fine, a
 half-migrated file is not. The deciding test is **two stories**: if a reviewer would read
 the PR as the task plus a migration, the migration is a separate issue. A spec, contract,
-glossary, ADR or `ARCHITECTURE.md` drifting from right code is a `task`.
+glossary, ADR or architecture document drifting from right code is a `task`.
 
 ## 7. PR size and split
 
@@ -188,7 +188,7 @@ force-push.
 A reviewer critical tagged `[DECISION]` needs an architectural choice, not a mechanical
 fix. It is never fixed unilaterally: it becomes a `needs-owner` question on the issue, or
 goes to the owner in chat, and the PR stays open. The choice is recorded before the fix:
-a technical one as an ADR (`docs/adr/README.md`), a domain one in the spec or the
+a technical one as an ADR (the ADR README's gate), a domain one in the spec or the
 glossary.
 
 ### Dependabot pull requests

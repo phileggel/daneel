@@ -2,6 +2,21 @@
 
 What a project must act on when it takes a new version of a plugin.
 
+## app 0.4.6 — 2026-11-08
+
+- The document reviewers (`spec-reviewer`, `contract-reviewer`, `adr-reviewer`),
+  `spec-checker`, `reviewer-arch`, `visual-proof` and the loop take a project's conventions
+  from the project's docs: the spec, contract and ADR READMEs are `review.rules.spec`,
+  `.contract` and `.adr` (defaults `docs/spec/README.md`, `docs/contracts/README.md`,
+  `docs/adr/README.md`), and define their folder, sections, ID pattern and structure; the
+  code rules are `review.rules`; the glossary `review.glossary`; the visual-proof rules
+  `visual-proof.rules` (default `docs/visual-proof-rules.md`). Loop § 4 says the code rules
+  win over it where they disagree. Every `docs/` path left in an agent doc is a default.
+
+To take it: nothing to change where the defaults hold; a project whose docs live
+elsewhere sets those keys. The rules documents are read from the base branch in CI
+(`plugins/app/README.md` § Lanes).
+
 ## flow 0.4.0 — 2026-11-08
 
 - `/flow:backlog` Step 2: before filing, `backlog.py match <key> …` lists the open issues

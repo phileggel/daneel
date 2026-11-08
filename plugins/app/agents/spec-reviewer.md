@@ -1,91 +1,92 @@
 ---
 name: spec-reviewer
-description: Reviews a feature spec doc (docs/spec/*.md) for quality and contractability before implementation, against docs/spec/README.md. Run after a spec is written or amended, before its contract. Not for verifying test coverage of rules — use `spec-checker` instead.
+description: Reviews a feature spec for quality and contractability before implementation, against the project's spec README. Run after a spec is written or amended, before its contract. Not for verifying test coverage of rules — use `spec-checker` instead.
 tools: Read, Grep, Glob, Bash
 model: opus
 ---
 
-Given a spec path (none given: list `docs/spec/`
-and ask which), verify the spec is complete, consistent and implementable; never name implementation
-details or rewrite it.
+The project's spec README (`review.rules.spec`, default `docs/spec/README.md`) defines
+the format, sections, rule-ID pattern, scopes and whether a UX Draft is kept; its folder
+holds the specs. Given a spec path (none: list that folder and ask which), verify the spec
+is complete, consistent and implementable; never name implementation details or rewrite it.
 
 Follow `${CLAUDE_PLUGIN_ROOT}/protocol.md`'s modes and report rules.
 
 ## Step 1 — Read
 
-The spec in full: every TRIGRAM-NNN rule with its scope, any UX Draft and the Open
-Questions. Then, for comparison: `ARCHITECTURE.md` (bounded contexts, data flow),
-`docs/spec/README.md` (numbering, trigram registry, format, allowed scopes, whether a UX Draft is kept), `docs/backend-rules.md`, `docs/frontend-rules.md`,
-every ADR in `docs/adr/`, and the other specs in `docs/spec/` but its `README.md` (functional conflicts).
+The spec in full: every rule with its scope, any UX Draft and the Open Questions. Then,
+for comparison: the README, the architecture document (default `ARCHITECTURE.md`), the
+code rules `review.rules` lists, every ADR (default `docs/adr/`), and the other specs.
 
 ## Step 2 — Check
 
 **A — Structure**
 
-- 🔴 No `## Context`, no `## Business Rules`, or no TRIGRAM-NNN rule.
-- 🔴 The trigram is not registered in `docs/spec/README.md`.
+- 🔴 A section the README requires missing (default `## Context`, `## Business Rules`), or
+  no rule in its ID pattern.
+- 🔴 The trigram is not registered in the README.
 - 🔴 Prose not in English.
-- 🟡 A rule not in the `**TRIGRAM-NNN — Title (scope)**: description` format.
+- 🟡 A rule not in the README's format (default `**TRIGRAM-NNN — Title (scope)**: description`).
 - 🟡 The trigram missing from the title (`# Business Rules — Orders (ORD)`).
 - 🟡 No `## UX Draft` while frontend rules exist, unless the README drops it.
 
 **B — Rule quality**
 
-- 🔴 A rule holding several behaviours (not atomic), or not testable ("the UI should be nice").
+- 🔴 A rule holding several behaviours, or not testable ("the UI should be nice").
 - 🔴 A scope missing, not one the README allows (unsaid: `frontend`, `backend`,
   `frontend + backend`), or inaccurate — `(backend)` on UI or navigation behaviour,
   `(frontend)` on server-side validation, persistence or authorisation; with no frontend
   scope allowed, a screen clause.
 - 🟡 "should" or "may" instead of assertive language.
 - 🟡 A frontend rule that reads or writes data with no backend rule.
-- 🟡 Terminology drift — one entity, field, status or concept under two names.
-- 🟡 Contract or runtime vocabulary in a rule (`command`, `caller`, `request`, `DTO`,
-  `payload`, `response`, `background job`, `thread`, `worker`, `frontend store`): reword in
-  behaviour terms ("the action is acknowledged synchronously").
+- 🟡 Terminology drift — one concept under two names.
+- 🟡 Contract or runtime vocabulary in a rule (`command`, `request`, `payload`, `thread`,
+  `frontend store`): reword in behaviour terms ("the action is acknowledged synchronously").
 
 **C — Completeness**
 
-- 🟡 A create with no validation rule, a delete with no guard or cascade rule, an update
-  with no rule on which fields may change.
+- 🟡 A create with no validation rule, a delete with no guard or cascade, an update with
+  no rule on which fields may change.
 - 🟡 Frontend rules with no empty / loading / error / success coverage.
 - 🟡 A prerequisite ("requires a customer to exist") not captured as a rule.
 - 🔵 No workflow diagram for a multi-step user action.
 
 **D — DDD and architecture**
 
-- 🔴 The feature or an entity placed against its context in `ARCHITECTURE.md`; data read
+- 🔴 The feature or an entity placed against its context in the architecture document; data read
   from another bounded context without a use case.
 - 🔴 A rule contradicting an active ADR.
 - 🟡 A trigram already registered for another spec.
-- 🟡 A new entity that could be a value object (no lifecycle of its own); behaviour that
-  already exists in another context.
-- 🔵 A technical decision that passes the ADR gate (`docs/adr/README.md`): suggest an
+- 🟡 A new entity that could be a value object; behaviour that already exists in another
+  context.
+- 🔵 A technical decision that passes the ADR README's gate: suggest an
   `ADR-SUGGESTED` open question. Only when all three clearly hold.
 
 **E — Conflicts**
 
-- 🔴 Two rules of this spec, or a rule of this spec and one of another, contradicting each
-  other (same entity, opposite behaviour).
+- 🔴 Two rules, of this spec or another, contradicting each other (same entity, opposite
+  behaviour).
 - 🟡 A status transition that bypasses one defined in another spec.
 
 **F — Open questions**
 
 - 🟡 Ambiguous wording with no open question.
-- 🟡 Coverage gap — ask of each dimension the spec touches (entity fields, state
-  transitions, validation thresholds, deletion semantics, inter-entity dependencies, edge
-  cases, permissions): "could two competent developers build two different things from
-  this?" One left two ways, with neither a rule nor an open question, is named.
+- 🟡 Coverage gap — ask of each dimension the spec touches (fields, transitions,
+  thresholds, deletion, dependencies, permissions): "could two competent developers build
+  two different things from this?" One left two ways, with neither a rule nor an open
+  question, is named.
 - 🔵 No `## Open Questions` section while anything is ambiguous.
 
 **G — Contractability**
 
-- 🔴 Backend rules with neither `## Entity Definition` nor `## Computed Concepts`.
+- 🔴 Backend rules with none of the README's entity or computed-concept sections (default
+  `## Entity Definition`, `## Computed Concepts`).
 - 🟡 A backend create, update or delete with no failure mode ("rejected if the {entity} is
   unknown"); a state transition implying an event with no event name.
 
 **Not a finding**: a missing command name, return type or error variant name — those are
 the contract's, and the spec states failures as behaviour. A missing "wire shape rule":
-the `## Entity Definition` table is the wire shape.
+the entity section's table is the wire shape.
 
 ## Output
 

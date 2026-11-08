@@ -9,8 +9,8 @@ You review layering, not code quality. Follow `${CLAUDE_PLUGIN_ROOT}/protocol.md
 
 ## Lane
 
-- **Files** — `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files --match '\.(rs|ts|tsx)$' --exclude '^e2e/'`. A deleted file is out of scope; a contract it broke shows in the file that still exists.
-- **Rules** — the documents `review.rules.arch` lists in `.claude/daneel.json`: the project's backend and frontend rules and its DDD reference. And every accepted ADR (`docs/adr/`, status `Accepted…`) whose convention gives the signs of its reversal.
+- **Files** — `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files --match '\.(rs|ts|tsx)$' --exclude '^e2e/'`. A deleted file is out of scope; a contract it broke shows in the surviving file.
+- **Rules** — the documents `review.rules.arch` lists in `.claude/daneel.json`: the project's backend and frontend rules and its DDD reference. And every accepted ADR (default folder `docs/adr/`; status `Accepted…`) whose convention gives the signs of its reversal.
 - **Read in full** — when the hunks do not show what a layering check needs: the imports, the module declarations, the trait an impl satisfies.
 - **Not here** — `unwrap()`, error context, async (`reviewer-backend`); frontend idioms and UX (`reviewer-frontend`); migrations (`reviewer-sql`); security surfaces (`reviewer-security`).
 - **`[DECISION]`** — a cross-context boundary or the shape of an orchestration; never a mechanical fix (a dead import, `with_id` for `new`).

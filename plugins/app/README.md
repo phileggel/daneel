@@ -17,7 +17,7 @@ would not. Used with `flow`.
 | `app:reviewer-e2e` | WebdriverIO scenarios under `e2e/`: selectors, waits, inputs, independence, no mocks, helpers |
 | `app:reviewer-security` | Commands, test seams, XSS, storage, secrets, capabilities, cross-layer risks |
 | `app:reviewer-infra` | Workflows, Tauri and package config, scripts, hooks, justfile, records, settings |
-| `/app:visual-proof` | Screenshots of every state of a changed component, light and dark; `visual-proof.vite_preview_port`, `.vite_preview_host`, `.global_css_import`, `.i18n_import`, optional `.frontend_match`, `.frontend_exclude` |
+| `/app:visual-proof` | Screenshots of every state of a changed component, light and dark; `visual-proof.vite_preview_port`, `.vite_preview_host`, `.global_css_import`, `.i18n_import`, optional `.rules` (default `docs/visual-proof-rules.md`), `.frontend_match`, `.frontend_exclude` |
 | `/app:dep-audit` | npm and Cargo: outdated versions and CVEs, verified on the web; optional `dep-audit.licence_check`, `.terms_doc` |
 | `/app:run-entry` | One task end to end, branch to merge on green; optional `run-entry.recipes`, `.record_paths` |
 | `/app:run-batch` | A whole batch: every Queued item through `run-entry`, its end (`release.py` to a draft, or `batch-end.sh`), the closing brief last; optional `run-batch.release_check`, `.version_files`, `.changelog`, `.release_workflow` |
@@ -85,7 +85,9 @@ root, which only add to the defaults (a lane name it does not know is an error):
 ```
 
 In CI the workflow checks daneel out (see daneel's `README.md`), takes `.claude/daneel.json`
-from the base branch, so a pull request cannot turn its own reviewers off, and runs
+from the base branch, so a pull request cannot turn its own reviewers off; the rules
+documents the reviewers read (`review.rules` and the READMEs the document reviewers
+name) are taken from the base branch for the same reason; and runs
 `git diff --name-only "origin/$BASE...HEAD" | bash .daneel/plugins/app/scripts/review-lanes.sh --json`.
 
 ## Headless runs
