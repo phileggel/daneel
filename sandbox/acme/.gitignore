@@ -1,0 +1,6 @@
+node_modules/
+target/
+dist/
+# The shell is never built here, so its lock file and generated schemas are not kept.
+src-tauri/Cargo.lock
+src-tauri/gen/

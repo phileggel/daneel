@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "acme",
+  "version": "0.1.0",
+  "identifier": "com.acme.parcels",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [{ "title": "Acme parcels", "width": 480, "height": 360 }],
+    "security": { "csp": "default-src 'self'" }
+  },
+  "bundle": { "active": false }
+}
