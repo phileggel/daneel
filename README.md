@@ -60,10 +60,10 @@ names each one. Never add a line of the shape `Bash(python3 *<script>*)` or
 Measured on `allowed-tools` under `claude -p`, and only this:
 
 - A forked skill whose `allowed-tools` is plain `Bash` runs (`flow-audit`, 2026-10-25).
-- `/app:run-entry`, 2026-11-14, on the sandbox's app (`python3 sandbox/run.py`, the
-  `resume` and `ready-task` scenarios; three runs): Claude Code 2.1.325,
-  `claude-sonnet-5-5`, `--permission-mode acceptEdits`, the plugins loaded with
-  `--plugin-dir`, the app's allow list holding its `just` recipes only.
+- `/app:run-entry`, 2026-11-14, three runs on an invented Tauri + React app with a canned
+  `gh` (a sandbox since removed, #44): Claude Code 2.1.325, `claude-sonnet-5-5`,
+  `--permission-mode acceptEdits`, the plugins loaded with `--plugin-dir`, the app's allow
+  list holding its `just` recipes only.
   - **Ran, never denied:** `git status --short`, `git branch --show-current`,
     `git pull --ff-only`, `git checkout -b`, `git add`, `git commit -m`,
     `git push -u origin HEAD`, `gh project item-list`, `gh project field-list`,
@@ -76,7 +76,7 @@ Measured on `allowed-tools` under `claude -p`, and only this:
     of the plugin's `loop.md`, `method.md` and `protocol.md`, by the session and by both
     reviewers it started (#91); the `Write` of a pull request's body under `/tmp` and
     under `.git/` (#93); `gh pr view` and `gh pr checks` on a resumed task, which the skill
-    does not name (#95).
+    does not name (#95). No project runs a skill headless, so none of these was fixed.
   - **Not reached**, so not measured: `merge.py`, `git commit --fixup`, `gh run view`,
     `gh run rerun`, `gh issue comment`, `gh issue edit`, `gh pr comment`, `gh pr edit`,
     the reviewers' own `branch.sh` and `review-path.sh` calls, a plugin installed from
@@ -84,6 +84,11 @@ Measured on `allowed-tools` under `claude -p`, and only this:
 - A project's allow list is ignored in a folder nobody opened interactively ("this
   workspace has not been trusted"), and applies when the same file is passed as
   `--settings` (2026-11-14, same version).
+- `claude plugin eval`, 2026-11-14, same version, on the owner's Linux machine: every Bash
+  call of a run fails before its command starts (`apply-seccomp: ... nested userns is
+  capability-restricted`) while `kernel.apparmor_restrict_unprivileged_userns` is 1; a
+  suite run from the repository's root with `--eval-dir` loads both plugins from a case's
+  `plugins:` paths, and a path outside the folder it is run against is refused.
 
 What differs between projects is the project's own: `.claude/daneel.json` (one key per
 piece: `flow-audit`, `plan-batch`, `backlog`, `review`, `run-entry`, `run-batch`,
@@ -158,44 +163,3 @@ this repository, and their method and rules are for child projects. Work here fo
 `CLAUDE.md` and lands through the `validate` and `review` checks. Daneel can have its own
 skills in `.claude/skills/`, which never ship. Its backlog is GitHub issues, filed from
 `.github/ISSUE_TEMPLATE/`: `feature`, `bug` or `harness`.
-
-`sandbox/` is daneel's own too, and never ships: `sandbox/acme/` is an invented Tauri +
-React app the plugins' workflows are run on, as a child project would be. Its files
-(`.claude/daneel.json`, `required-checks.json`, `justfile`) configure that app and are no
-rule for daneel, and no plugin reads or names it. Its `just harness` runs `cargo test` on
-`src-tauri/core/` and Vitest on `src/`, never building the Tauri shell;
-`tests/test_sandbox_acme.py` runs it after `npm ci` in `sandbox/acme/`, with `just` and
-`cargo` on the machine.
-
-A run never works on `sandbox/acme/` itself: `python3 sandbox/snapshot.py restore` builds a
-copy with a fixed history and a local bare `origin` in a temporary folder and prints it,
-and `python3 sandbox/snapshot.py discard <folder>` throws it away.
-
-A run's `gh` is `sandbox/fake_gh.py`, a fixture and not a simulator:
-`python3 sandbox/fake_gh.py install <bin> <scenario> <log>` writes a `gh` to put first on
-`PATH`, which answers each command from the scenario's files, logs every call, and fails on
-a command the scenario does not answer.
-
-`sandbox/scenarios/` holds the answers: `backlog.json` and `backlog/` are the app's Project,
-six invented issues and its one open pull request, as `gh` prints them;
-`requests/` holds chat requests on the app, one per file.
-
-`python3 sandbox/run.py <scenario>` runs one scenario: it restores the copy with the
-scenario's branches, puts the fake `gh` first on `PATH`, runs `claude -p` on the
-scenario's prompt in the copy with this checkout's `flow` and `app` plugins, then checks the
-outcomes the scenario's `expect` lists (the `gh` calls logged, the branches of the copy
-and of its `origin`, the Bash commands run) and prints a JSON report with the cost the
-session reported. Exit 0 every expectation met, 1 one not met, 2 the run did not finish, 3
-refused. It is a real model call, bounded by `--max-budget-usd` (default 3), so it runs on
-demand and is no required check; its tests replace `claude` with a stub. `resume` is the
-first scenario: a task stopped in review is checked out and watched, with no new branch. `ready-task`
-is the one `allowed-tools` was measured on: nothing to resume, the first Queued item waiting
-on the owner, the next one a ready task.
-
-A scenario runs through plain `claude -p`, not `claude plugin eval`. Measured 2026-11-14
-with Claude Code 2.1.325 on the owner's Linux machine, and only this: an eval suite under
-`sandbox/evals/`, run from the repository's root with `--eval-dir sandbox/evals`, loads
-both plugins from `plugins:` paths (a path outside the folder it is run against is
-refused), but every Bash call of a run fails before its command starts (`apply-seccomp:
-... nested userns is capability-restricted`): the sandbox eval puts shell commands under
-cannot start while `kernel.apparmor_restrict_unprivileged_userns` is 1.

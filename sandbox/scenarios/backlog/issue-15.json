@@ -1,5 +1,0 @@
-{
-  "body": "### Found by\n\nreading `src/features/fees/FeeScreen.tsx` beside `src-tauri/src/fees/api.rs`\n\n### Where\n\n`src/features/fees/FeeScreen.tsx`, the `<select>`; `src/features/fees/gateway.ts`, `Zone`\n\n### Observation\n\nThe three zones are written once in the backend and again as `<option>` elements. A fourth zone added to one is missing from the other with no failing test.\n\nBlocked by #12: the zones get their one named place there first.\n\nDone when: the screen builds its options from one list, which a test compares with the backend's zones.\n\n### Size\n\nS\n\n### Waits on the owner\n\nNothing.\n",
-  "comments": [],
-  "title": "The screen lists the zones by hand, apart from the backend's"
-}

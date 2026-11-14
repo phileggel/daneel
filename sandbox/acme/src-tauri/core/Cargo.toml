@@ -1,7 +1,0 @@
-[package]
-name = "acme-core"
-version = "0.1.0"
-edition = "2021"
-
-# Its own workspace: testing it never resolves the shell's dependencies.
-[workspace]
