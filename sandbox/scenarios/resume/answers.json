@@ -1,0 +1,20 @@
+{
+  "gh project item-list 1 --owner acme --format json --limit 500": "../backlog/project-items.json",
+  "gh project field-list 1 --owner acme --format json": "../backlog/project-fields.json",
+  "gh pr list --state open --json number,headRefName": "../backlog/open-prs.json",
+  "gh issue view 16 --json title,body,comments": "../backlog/issue-16.json",
+  "gh pr checkout 17": "ok",
+  "gh pr view --json headRefOid,state": "pr-17-head.json",
+  "gh pr view 17 --json headRefOid,state": "pr-17-head.json",
+  "gh pr view --json headRefName": "pr-17-branch.json",
+  "gh pr view 17 --json headRefName": "pr-17-branch.json",
+  "gh pr view --json number": "pr-17-number.json",
+  "gh pr view 17 --json number": "pr-17-number.json",
+  "gh pr view 17 --json url": "pr-17-url.json",
+  "gh api repos/{owner}/{repo}/commits/1c3d78be8e5df89e82162ed77c69a2954963b180/check-runs?filter=latest --paginate --jq *": "check-runs.jsonl",
+  "gh api repos/{owner}/{repo}/issues/17/comments --paginate --jq *": "pr-17-comments.jsonl",
+  "gh run view 7001 --json jobs": "run-7001-jobs.json",
+  "gh run rerun --job 9002": "ok",
+  "gh issue comment 16 --body-file *": "ok",
+  "gh issue edit 16 --add-label needs-owner": "ok"
+}

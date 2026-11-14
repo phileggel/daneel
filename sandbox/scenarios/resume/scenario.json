@@ -1,0 +1,55 @@
+{
+  "description": "A task stopped in review resumes: the item In review with an open pull request is checked out and watched, with no new branch and no decision scan (a headless scan writes each question as a comment with `needs-owner`: `gh_not_before` refuses any before the checkout). The watch finds the one failed lane stopped by the usage limit, so the run says so on the issue and stops. Not reachable yet: the fake `gh pr checkout` leaves the copy on `main`, so the three expectations after it (the watch, the comment, the label) are not met and the run exits 1 until the owner answers the question on the scenario's issue; an exit 1 on those three is no regression.",
+  "prompt": "/app:run-entry",
+  "answers": "answers.json",
+  "branches": [
+    {
+      "name": "test/16-presenter-messages",
+      "date": "2026-01-14T11:20:00+00:00",
+      "message": "test(fees): each error code has its message",
+      "files": "branch"
+    }
+  ],
+  "expect": {
+    "gh_called": [
+      "gh project item-list 1 --owner acme *",
+      "gh pr checkout 17",
+      "gh pr view* --json headRefOid,state",
+      "gh issue comment 16 --body-file *",
+      "gh issue edit 16 --add-label needs-owner"
+    ],
+    "gh_not_called": [
+      "gh pr create *",
+      "gh pr merge *",
+      "gh project item-edit *"
+    ],
+    "gh_not_before": [
+      [
+        "gh issue comment *",
+        "gh pr checkout 17"
+      ],
+      [
+        "gh issue edit *",
+        "gh pr checkout 17"
+      ]
+    ],
+    "gh_all_answered": true,
+    "local_branches": [
+      "main",
+      "test/16-presenter-messages"
+    ],
+    "origin_branches": [
+      "main",
+      "test/16-presenter-messages"
+    ],
+    "origin_unchanged": [
+      "main",
+      "test/16-presenter-messages"
+    ],
+    "not_ran": [
+      "git checkout -b ",
+      "git switch -c ",
+      "git push"
+    ]
+  }
+}

@@ -157,3 +157,21 @@ a command the scenario does not answer.
 `sandbox/scenarios/` holds the answers: `backlog.json` and `backlog/` are the app's Project,
 six invented issues and its one open pull request, as `gh` prints them;
 `requests/` holds chat requests on the app, one per file.
+
+`python3 sandbox/run.py <scenario>` runs one scenario: it restores the copy with the
+scenario's branches, puts the fake `gh` first on `PATH`, runs `claude -p` on the
+scenario's prompt in the copy with this checkout's `flow` and `app` plugins, then checks the
+outcomes the scenario's `expect` lists (the `gh` calls logged, the branches of the copy
+and of its `origin`, the Bash commands run) and prints a JSON report with the cost the
+session reported. Exit 0 every expectation met, 1 one not met, 2 the run did not finish, 3
+refused. It is a real model call, bounded by `--max-budget-usd` (default 3), so it runs on
+demand and is no required check; its tests replace `claude` with a stub. `resume` is the
+first scenario: a task stopped in review is checked out and watched, with no new branch.
+
+A scenario runs through plain `claude -p`, not `claude plugin eval`. Measured 2026-11-14
+with Claude Code 2.1.325 on the owner's Linux machine, and only this: an eval suite under
+`sandbox/evals/`, run from the repository's root with `--eval-dir sandbox/evals`, loads
+both plugins from `plugins:` paths (a path outside the folder it is run against is
+refused), but every Bash call of a run fails before its command starts (`apply-seccomp:
+... nested userns is capability-restricted`): the sandbox eval puts shell commands under
+cannot start while `kernel.apparmor_restrict_unprivileged_userns` is 1.
