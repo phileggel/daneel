@@ -4,6 +4,7 @@ what it left.
 
 Use:  python3 sandbox/run.py SCENARIO [--model M] [--max-budget-usd N] [--timeout S]
                                       [--permission-mode MODE] [--keep] [--report FILE]
+      python3 sandbox/run.py SCENARIO --again FOLDER   check a kept run again, with no model call
 Exit: 0 every expectation met · 1 an expectation not met · 2 the run did not finish (the
       session failed, hit its budget or the timeout) · 3 refused: wrong arguments, or a
       scenario that cannot be read
@@ -20,7 +21,8 @@ One run: `snapshot.py` restores the copy, `fake_gh.py` puts its `gh` first on `P
 `claude -p <prompt>` runs in the copy with this checkout's `flow` and `app` plugins
 (`--plugin-dir`) and the project's settings only (`--setting-sources project`), so the
 machine's own allow list grants nothing. It is a real model call: `--max-budget-usd`
-(default 3) bounds it. The folder is thrown away afterwards unless `--keep`.
+(default 3) bounds it. The folder is thrown away afterwards unless `--keep`; a kept one
+holds the session's `transcript.jsonl` and the fake `gh`'s `gh.jsonl`.
 
 `expect` checks outcomes, never the words of the session; a key not listed is refused:
 
@@ -101,7 +103,8 @@ def session(lines: list[str]) -> tuple[list[str], dict | None]:
             continue
         if event.get("type") == "result":
             result = event
-        content = (event.get("message") or {}).get("content")
+        message = event.get("message")  # a string on a `system` line, such as a denial
+        content = message.get("content") if isinstance(message, dict) else None
         for block in content if isinstance(content, list) else []:
             if isinstance(block, dict) and block.get("type") == "tool_use" and block.get("name") == "Bash":
                 commands.append(str((block.get("input") or {}).get("command", "")))
@@ -163,28 +166,36 @@ def run(name: str, args: argparse.Namespace) -> tuple[int, dict]:
     folder = HERE / "scenarios" / name
     scenario = read_scenario(folder)
     branches = [dict(branch, files=str(folder / branch["files"])) for branch in scenario.get("branches", [])]
-    run_folder = snapshot.restore(Path(tempfile.mkdtemp(prefix=f"acme-{name}-")), branches=branches)
-    work, origin, log = run_folder / "acme", run_folder / "origin.git", run_folder / "gh.jsonl"
-    try:
-        fake_gh.install(run_folder / "bin", folder / scenario["answers"], log)
-    except fake_gh.Refused as refused:
-        snapshot.discard(run_folder)
-        raise Refusal(str(refused)) from refused
-    started = branches_of(origin)
-    env = snapshot.clean_env()
-    env["PATH"] = f"{run_folder / 'bin'}{os.pathsep}{env['PATH']}"
-    command = claude_command(scenario["prompt"], args)
     began = time.monotonic()
-    stopped = ""
-    try:
-        with (run_folder / "transcript.jsonl").open("w", encoding="utf-8") as transcript, \
-                (run_folder / "stderr.txt").open("w", encoding="utf-8") as errors:
-            code = subprocess.run(command, cwd=work, env=env, stdin=subprocess.DEVNULL, stdout=transcript,
-                                  stderr=errors, timeout=args.timeout).returncode
-    except subprocess.TimeoutExpired:
-        code, stopped = -1, f"timed out after {args.timeout:g} s"
-    except OSError as error:
-        code, stopped = -1, f"claude could not start: {error}"
+    code, stopped = 0, ""
+    if args.again:
+        run_folder = args.again.resolve()
+        if not (run_folder / snapshot.MARKER).is_file() or not (run_folder / "started.json").is_file():
+            raise Refusal(f"{run_folder} is not a kept run")
+        work, origin, log = run_folder / "acme", run_folder / "origin.git", run_folder / "gh.jsonl"
+        started = json.loads((run_folder / "started.json").read_text(encoding="utf-8"))
+    else:
+        run_folder = snapshot.restore(Path(tempfile.mkdtemp(prefix=f"acme-{name}-")), branches=branches)
+        work, origin, log = run_folder / "acme", run_folder / "origin.git", run_folder / "gh.jsonl"
+        try:
+            fake_gh.install(run_folder / "bin", folder / scenario["answers"], log)
+        except fake_gh.Refused as refused:
+            snapshot.discard(run_folder)
+            raise Refusal(str(refused)) from refused
+        started = branches_of(origin)
+        (run_folder / "started.json").write_text(json.dumps(started), encoding="utf-8")
+        env = snapshot.clean_env()
+        env["PATH"] = f"{run_folder / 'bin'}{os.pathsep}{env['PATH']}"
+        try:
+            with (run_folder / "transcript.jsonl").open("w", encoding="utf-8") as transcript, \
+                    (run_folder / "stderr.txt").open("w", encoding="utf-8") as errors:
+                code = subprocess.run(claude_command(scenario["prompt"], args), cwd=work, env=env,
+                                      stdin=subprocess.DEVNULL, stdout=transcript, stderr=errors,
+                                      timeout=args.timeout).returncode
+        except subprocess.TimeoutExpired:
+            code, stopped = -1, f"timed out after {args.timeout:g} s"
+        except OSError as error:
+            code, stopped = -1, f"claude could not start: {error}"
     lines = (run_folder / "transcript.jsonl").read_text(encoding="utf-8").splitlines()
     commands, result = session(lines)
     calls = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()] if log.exists() else []
@@ -206,7 +217,7 @@ def run(name: str, args: argparse.Namespace) -> tuple[int, dict]:
         "turns": result.get("num_turns"),
         "session_seconds": round(result["duration_ms"] / 1000) if "duration_ms" in result else None,
         "wall_seconds": round(time.monotonic() - began),
-        "model": args.model or "the session's default",
+        "model": next(iter(result.get("modelUsage") or {}), args.model or "not reported"),
         "permission_mode": args.permission_mode,
         "denied": [denial.get("tool_input", {}).get("command", denial.get("tool_name"))
                    for denial in result.get("permission_denials", [])],
@@ -215,7 +226,7 @@ def run(name: str, args: argparse.Namespace) -> tuple[int, dict]:
         "bash": commands,
         "last_words": str(result.get("result", ""))[-1500:],
     }
-    if args.keep:
+    if args.keep or args.again:
         report["kept"] = str(run_folder)
     else:
         snapshot.discard(run_folder)
@@ -233,6 +244,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--permission-mode", default="acceptEdits")
     parser.add_argument("--keep", action="store_true", help="keep the run's folder and name it in the report")
     parser.add_argument("--report", type=Path, help="write the report there instead of stdout")
+    parser.add_argument("--again", type=Path, metavar="FOLDER", help="check this kept run again; no model call")
     try:
         args = parser.parse_args(argv)
     except SystemExit as stopped:

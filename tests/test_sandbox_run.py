@@ -27,6 +27,10 @@ STUB = r'''#!/usr/bin/env python3
 import json, os, subprocess, sys
 Path = __import__("pathlib").Path
 Path(os.environ["STUB_ARGV"]).write_text(json.dumps({"argv": sys.argv[1:], "cwd": os.getcwd(), "path": os.environ["PATH"]}))
+print(json.dumps({"type": "system", "subtype": "init", "model": "stub"}))
+print(json.dumps({"type": "system", "subtype": "permission_denied", "message": "This command requires approval"}))
+print(json.dumps("a line that is no object"))
+print("a line that is no JSON")
 for command in json.loads(Path(os.environ["STUB_ACTIONS"]).read_text()):
     print(json.dumps({"type": "assistant", "message": {"content": [
         {"type": "tool_use", "name": "Bash", "input": {"command": command}}]}}), flush=True)
@@ -71,7 +75,7 @@ class StubbedClaude(unittest.TestCase):
         self.kept: list[Path] = []
 
     def tearDown(self):
-        for folder in self.kept:
+        for folder in dict.fromkeys(self.kept):
             snapshot.discard(folder)
         self.temp.cleanup()
 
@@ -170,6 +174,19 @@ class TheRunner(StubbedClaude):
         _, report = self.run_scenario(RESUMED, "--keep")
         kept = Path(report["kept"])
         self.assertTrue((kept / "transcript.jsonl").is_file() and (kept / "gh.jsonl").is_file())
+
+    def test_a_kept_run_is_checked_again_with_no_session(self):
+        code, first = self.run_scenario([*RESUMED, "git checkout -b fix/16-again"], "--keep")
+        self.argv.unlink()
+        again_code, again = self.run_scenario([], "--again", first["kept"])
+        self.assertFalse(self.argv.exists(), "claude was started")
+        self.assertEqual((again_code, again["checks"], again["gh"], again["bash"]),
+                         (code, first["checks"], first["gh"], first["bash"]))
+        self.assertEqual(again["cost_usd"], 0.42)
+
+    def test_a_folder_that_is_no_kept_run_is_refused(self):
+        code, report = self.run_scenario([], "--again", str(self.folder))
+        self.assertEqual((code, report), (3, {}))
 
     def test_a_run_leaves_the_app_and_the_scenario_unchanged(self):
         before = app_digest(), sorted(path.name for path in RESUME.rglob("*"))

@@ -10,6 +10,7 @@
   "gh pr view 17 --json headRefName": "pr-17-branch.json",
   "gh pr view --json number": "pr-17-number.json",
   "gh pr view 17 --json number": "pr-17-number.json",
+  "gh pr view 17 --json url": "pr-17-url.json",
   "gh api repos/{owner}/{repo}/commits/1c3d78be8e5df89e82162ed77c69a2954963b180/check-runs?filter=latest --paginate --jq *": "check-runs.jsonl",
   "gh api repos/{owner}/{repo}/issues/17/comments --paginate --jq *": "pr-17-comments.jsonl",
   "gh run view 7001 --json jobs": "run-7001-jobs.json",
