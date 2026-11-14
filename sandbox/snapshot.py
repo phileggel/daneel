@@ -14,9 +14,9 @@ or absent):
 The history is HISTORY below: the same commits, dates and authors on every build, so two
 builds give the same commit ids for as long as `sandbox/acme/` holds the same files. The
 files are those git would track there (`git ls-files`, the app's `.gitignore` applied), so
-nothing built or installed is copied. `acme/node_modules` is a link to the app's installed
-packages when they are there (`npm ci` in `sandbox/acme/`): ignored by git, it lets the
-copy's `just harness` run with no install.
+nothing built is copied. `acme/node_modules` is a copy of the app's installed packages when
+they are there (`npm ci` in `sandbox/acme/`): ignored by git, it lets the copy's
+`just harness` run with no install, and a run that installs changes its own copy only.
 
 Nothing is written under `sandbox/acme/`: a run works on the copy, pushes to
 `origin.git`, and `discard` removes both. `discard` refuses a folder `restore` did not make.
@@ -94,8 +94,9 @@ def commits(files: list[str]) -> list[tuple[str, str, list[str]]]:
     return planned
 
 
-def restore(folder: Path | None = None) -> Path:
-    """Builds the copy and its `origin` in `folder`, and returns it."""
+def restore(folder: Path | None = None, packages: bool = True) -> Path:
+    """Builds the copy and its `origin` in `folder`, and returns it; without `packages`, the
+    installed packages are left out, for a caller that runs nothing in the copy."""
     if folder is None:
         folder = Path(tempfile.mkdtemp(prefix="acme-snapshot-"))
     folder = folder.resolve()
@@ -123,12 +124,9 @@ def restore(folder: Path | None = None) -> Path:
         git(work, "commit", "-q", "-m", message, date=date)
     git(work, "remote", "add", "origin", str(origin))
     git(work, "push", "-q", "-u", "origin", "main")
-    packages = APP / "node_modules"
-    if packages.is_dir():
-        # The app's `.gitignore` names the folder (`node_modules/`), which a link is not.
-        with (work / ".git" / "info" / "exclude").open("a", encoding="utf-8") as exclude:
-            exclude.write("/node_modules\n")
-        (work / "node_modules").symlink_to(packages)
+    installed = APP / "node_modules"
+    if packages and installed.is_dir():
+        shutil.copytree(installed, work / "node_modules", symlinks=True)
     return folder
 
 
