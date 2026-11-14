@@ -1,5 +1,5 @@
 {
-  "description": "A task stopped in review resumes: the item In review with an open pull request is checked out and watched, with no new branch and no decision scan (a headless scan writes each question as a comment with `needs-owner`: `gh_not_before` refuses any before the checkout). The watch finds the one failed lane stopped by the usage limit, so the run says so on the issue and stops. Not reachable yet: the fake `gh pr checkout` leaves the copy on `main`, so the three expectations after it (the watch, the comment, the label) are not met and the run exits 1 until the owner answers the question on the scenario's issue; an exit 1 on those three is no regression.",
+  "description": "A task stopped in review resumes: the item In review with an open pull request is picked and `gh pr checkout` is called, with no new branch and no decision scan (a headless scan writes each question as a comment with `needs-owner`: `gh_not_before` refuses any before the checkout). The run is expected to stop there: `gh` is a pure fixture, so the checkout leaves the copy on `main`, and the watch, the comment and the label after it are out of reach and not expected (owner, 2026-11-14). The answers for them stay, read by the real `watch-pr.py` in the tests.",
   "prompt": "/app:run-entry",
   "answers": "answers.json",
   "branches": [
@@ -13,10 +13,7 @@
   "expect": {
     "gh_called": [
       "gh project item-list 1 --owner acme *",
-      "gh pr checkout 17",
-      "gh pr view* --json headRefOid,state",
-      "gh issue comment 16 --body-file *",
-      "gh issue edit 16 --add-label needs-owner"
+      "gh pr checkout 17"
     ],
     "gh_not_called": [
       "gh pr create *",

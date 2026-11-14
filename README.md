@@ -188,7 +188,8 @@ and of its `origin`, the Bash commands run) and prints a JSON report with the co
 session reported. Exit 0 every expectation met, 1 one not met, 2 the run did not finish, 3
 refused. It is a real model call, bounded by `--max-budget-usd` (default 3), so it runs on
 demand and is no required check; its tests replace `claude` with a stub. `resume` is the
-first scenario: a task stopped in review is checked out and watched, with no new branch. `ready-task`
+first scenario: a task stopped in review is picked and its checkout called, with no new
+branch; it stops there, since a fixture's `gh pr checkout` changes no branch. `ready-task`
 is the one `allowed-tools` was measured on: nothing to resume, the first Queued item waiting
 on the owner, the next one a ready task.
 

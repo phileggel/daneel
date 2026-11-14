@@ -159,7 +159,7 @@ class TheRunner(StubbedClaude):
     def test_a_session_that_does_nothing_meets_little(self):
         code, report = self.run_scenario([])
         self.assertEqual(code, 1)
-        self.assertEqual(len([name for name in self.unmet(report) if name.startswith("gh_called")]), 5)
+        self.assertEqual(len([name for name in self.unmet(report) if name.startswith("gh_called")]), 2)
 
     def test_a_session_with_no_result_did_not_finish(self):
         code, report = self.run_scenario(RESUMED, result="none", exit="1")
