@@ -148,3 +148,8 @@ rule for daneel, and no plugin reads or names it. Its `just harness` runs `cargo
 A run never works on `sandbox/acme/` itself: `python3 sandbox/snapshot.py restore` builds a
 copy with a fixed history and a local bare `origin` in a temporary folder and prints it,
 and `python3 sandbox/snapshot.py discard <folder>` throws it away.
+
+A run's `gh` is `sandbox/fake_gh.py`, a fixture and not a simulator:
+`python3 sandbox/fake_gh.py install <bin> <scenario> <log>` writes a `gh` to put first on
+`PATH`, which answers each command from the scenario's files, logs every call, and fails on
+a command the scenario does not answer.
