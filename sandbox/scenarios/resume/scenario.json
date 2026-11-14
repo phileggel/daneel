@@ -1,5 +1,5 @@
 {
-  "description": "A task stopped in review resumes: the item In review with an open pull request is checked out and watched, with no new branch and no decision scan. The watch finds the one failed lane stopped by the usage limit, so the headless run says so on the issue and stops.",
+  "description": "A task stopped in review resumes: the item In review with an open pull request is checked out and watched, with no new branch and no decision scan (a headless scan writes each question as a comment with `needs-owner`: `gh_not_before` refuses any before the checkout). The watch finds the one failed lane stopped by the usage limit, so the run says so on the issue and stops. Not reachable yet: the fake `gh pr checkout` leaves the copy on `main`, so the three expectations after it (the watch, the comment, the label) are not met and the run exits 1 until the owner answers the question on the scenario's issue; an exit 1 on those three is no regression.",
   "prompt": "/app:run-entry",
   "answers": "answers.json",
   "branches": [
