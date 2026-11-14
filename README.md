@@ -136,3 +136,11 @@ this repository, and their method and rules are for child projects. Work here fo
 `CLAUDE.md` and lands through the `validate` and `review` checks. Daneel can have its own
 skills in `.claude/skills/`, which never ship. Its backlog is GitHub issues, filed from
 `.github/ISSUE_TEMPLATE/`: `feature`, `bug` or `harness`.
+
+`sandbox/` is daneel's own too, and never ships: `sandbox/acme/` is an invented Tauri +
+React app the plugins' workflows are run on, as a child project would be. Its files
+(`.claude/daneel.json`, `required-checks.json`, `justfile`) configure that app and are no
+rule for daneel, and no plugin reads or names it. Its `just harness` runs `cargo test` on
+`src-tauri/core/` and Vitest on `src/`, never building the Tauri shell;
+`tests/test_sandbox_acme.py` runs it after `npm ci` in `sandbox/acme/`, with `just` and
+`cargo` on the machine.
