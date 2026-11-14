@@ -1,0 +1,33 @@
+{
+  "description": "A headless run with nothing to resume takes the first ready Queued item: #14 waits on the owner and is skipped, #12 is a ready task. It is run to measure which commands a headless `/app:run-entry` is denied, with the skill's `allowed-tools` and the app's own allow list as the only grants. The fixture cannot know the commit the session will push, so no answer is written for the watch's `gh pr view` and `gh api` calls: they fail loudly, the watch ends as unreachable, and the merge is out of reach.",
+  "prompt": "/app:run-entry",
+  "answers": "answers.json",
+  "expect": {
+    "gh_called": [
+      "gh project item-list 1 --owner acme *",
+      "gh project item-edit *",
+      "gh pr create *"
+    ],
+    "gh_not_called": [
+      "gh pr merge *",
+      "gh pr checkout *",
+      "gh issue edit 14 *",
+      "gh issue comment 14 *"
+    ],
+    "origin_unchanged": [
+      "main"
+    ],
+    "ran": [
+      "git checkout -b ",
+      "just harness",
+      "review-lanes.sh",
+      "git push -u origin HEAD",
+      "watch-pr.py"
+    ],
+    "not_ran": [
+      "git push origin main",
+      "--no-verify",
+      "--force"
+    ]
+  }
+}

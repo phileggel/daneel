@@ -57,11 +57,32 @@ A project adds no allow-list line for a plugin's scripts: a skill's `allowed-too
 names each one. Never add a line of the shape `Bash(python3 *<script>*)` or
 `Bash(bash *<script>*)`: its leading wildcard also allows `python3 -c '<anything>' <script>`.
 
-Measured so far on `allowed-tools`, and only this: a forked skill whose `allowed-tools` is plain `Bash` runs
-under `claude -p` (`flow-audit`, 2026-10-25). The scoped lines the other skills use
-(`Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/… *)`, `Bash(bash ${CLAUDE_PLUGIN_ROOT}/scripts/… *)`)
-and the reviewers' scripts are not measured yet: the first headless `/app:run-entry` of a
-project checks them, and what it finds goes in this file.
+Measured on `allowed-tools` under `claude -p`, and only this:
+
+- A forked skill whose `allowed-tools` is plain `Bash` runs (`flow-audit`, 2026-10-25).
+- `/app:run-entry`, 2026-11-14, on the sandbox's app (`python3 sandbox/run.py`, the
+  `resume` and `ready-task` scenarios; three runs): Claude Code 2.1.325,
+  `claude-sonnet-5-5`, `--permission-mode acceptEdits`, the plugins loaded with
+  `--plugin-dir`, the app's allow list holding its `just` recipes only.
+  - **Ran, never denied:** `git status --short`, `git branch --show-current`,
+    `git pull --ff-only`, `git checkout -b`, `git add`, `git commit -m`,
+    `git push -u origin HEAD`, `gh project item-list`, `gh project field-list`,
+    `gh project item-edit`, `gh issue view`, `gh pr list`, `gh pr checkout`,
+    `gh pr create`, and the scoped lines
+    `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files | bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh`
+    and `python3 ${CLAUDE_SKILL_DIR}/scripts/watch-pr.py`, each written by the session
+    as the script's absolute path.
+  - **Denied:** a chain of commands with any part not listed, 11 times (#92); the `Read`
+    of the plugin's `loop.md`, `method.md` and `protocol.md`, by the session and by both
+    reviewers it started (#91); the `Write` of a pull request's body under `/tmp` and
+    under `.git/` (#93); `gh pr view` and `gh pr checks`, which the skill does not name.
+  - **Not reached**, so not measured: `merge.py`, `git commit --fixup`, `gh run view`,
+    `gh run rerun`, `gh issue comment`, `gh issue edit`, `gh pr comment`, `gh pr edit`,
+    the reviewers' own `branch.sh` and `review-path.sh` calls, a plugin installed from
+    the marketplace, and every other skill.
+- A project's allow list is ignored in a folder nobody opened interactively ("this
+  workspace has not been trusted"), and applies when the same file is passed as
+  `--settings` (2026-11-14, same version).
 
 What differs between projects is the project's own: `.claude/daneel.json` (one key per
 piece: `flow-audit`, `plan-batch`, `backlog`, `review`, `run-entry`, `run-batch`,
@@ -166,7 +187,9 @@ and of its `origin`, the Bash commands run) and prints a JSON report with the co
 session reported. Exit 0 every expectation met, 1 one not met, 2 the run did not finish, 3
 refused. It is a real model call, bounded by `--max-budget-usd` (default 3), so it runs on
 demand and is no required check; its tests replace `claude` with a stub. `resume` is the
-first scenario: a task stopped in review is checked out and watched, with no new branch.
+first scenario: a task stopped in review is checked out and watched, with no new branch. `ready-task`
+is the one `allowed-tools` was measured on: nothing to resume, the first Queued item waiting
+on the owner, the next one a ready task.
 
 A scenario runs through plain `claude -p`, not `claude plugin eval`. Measured 2026-11-14
 with Claude Code 2.1.325 on the owner's Linux machine, and only this: an eval suite under

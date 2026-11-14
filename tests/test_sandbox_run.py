@@ -126,6 +126,7 @@ class TheRunner(StubbedClaude):
         self.assertEqual(started["argv"], [
             "-p", "/app:run-entry",
             "--plugin-dir", str(ROOT / "plugins" / "flow"), "--plugin-dir", str(ROOT / "plugins" / "app"),
+            "--settings", str(Path(started["cwd"]) / ".claude" / "settings.json"),
             "--permission-mode", "acceptEdits", "--setting-sources", "project", "--strict-mcp-config",
             "--no-session-persistence", "--output-format", "stream-json", "--verbose",
             "--max-budget-usd", "1.5", "--model", "sonnet",
@@ -275,6 +276,54 @@ class TheResumeScenario(unittest.TestCase):
         runs = [json.loads(line) for line in (RESUME / "check-runs.jsonl").read_text(encoding="utf-8").splitlines()]
         self.assertEqual({run_["name"]: run_["conclusion"] for run_ in runs},
                          {**{name: "success" for name in required}, "reviewer-frontend": "failure"})
+
+
+
+class TheReadyTaskScenario(unittest.TestCase):
+    """The scenario a headless `/app:run-entry` is measured on: nothing to resume, the first
+    Queued item waiting on the owner, the next one ready."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.folder = SANDBOX / "scenarios" / "ready-task"
+        cls.scenario = run.read_scenario(cls.folder)
+        cls.answers = json.loads((cls.folder / cls.scenario["answers"]).read_text(encoding="utf-8"))
+
+    def answer(self, command: str):
+        pattern = fake_gh.find(self.answers, command)
+        self.assertIsNotNone(pattern, command)
+        return json.loads((self.folder / self.answers[pattern]).read_text(encoding="utf-8"))
+
+    def test_every_answer_file_is_there(self):
+        for pattern, answer in self.answers.items():
+            if answer != "ok":
+                self.assertTrue((self.folder / answer).is_file(), f"{pattern}: {answer}")
+
+    def test_nothing_resumes_and_the_first_ready_item_is_the_second_row(self):
+        items = self.answer("gh project item-list 1 --owner acme --format json --limit 500")["items"]
+        self.assertEqual(self.answer("gh pr list --state open --json number,headRefName"), [])
+        self.assertEqual({item["status"] for item in items}, {"Queued"})
+        self.assertFalse([item for item in items if "linked pull requests" in item])
+        rows = [(item["content"]["number"], "needs-owner" in item["labels"]) for item in items]
+        self.assertEqual(rows[:2], [(14, True), (12, False)])
+
+    def test_each_item_of_the_project_loads(self):
+        for item in self.answer("gh project item-list 1 --owner acme --format json --limit 500")["items"]:
+            number = item["content"]["number"]
+            self.assertEqual(self.answer(f"gh issue view {number} --json title,body,comments")["title"], item["title"])
+
+    def test_the_watch_s_questions_have_no_answer(self):
+        """No canned answer can name the commit a session will push."""
+        for command in ("gh pr view --json headRefOid,state", "gh pr view 18 --json headRefName"):
+            self.assertIsNone(fake_gh.find(self.answers, command), command)
+
+    def test_the_app_allows_its_own_recipes_and_denies_publishing(self):
+        settings = json.loads((snapshot.APP / ".claude" / "settings.json").read_text(encoding="utf-8"))["permissions"]
+        self.assertIn("Bash(just harness)", settings["allow"])
+        self.assertEqual(settings["deny"],
+                         ["Bash(gh release create *)", "Bash(gh release edit *)", "Bash(gh api *releases*)"])
+        self.assertFalse([line for line in settings["allow"] if not line.startswith("Bash(just ")],
+                         "the app grants its recipes only, so a denial is the skill's to cover")
 
 
 if __name__ == "__main__":
