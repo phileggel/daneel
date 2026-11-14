@@ -41,6 +41,7 @@ if result != "none":
                       "duration_ms": 41000, "total_cost_usd": 0.42, "usage": {"output_tokens": 900},
                       "permission_denials": [{"tool_name": "Bash", "tool_input": {"command": "git switch x"}}],
                       "result": "Stopped at the usage limit.", **json.loads(result or "{}")}))
+print("Ignoring 3 permissions.allow entries: this workspace has not been trusted.", file=sys.stderr)
 sys.exit(int(os.environ.get("STUB_EXIT", "0")))
 '''
 
@@ -119,6 +120,7 @@ class TheRunner(StubbedClaude):
         self.assertEqual(report["bash"], RESUMED)
         self.assertEqual(report["last_words"], "Stopped at the usage limit.")
         self.assertEqual(report["usage"], {"output_tokens": 900})
+        self.assertEqual(report["stderr"], "Ignoring 3 permissions.allow entries: this workspace has not been trusted.")
 
     def test_claude_is_started_headless_with_this_checkout_s_plugins_and_no_grant_of_the_machine(self):
         self.run_scenario(RESUMED, "--model", "sonnet", "--max-budget-usd", "1.5")

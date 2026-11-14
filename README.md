@@ -75,7 +75,8 @@ Measured on `allowed-tools` under `claude -p`, and only this:
   - **Denied:** a chain of commands with any part not listed, 11 times (#92); the `Read`
     of the plugin's `loop.md`, `method.md` and `protocol.md`, by the session and by both
     reviewers it started (#91); the `Write` of a pull request's body under `/tmp` and
-    under `.git/` (#93); `gh pr view` and `gh pr checks`, which the skill does not name.
+    under `.git/` (#93); `gh pr view` and `gh pr checks` on a resumed task, which the skill
+    does not name (#95).
   - **Not reached**, so not measured: `merge.py`, `git commit --fixup`, `gh run view`,
     `gh run rerun`, `gh issue comment`, `gh issue edit`, `gh pr comment`, `gh pr edit`,
     the reviewers' own `branch.sh` and `review-path.sh` calls, a plugin installed from
