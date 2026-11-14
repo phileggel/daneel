@@ -3,6 +3,7 @@
 
 Use:  python3 sandbox/snapshot.py restore [FOLDER]   build the copy; prints the folder
       python3 sandbox/snapshot.py discard FOLDER     throw a restored folder away
+      (a scenario's branches are added by `sandbox/run.py`, through `restore(branches=...)`)
 Exit: 0 done · 1 refused (the reason is printed) · 2 wrong arguments
 
 `restore` writes into FOLDER (a new temporary folder when none is given; it must be empty
@@ -17,6 +18,10 @@ files are those git would track there (`git ls-files`, the app's `.gitignore` ap
 nothing built is copied. `acme/node_modules` is a copy of the app's installed packages when
 they are there (`npm ci` in `sandbox/acme/`): ignored by git, it lets the copy's
 `just harness` run with no install, and a run that installs changes its own copy only.
+
+A branch a scenario starts with (a task stopped in review, say) is one more fixed commit on
+top of `main`, made of the files of a folder laid over the app's, and pushed to `origin`;
+the copy is left on `main`.
 
 Nothing is written under `sandbox/acme/`: a run works on the copy, pushes to
 `origin.git`, and `discard` removes both. `discard` refuses a folder `restore` did not make.
@@ -94,9 +99,27 @@ def commits(files: list[str]) -> list[tuple[str, str, list[str]]]:
     return planned
 
 
-def restore(folder: Path | None = None, packages: bool = True) -> Path:
+def add_branch(work: Path, name: str, date: str, message: str, files: Path) -> None:
+    """One fixed commit on a new branch off `main`: every file under `files`, laid over the
+    copy at the same path. Pushed to `origin`; the copy goes back to `main`."""
+    laid = sorted(path for path in files.rglob("*") if path.is_file())
+    if not laid:
+        raise refuse(f"the branch {name} has no file under {files}")
+    git(work, "checkout", "-q", "-b", name, "main")
+    for path in laid:
+        target = work / path.relative_to(files)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, target)
+    git(work, "add", "--", *[str(path.relative_to(files)) for path in laid])
+    git(work, "commit", "-q", "-m", message, date=date)
+    git(work, "push", "-q", "-u", "origin", name)
+    git(work, "checkout", "-q", "main")
+
+
+def restore(folder: Path | None = None, packages: bool = True, branches: list[dict] | None = None) -> Path:
     """Builds the copy and its `origin` in `folder`, and returns it; without `packages`, the
-    installed packages are left out, for a caller that runs nothing in the copy."""
+    installed packages are left out, for a caller that runs nothing in the copy. `branches`
+    are a scenario's: each {"name", "date", "message", "files": a folder}."""
     if folder is None:
         folder = Path(tempfile.mkdtemp(prefix="acme-snapshot-"))
     folder = folder.resolve()
@@ -124,6 +147,8 @@ def restore(folder: Path | None = None, packages: bool = True) -> Path:
         git(work, "commit", "-q", "-m", message, date=date)
     git(work, "remote", "add", "origin", str(origin))
     git(work, "push", "-q", "-u", "origin", "main")
+    for branch in branches or []:
+        add_branch(work, branch["name"], branch["date"], branch["message"], Path(branch["files"]))
     installed = APP / "node_modules"
     if packages and installed.is_dir():
         shutil.copytree(installed, work / "node_modules", symlinks=True)
