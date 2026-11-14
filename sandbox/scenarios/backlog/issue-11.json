@@ -1,5 +1,0 @@
-{
-  "body": "### Size\n\nS\n\n### User value\n\nI typed 1500.5 grams and the app told me to enter a weight above zero, which I had.\n\n### Done when\n\n- A weight with a decimal part is rounded up to the next gram before it is quoted.\n- The screen shows the fee for 1500.5 g as it does for 1501 g.\n- An error with no known code shows \"The fee could not be quoted.\", never the empty-parcel message.\n\n### Design\n\nnone\n",
-  "comments": [],
-  "title": "A weight with a decimal point is answered with \"Enter a weight above zero.\""
-}
