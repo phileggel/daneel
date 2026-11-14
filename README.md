@@ -144,3 +144,7 @@ rule for daneel, and no plugin reads or names it. Its `just harness` runs `cargo
 `src-tauri/core/` and Vitest on `src/`, never building the Tauri shell;
 `tests/test_sandbox_acme.py` runs it after `npm ci` in `sandbox/acme/`, with `just` and
 `cargo` on the machine.
+
+A run never works on `sandbox/acme/` itself: `python3 sandbox/snapshot.py restore` builds a
+copy with a fixed history and a local bare `origin` in a temporary folder and prints it,
+and `python3 sandbox/snapshot.py discard <folder>` throws it away.
