@@ -1,0 +1,11 @@
+{
+  "gh project item-list 1 --owner acme --format json --limit 500": "backlog/project-items.json",
+  "gh project field-list 1 --owner acme --format json": "backlog/project-fields.json",
+  "gh pr list --state open --json number,headRefName": "backlog/open-prs.json",
+  "gh issue view 11 --json title,body,comments": "backlog/issue-11.json",
+  "gh issue view 12 --json title,body,comments": "backlog/issue-12.json",
+  "gh issue view 13 --json title,body,comments": "backlog/issue-13.json",
+  "gh issue view 14 --json title,body,comments": "backlog/issue-14.json",
+  "gh issue view 15 --json title,body,comments": "backlog/issue-15.json",
+  "gh issue view 16 --json title,body,comments": "backlog/issue-16.json"
+}

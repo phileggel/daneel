@@ -1,0 +1,5 @@
+{
+  "body": "### Found by\n\nreading `src-tauri/core/src/fees.rs`\n\n### Where\n\n`src-tauri/core/src/fees.rs`, `quote`\n\n### Observation\n\nThe base price and the price per kilogram of each zone are literals in a `match` inside `quote` (`(350, 50)`, `(590, 120)`, `(1490, 400)`). Nothing names them, so a price cannot be read or reused without calling `quote`.\n\nDone when: each zone's two prices come from one named place, and the four tests pass unchanged.\n\n### Size\n\nS\n\n### Waits on the owner\n\nNothing.\n",
+  "comments": [],
+  "title": "The zone prices are bare numbers inside quote()"
+}

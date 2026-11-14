@@ -1,0 +1,101 @@
+{
+  "fields": [
+    {
+      "id": "PVTF_acme0000",
+      "name": "Title",
+      "type": "ProjectV2Field"
+    },
+    {
+      "id": "PVTF_acme0001",
+      "name": "Assignees",
+      "type": "ProjectV2Field"
+    },
+    {
+      "id": "PVTSSF_acmeStatus",
+      "name": "Status",
+      "options": [
+        {
+          "id": "acme0001",
+          "name": "Inbox"
+        },
+        {
+          "id": "acme0002",
+          "name": "Ready"
+        },
+        {
+          "id": "acme0003",
+          "name": "Queued"
+        },
+        {
+          "id": "acme0004",
+          "name": "In progress"
+        },
+        {
+          "id": "acme0005",
+          "name": "In review"
+        },
+        {
+          "id": "acme0006",
+          "name": "Done"
+        }
+      ],
+      "type": "ProjectV2SingleSelectField"
+    },
+    {
+      "id": "PVTF_acme0003",
+      "name": "Labels",
+      "type": "ProjectV2Field"
+    },
+    {
+      "id": "PVTF_acme0004",
+      "name": "Linked pull requests",
+      "type": "ProjectV2Field"
+    },
+    {
+      "id": "PVTF_acme0005",
+      "name": "Milestone",
+      "type": "ProjectV2Field"
+    },
+    {
+      "id": "PVTF_acme0006",
+      "name": "Repository",
+      "type": "ProjectV2Field"
+    },
+    {
+      "id": "PVTF_acme0007",
+      "name": "Reviewers",
+      "type": "ProjectV2Field"
+    },
+    {
+      "id": "PVTF_acme0008",
+      "name": "Parent issue",
+      "type": "ProjectV2Field"
+    },
+    {
+      "id": "PVTF_acme0009",
+      "name": "Sub-issues progress",
+      "type": "ProjectV2Field"
+    },
+    {
+      "id": "PVTF_acme0010",
+      "name": "Created",
+      "type": "ProjectV2Field"
+    },
+    {
+      "id": "PVTF_acme0011",
+      "name": "Updated",
+      "type": "ProjectV2Field"
+    },
+    {
+      "id": "PVTF_acme0012",
+      "name": "Closed",
+      "type": "ProjectV2Field"
+    },
+    {
+      "id": "PVTF_acme0013",
+      "name": "Batch",
+      "type": "ProjectV2Field"
+    }
+  ],
+  "totalCount": 14
+}
