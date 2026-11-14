@@ -91,6 +91,24 @@ class TheHistory(Restored):
 
 
 class APush(Restored):
+    def test_restore_pushes_main_to_the_local_origin_and_nothing_else(self):
+        """The exact pushes of a build: one, of `main`, to the remote it has just pointed at
+        the bare repository beside the copy."""
+        ran = []
+        real = snapshot.git
+
+        def recording(folder, *args, **kwargs):
+            ran.append(args)
+            return real(folder, *args, **kwargs)
+
+        with unittest.mock.patch.object(snapshot, "git", recording):
+            folder = snapshot.restore(Path(self.temp.name) / "watched", packages=False)
+        self.assertEqual([args for args in ran if args[0] == "push"], [("push", "-q", "-u", "origin", "main")])
+        self.assertEqual([args for args in ran if args[0] == "remote"],
+                         [("remote", "add", "origin", str(folder / "origin.git"))])
+        self.assertLess(ran.index(("remote", "add", "origin", str(folder / "origin.git"))),
+                        ran.index(("push", "-q", "-u", "origin", "main")))
+
     def test_the_only_remote_is_the_local_origin(self):
         self.assertEqual(git(self.work, "remote"), "origin")
         self.assertEqual(git(self.work, "remote", "get-url", "--all", "origin"), str(self.origin))
