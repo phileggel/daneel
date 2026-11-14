@@ -1,0 +1,1 @@
+/app:run-entry The Quote button can be clicked while the weight field is empty. Disable it until a weight is typed.

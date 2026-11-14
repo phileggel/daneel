@@ -1,0 +1,21 @@
+{
+  "body": "### Size\n\nM\n\n### User value\n\nWhen I send glassware I want to pay for careful handling and see what it costs before I pay.\n\n### Done when\n\n- The form has a \"Fragile\" checkbox, off by default.\n- A fragile parcel costs 2.00 more, in every zone.\n- The fee line says \"Fee: 6.00 (fragile)\" when the box is ticked.\n- An empty or too heavy parcel is refused as before, fragile or not.\n\n### Design\n\nvalidated\n",
+  "comments": [
+    {
+      "id": "IC_acme0131",
+      "author": {
+        "login": "ada-acme"
+      },
+      "authorAssociation": "OWNER",
+      "body": "Mock validated: the checkbox sits under the zone, same width.",
+      "createdAt": "2026-01-13T15:40:00Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/acme/acme/issues/13#issuecomment-131",
+      "viewerDidAuthor": false
+    }
+  ],
+  "title": "A fragile parcel cannot be declared"
+}

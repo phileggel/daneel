@@ -1,0 +1,21 @@
+{
+  "body": "### Size\n\nM\n\n### User value\n\nI have a 42 kg parcel and the app only tells me it is too heavy.\n\n### Done when\n\nNot written: it depends on the owner's answer below.\n\n### Design\n\nneeded\n",
+  "comments": [
+    {
+      "id": "IC_acme0141",
+      "author": {
+        "login": "acme-agent"
+      },
+      "authorAssociation": "COLLABORATOR",
+      "body": "Two ways to do this, and they differ in what the user sees: (a) keep the refusal and add the freight desk's phone number to the message; (b) quote parcels up to 100 kg at a freight price. (b) needs the freight prices. Which one?",
+      "createdAt": "2026-01-14T09:12:00Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/acme/acme/issues/14#issuecomment-141",
+      "viewerDidAuthor": true
+    }
+  ],
+  "title": "A parcel over 30 kg is refused with no way to send it"
+}

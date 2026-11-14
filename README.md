@@ -153,3 +153,7 @@ A run's `gh` is `sandbox/fake_gh.py`, a fixture and not a simulator:
 `python3 sandbox/fake_gh.py install <bin> <scenario> <log>` writes a `gh` to put first on
 `PATH`, which answers each command from the scenario's files, logs every call, and fails on
 a command the scenario does not answer.
+
+`sandbox/scenarios/` holds the answers: `backlog.json` and `backlog/` are the app's Project,
+six invented issues and its one open pull request, as `gh` prints them;
+`requests/` holds chat requests on the app, one per file.

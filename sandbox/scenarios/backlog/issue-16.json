@@ -1,0 +1,5 @@
+{
+  "body": "### Found by\n\nreading `src/features/fees/FeeScreen.test.tsx`\n\n### Where\n\n`src/features/fees/presenter.ts`, `errorMessage`\n\n### Observation\n\n`errorMessage` maps `TOO_HEAVY` and `EMPTY_PARCEL` to their text. Only `TOO_HEAVY` is asserted, through the screen; `EMPTY_PARCEL` is asserted nowhere, so its text can change unseen.\n\nDone when: a test asserts each code's message.\n\n### Size\n\nS\n\n### Waits on the owner\n\nNothing.\n",
+  "comments": [],
+  "title": "The presenter's two error messages have no test"
+}
