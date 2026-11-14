@@ -16,8 +16,8 @@ simple and portable. `README.md` says what it holds.
   changelog, manifest or README, and no project's file path, rule ID or ticket ID.
   Examples are invented (`acme`, `src-tauri/src/auth/`). A line that needs a
   project's name belongs in that project.
-- A plugin piece comes here extracted from the projects' copies, the differences measured
-  and recorded in its pull request, never written generic first.
+- Daneel leads: a piece is written here and the projects take it. What a project's copy
+  still has comes extracted, the differences measured in its pull request.
 - The backlog is GitHub issues (`.github/ISSUE_TEMPLATE/`, one form per kind: `feature`, `bug`, `harness`), never files in git.
 
 ## How a plugin piece is written
