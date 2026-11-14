@@ -20,7 +20,10 @@ SCENARIO is a folder of `sandbox/scenarios/` holding `scenario.json`:
 One run: `snapshot.py` restores the copy, `fake_gh.py` puts its `gh` first on `PATH`, and
 `claude -p <prompt>` runs in the copy with this checkout's `flow` and `app` plugins
 (`--plugin-dir`) and the project's settings only (`--setting-sources project`), so the
-machine's own allow list grants nothing. It is a real model call: `--max-budget-usd`
+machine's own allow list grants nothing. The copy is a folder nobody trusted, whose allow
+list Claude Code ignores, so the app's `.claude/settings.json` is also passed as
+`--settings`: the grants are the skill's `allowed-tools` and the app's own, as in a
+project its owner opened. It is a real model call: `--max-budget-usd`
 (default 3) bounds it. The folder is thrown away afterwards unless `--keep`; a kept one
 holds the session's `transcript.jsonl` and the fake `gh`'s `gh.jsonl`.
 
@@ -35,7 +38,8 @@ holds the session's `transcript.jsonl` and the fake `gh`'s `gh.jsonl`.
   ran, not_ran     a Bash command of the session contains (does not contain) each text
 
 The report (stdout, or `--report FILE`) is JSON: each check with what was found, the cost,
-turns and duration the session reported, the commands it was denied, and the `gh` log.
+turns and duration the session reported, the commands it was denied, what `claude` wrote on
+stderr, and the `gh` log.
 """
 
 from __future__ import annotations
@@ -148,10 +152,15 @@ def check(expect: dict, calls: list[dict], commands: list[str], local: dict, ori
     return checks
 
 
-def claude_command(prompt: str, args: argparse.Namespace) -> list[str]:
+def claude_command(prompt: str, args: argparse.Namespace, work: Path) -> list[str]:
     command = ["claude", "-p", prompt]
     for plugin in PLUGINS:
         command += ["--plugin-dir", str(plugin)]
+    # A folder nobody opened is not trusted, and Claude Code then ignores its allow list:
+    # handing the app's own settings over stands for the owner's trust of their project.
+    settings = work / ".claude" / "settings.json"
+    if settings.is_file():
+        command += ["--settings", str(settings)]
     command += [
         "--permission-mode", args.permission_mode, "--setting-sources", "project", "--strict-mcp-config",
         "--no-session-persistence", "--output-format", "stream-json", "--verbose",
@@ -189,7 +198,7 @@ def run(name: str, args: argparse.Namespace) -> tuple[int, dict]:
         try:
             with (run_folder / "transcript.jsonl").open("w", encoding="utf-8") as transcript, \
                     (run_folder / "stderr.txt").open("w", encoding="utf-8") as errors:
-                code = subprocess.run(claude_command(scenario["prompt"], args), cwd=work, env=env,
+                code = subprocess.run(claude_command(scenario["prompt"], args, work), cwd=work, env=env,
                                       stdin=subprocess.DEVNULL, stdout=transcript, stderr=errors,
                                       timeout=args.timeout).returncode
         except subprocess.TimeoutExpired:
@@ -225,6 +234,7 @@ def run(name: str, args: argparse.Namespace) -> tuple[int, dict]:
         "gh": [f"{call['exit']} {call['command']}" for call in calls],
         "bash": commands,
         "last_words": str(result.get("result", ""))[-1500:],
+        "stderr": (run_folder / "stderr.txt").read_text(encoding="utf-8").strip()[-600:],
     }
     if args.keep or args.again:
         report["kept"] = str(run_folder)
