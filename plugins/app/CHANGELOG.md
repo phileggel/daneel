@@ -2,6 +2,22 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.8.0 — 2026-11-14
+
+- In CI a lane reviews a pull request once. After its report, a later push does not start
+  it again: its check passes when every 🔴 and 🟡 of the report is graded, and the
+  project's tests alone validate the fix. `scripts/lane-reviewed.py <pull request> <lane>`
+  answers for a review workflow: exit 3 not reviewed yet, 0 reviewed and graded, 1 a
+  finding ungraded, 2 the comments could not be read (`README.md` § One review per pull
+  request). Local reviews are unchanged.
+- `loop.md` § 5 and `/app:run-entry` Step 8 say so: every lane's newest comment is graded
+  in a pull request comment before the push that applies it. `loop.md` no longer asks for
+  a rule in a lane's document for each CI finding the local run missed.
+
+To take it: in the review workflow, each lane's job runs `lane-reviewed.py` before the
+reviewer's session, and starts the session on exit 3 only; on 0 the job ends green, on 1 or
+2 it fails. Until then every push reviews again, as before.
+
 ## app 0.7.0 — 2026-11-09
 
 - `/app:init` re-run on a project already set up re-aligns it: it reads `DANEEL_REF` in the review workflow and the marketplace pin and

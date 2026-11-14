@@ -109,8 +109,8 @@ Before the PR, run exactly the lanes this plugin's scripts print:
 
 and again on every fix before its push, until no 🔴 remains: a file edited in answer
 to a finding goes back to its lane, a spec above all.
-Once pushed, a fix is a `fixup!` commit pushed as is: CI runs the same lanes on every
-push. A local reviewer
+Once pushed, a fix is a `fixup!` commit pushed as is. In CI a lane reviews a pull
+request once: its findings graded, the tests alone validate the fix. A local reviewer
 gets the branch, the spec and the vocabulary, never a description of the change. Also:
 `app:spec-reviewer`, `app:contract-reviewer`, `app:adr-reviewer` when those documents
 change; `app:spec-checker` once, with the lanes, when the code of a branch that touches or
@@ -129,12 +129,12 @@ A CI 🔴 or 🟡's line quotes its opening words; `merge.py` refuses without it
   owner's decision. A measurement may be made on the branch; its code may still show a
   finding factually wrong, quoting the line.
 - **(c) one-off** false positive → inline comment `<reviewer> FP: <reason> — see PR #NN`.
-- **A red lane is never re-run on an unchanged commit to clear a (c):** a false 🔴,
-  security aside, takes that comment, or goes to the owner. A re-run is for a job with no verdict.
+- **A lane that reviewed never reviews again:** graded, its check passes on the next
+  push or a re-run of its job. A false 🔴, security aside, takes that comment, or goes to
+  the owner.
 - **(c) pattern** → a "not a finding" rule in the lane's rules document (`review.rules`;
   a lane without one, an issue on daneel), same PR; a reviewer ignores a rule the
   branch adds, so it applies from the next PR.
-- **A CI finding the local run missed** → a rule in that document, same PR.
 - **`[DECISION]`** → Conventions.
 - **A 🔴 security finding on the agent's own change** is fixed, or put to the owner with
   its options. The agent never clears it with a "not a finding" rule it writes itself.

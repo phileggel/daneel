@@ -116,8 +116,8 @@ spec; every finding graded (loop § 5); again on the fixes before the first push
 - `python3 ${CLAUDE_SKILL_DIR}/scripts/watch-pr.py` in the background: exit 0 is green, 1 a
   check failed, 2 GitHub unreachable, 3 timed out, 4 not open, 5 GitHub never reached the
   local commit, 6 only lanes the usage limit stopped.
-- A red reviewer lane: read its newest comment; grade and apply as loop § 5 says, as a
-  `fixup!`; push.
+- Every lane's newest comment, red or green, is graded in a PR comment (loop § 5)
+  before the push that applies it as `fixup!`s. A lane never reviews again: graded, its check passes.
 - A lane with no verdict, its comment `no report` or stopped by the CI account's usage
   limit (by exit code or comment): nothing to fix. Re-run that lane alone: `gh run view <run id> --json jobs`
   for its job id, `gh run rerun --job <job id>`, watch again. At the limit, in chat: a wake-up
@@ -126,7 +126,6 @@ spec; every finding graded (loop § 5); again on the fixes before the first push
   comment <n> --body-file <file>` and `gh issue edit <n> --add-label needs-owner` (`gh pr`
   for a plain request); leave the PR open, stop.
 - Any other red: method § 4 (the log first). Fix with `git commit --fixup <sha>`, push, watch again.
-- All green: every lane's newest comment graded in a PR comment (loop § 5).
 
 ## Step 9 — Closure
 

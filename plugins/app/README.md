@@ -102,6 +102,27 @@ The workflow should give the reviewers the rules documents (`review.rules`, the 
 from the base branch too, or a pull request can loosen the review that judges it; daneel
 ships no step for that, the project's workflow does it.
 
+### One review per pull request
+
+In CI a lane reviews a pull request once; a fix is validated by the project's tests, never
+by a second review (`loop.md` § 5). Local reviews are run as often as wanted. Daneel ships
+no review workflow: the project's asks, in each lane's job, before it starts the reviewer's
+session:
+
+    python3 .daneel/plugins/app/scripts/lane-reviewed.py "$PR_NUMBER" <lane>
+
+| Exit | The lane | The job |
+| --- | --- | --- |
+| 3 | has no report on this pull request yet (none, or its newest comment says `no report` or `did not run`) | starts the session |
+| 0 | reviewed, every 🔴 and 🟡 graded in a newer comment | passes, no session |
+| 1 | reviewed, a 🔴 or 🟡 ungraded (each printed) | fails, no session |
+| 2 | the comments could not be read | fails |
+
+The step needs a token that reads the pull request's comments, and no Claude token. The
+lane's first run still fails its check on a 🔴; the agent grades every finding in a comment,
+then pushes its fix, and the next run passes on exit 0. A lane that first touches the pull
+request on a later push has no report, so it runs then, once.
+
 ## Headless runs
 
 `run-entry` with no argument takes the first ready Queued item, so the headless runner is
