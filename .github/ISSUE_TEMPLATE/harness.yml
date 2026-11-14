@@ -1,5 +1,5 @@
 name: Harness
-description: How daneel itself is checked: its CI, sandbox, contract tests, agent setup
+description: How daneel itself is checked: its CI, its tests, its agent setup
 labels: ["harness"]
 body:
   - type: markdown
