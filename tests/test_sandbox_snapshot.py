@@ -42,7 +42,7 @@ def app_state() -> str:
 class Restored(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        self.folder = snapshot.restore(Path(self.temp.name) / "run")
+        self.folder = snapshot.restore(Path(self.temp.name) / "run", packages=False)
         self.work, self.origin = self.folder / "acme", self.folder / "origin.git"
 
     def tearDown(self):
@@ -51,7 +51,7 @@ class Restored(unittest.TestCase):
 
 class TheHistory(Restored):
     def test_two_builds_give_the_same_commit_ids(self):
-        again = snapshot.restore(Path(self.temp.name) / "again")
+        again = snapshot.restore(Path(self.temp.name) / "again", packages=False)
         first = git(self.work, "log", "--format=%H")
         self.assertEqual(first, git(again / "acme", "log", "--format=%H"))
         self.assertEqual(len(first.split()), len(snapshot.HISTORY))
@@ -61,7 +61,7 @@ class TheHistory(Restored):
             "GIT_AUTHOR_NAME": "Someone Else", "GIT_COMMITTER_EMAIL": "else@example.com",
             "GIT_AUTHOR_DATE": "2001-01-01T00:00:00+00:00",
         }):
-            again = snapshot.restore(Path(self.temp.name) / "again")
+            again = snapshot.restore(Path(self.temp.name) / "again", packages=False)
         self.assertEqual(git(self.work, "rev-parse", "HEAD"), git(again / "acme", "rev-parse", "HEAD"))
 
     def test_every_commit_has_the_fixed_author_and_date(self):
@@ -125,15 +125,22 @@ class TheApp(unittest.TestCase):
             self.assertFalse(folder.exists())
         self.assertEqual(app_state(), before)
 
-    def test_the_packages_are_a_link_git_does_not_see(self):
-        if not (snapshot.APP / "node_modules").is_dir():
+    def test_the_packages_are_a_copy_git_does_not_see(self):
+        """A run that installs or removes a package changes its own copy, never the app's."""
+        packages = snapshot.APP / "node_modules"
+        if not packages.is_dir():
             self.skipTest("sandbox/acme/node_modules is not installed")
+        before = sorted(path.name for path in packages.iterdir())
         with tempfile.TemporaryDirectory() as temp:
             work = snapshot.restore(Path(temp) / "run") / "acme"
-            self.assertTrue((work / "node_modules").is_symlink())
+            copied = work / "node_modules"
+            self.assertFalse(copied.is_symlink())
+            self.assertEqual(sorted(path.name for path in copied.iterdir()), before)
             self.assertEqual(git(work, "status", "--porcelain"), "")
-            git(work, "add", "-A")
-            self.assertEqual(git(work, "status", "--porcelain"), "")
+            (copied / "installed-by-a-run").mkdir()
+            (copied / "vitest" / "package.json").unlink()
+        self.assertEqual(sorted(path.name for path in packages.iterdir()), before)
+        self.assertTrue((packages / "vitest" / "package.json").is_file())
 
 
 class Refusals(unittest.TestCase):
