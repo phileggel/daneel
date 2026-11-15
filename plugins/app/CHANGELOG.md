@@ -9,7 +9,8 @@ What a project must act on when it takes a new version of this plugin.
   theme (`{id}-{light|dark}-{state}-current.png`).
 - `/app:run-entry`: a slice split off the item during its run is Queued right after it
   (`flow`'s `method.md` § 2), with `gh project item-add`, `gh project item-edit` and the
-  position call of `gh api graphql`, which its `allowed-tools` now cover.
+  position call of `gh api graphql`, written literally; its `allowed-tools` now cover them
+  and `gh project view`.
 - `app:reviewer-arch`: a sqlx type in a use case's test module is a finding only when the
   project's backend rules include tests; in the use case itself it is one as before.
 

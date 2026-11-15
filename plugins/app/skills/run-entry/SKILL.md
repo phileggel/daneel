@@ -18,6 +18,7 @@ allowed-tools:
   - Bash(gh project item-list *)
   - Bash(gh project item-edit *)
   - Bash(gh project item-add *)
+  - Bash(gh project view *)
   - Bash(gh api graphql *)
   - Bash(gh project field-list *)
   - Bash(gh issue view *)
@@ -135,9 +136,16 @@ Before the merge:
 
 - **The source docs still match the code** (spec, contract, ADR, architecture doc); the PR body says which, or "docs: none needed".
 - What the task met and did not fix is folded or filed as loop § 5 says; a task issue the work resolved is `Closes #NN` too.
-- A slice split off the item is Queued right after it (method § 2): `gh project item-add`,
-  Status and the parent's Batch by `gh project item-edit`, its place by `gh api graphql`
-  (`updateProjectV2ItemPosition`, `afterId`).
+- A slice split off the item, once its issue is filed, is Queued right after it (method § 2),
+  each line its own call; the project id from `gh project view {number} --owner {owner} --format json`,
+  the others from Step 2's field list and Step 0's item list:
+
+```bash
+gh project item-add {number} --owner {owner} --url <the slice's issue> --format json
+gh project item-edit --project-id <project id> --id <its item id> --field-id <Status's id> --single-select-option-id <Queued's id>
+gh project item-edit --project-id <project id> --id <its item id> --field-id <Batch's id> --text <the parent's Batch>
+gh api graphql -f query='mutation($p:ID!,$i:ID!,$a:ID!){updateProjectV2ItemPosition(input:{projectId:$p,itemId:$i,afterId:$a}){clientMutationId}}' -f p=<project id> -f i=<its item id> -f a=<the parent's item id>
+```
 
 A closure commit is a `fixup!`; once its checks are green again:
 
@@ -147,5 +155,5 @@ A closure commit is a `fixup!`; once its checks are green again:
 
 ## Rules
 
-1. The project's core rules and Step 5 hold, and the batch is never edited but for a slice (method § 4).
+1. The project's core rules and Step 5 hold, and the batch is never edited but for a slice (method § 2, § 4).
 2. Method § 4's wall-clock budget per task; over it, open question and stop.
