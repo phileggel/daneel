@@ -93,7 +93,9 @@ request says `Closes #123`, so its merge closes the issue.
   feature or bug whose Design is none or validated; a flow issue with its Decision.
 - **A batch** is the Queued items in row order, their Batch field its date.
   `/flow:plan-batch` proposes it in chat; the owner's yes sets Batch, order and Status,
-  and nothing else makes an item Queued. A cut during a batch is the owner's.
+  and nothing else makes an item Queued, but a slice split off an item during its run:
+  its own issue, Queued in the same Batch right after its parent. It is the item, not an
+  addition. A cut during a batch is the owner's.
 - **Sized by its work**, not its number of items: the sum of the proposal's sizes stops
   at what the last batches merged (their `batch-audit` issues), both figures said. About
   a third of it goes to tasks. A programme enters as its first slice.

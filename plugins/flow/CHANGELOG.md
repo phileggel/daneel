@@ -2,6 +2,14 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## flow 0.5.1 — 2026-11-15
+
+- `method.md` § 2: a slice split off an item during its run is its own issue, Queued in
+  the same Batch right after its parent. It is the one way an item becomes Queued without
+  the owner's yes: it is the item, not an addition.
+
+To take it: nothing to change.
+
 ## flow 0.5.0 — 2026-11-09
 
 - `/flow:init` re-run on a project already set up re-aligns it: it reads the marketplace pin in `.claude/settings.json` and

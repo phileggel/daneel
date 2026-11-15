@@ -17,6 +17,8 @@ allowed-tools:
   - Bash(git push -u origin HEAD)
   - Bash(gh project item-list *)
   - Bash(gh project item-edit *)
+  - Bash(gh project item-add *)
+  - Bash(gh api graphql *)
   - Bash(gh project field-list *)
   - Bash(gh issue view *)
   - Bash(gh pr list *)
@@ -133,6 +135,9 @@ Before the merge:
 
 - **The source docs still match the code** (spec, contract, ADR, architecture doc); the PR body says which, or "docs: none needed".
 - What the task met and did not fix is folded or filed as loop § 5 says; a task issue the work resolved is `Closes #NN` too.
+- A slice split off the item is Queued right after it (method § 2): `gh project item-add`,
+  Status and the parent's Batch by `gh project item-edit`, its place by `gh api graphql`
+  (`updateProjectV2ItemPosition`, `afterId`).
 
 A closure commit is a `fixup!`; once its checks are green again:
 
@@ -142,5 +147,5 @@ A closure commit is a `fixup!`; once its checks are green again:
 
 ## Rules
 
-1. The project's core rules and Step 5 hold, and the batch is never edited (method § 4).
+1. The project's core rules and Step 5 hold, and the batch is never edited but for a slice (method § 4).
 2. Method § 4's wall-clock budget per task; over it, open question and stop.
