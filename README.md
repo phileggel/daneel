@@ -148,9 +148,10 @@ A release is a tag, `<plugin>--v<version>`, made on `main` once the bump is merg
 
 ## Status
 
-A project keeps its own copies of a piece until its own ticket removes them. A skill
-moves here only after its copies are measured in the projects, never designed generic
-up front. What a skill still reads from the
+Daneel was extracted from the projects' copies; since 2026-11-14 it leads: a piece is
+written here and the projects take it. A project keeps its own copies of a piece until
+its own ticket removes them, and what such a copy has that daneel lacks comes here
+extracted, the differences measured. What a skill still reads from the
 project is its own record — its rules, its usage log, its GitHub — never a script or
 a doc of the plugin.
 
