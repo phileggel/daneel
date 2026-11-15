@@ -2,6 +2,21 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.9.0 — 2026-11-15
+
+- `/app:design-proposal`: for a state of an existing screen, the preview also renders the
+  current component, and the comment shows it beside the proposed one, one table row per
+  theme (`{id}-{light|dark}-{state}-current.png`).
+- `/app:run-entry`: a slice split off the item during its run is Queued right after it
+  (`flow`'s `method.md` § 2), with `gh project item-add`, `gh project item-edit` and the
+  position call of `gh api graphql`, written literally; its `allowed-tools` now cover them
+  and `gh project view`.
+- `app:reviewer-arch`: a sqlx type in a use case's test module is a finding only when the
+  project's backend rules include tests; in the use case itself it is one as before.
+
+To take it: with `flow` 0.5.1. A project whose backend rules forbid sqlx in the tests of
+its use cases says so in those rules, or the lane no longer raises it.
+
 ## app 0.8.0 — 2026-11-14
 
 - In CI a lane reviews a pull request once. After its report, a later push does not start

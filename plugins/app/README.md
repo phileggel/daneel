@@ -21,7 +21,7 @@ would not. Used with `flow`.
 | `/app:dep-audit` | npm and Cargo: outdated versions and CVEs, verified on the web; optional `dep-audit.licence_check`, `.terms_doc` |
 | `/app:run-entry` | One task end to end, branch to merge on green; optional `run-entry.recipes`, `.record_paths` |
 | `/app:run-batch` | A whole batch: every Queued item through `run-entry`, its end (`release.py` to a draft, or `batch-end.sh`), the closing brief last; optional `run-batch.release_check`, `.version_files`, `.changelog`, `.release_workflow` |
-| `/app:design-proposal` | Mocks of the target state, light and dark, and a note, for the owner to validate; optional `design-proposal.repo` |
+| `/app:design-proposal` | Mocks of the target state, light and dark, beside the current one for an existing screen, and a note, for the owner to validate; optional `design-proposal.repo` |
 | `/app:init` | After `/flow:init`: the harness (`required-checks.json`, ruleset, merge settings, deny lines) and which project doc plays each role the reviewers read, asked once, added only where missing; re-run, re-aligns the pins, keys and defaults with the project's docs and this changelog |
 
 `protocol.md` is what every reviewer shares: modes, steps, output, the CI report.

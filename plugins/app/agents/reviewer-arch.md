@@ -21,8 +21,9 @@ You review layering, not code quality. Follow `${CLAUDE_PLUGIN_ROOT}/protocol.md
 
 - `use crate::context::<other>::…` inside a context 🔴 `[DECISION]`: cross-context work goes through `use_cases/`, with a trait or port so the importing context never names the other.
 - A service calling another service 🔴 `[DECISION]` (a use case orchestrates both); a repository calling a service 🔴; any other inversion 🔴.
-- A use case importing another use case 🔴 `[DECISION]`. An import that already exists elsewhere is debt, never a precedent.
-- A use case naming a sqlx type or the concrete database (`sqlx::`, `SqlitePool`, `get_pool()`), tests included, outside the unit of work the backend rules allow 🔴 `[DECISION]`. A read-only query is no exception; one that already exists elsewhere is debt, never a precedent.
+- A use case importing another use case 🔴 `[DECISION]`.
+- A use case naming a sqlx type or the concrete database (`sqlx::`, `SqlitePool`, `get_pool()`) outside the unit of work the backend rules allow 🔴 `[DECISION]`; in its test module, only when those rules include tests. A read-only query is no exception.
+- For both, one that already exists elsewhere is debt, never a precedent.
 - `commands.*` outside the feature's gateway 🔴; a gateway calling another feature's command 🔴; business logic in an `api.rs` command handler 🟡.
 
 **Factories** — a domain struct literal outside its factories 🔴; `new()` used to rebuild a persisted aggregate (a fresh id) 🔴; a repository not using `restore()` 🔴; a state-dependent rejection in a service instead of an aggregate method 🟡; an internal entity built, or an aggregate's collection assigned, from a use case 🟡.
