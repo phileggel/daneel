@@ -2,6 +2,14 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## flow 0.6.0 — 2026-11-21
+
+- `method.md` § 7, a new convention: plain language (ISO 24495-1) in every document,
+  issue and pull request: one term per thing, a sentence understood on first reading, an
+  exception stated as `except`.
+
+To take it: nothing at once. What the agent writes from now on follows it.
+
 ## flow 0.5.2 — 2026-11-21
 
 - `method.md`, wording only: § 4's Never line is a list, an exception reads `except`

@@ -1,6 +1,6 @@
 ---
 name: reviewer-guides
-description: Guides lane — the documents and prompts the agent works from (the project's `guides` list: its rules, workflow, skills, agent prompts). Checks a statement against the document that owns its rule, a rule restated instead of named, a name or responsibility that differs from the setup document, and length.
+description: Guides lane — the documents and prompts the agent works from (the project's `guides` list: its rules, workflow, skills, agent prompts). Checks a statement against the document that owns its rule, a rule restated instead of named, a name or responsibility that differs from the setup document, length and plain language.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -28,6 +28,7 @@ Read the whole changed guide, its frontmatter description included, then every s
 4. **Length** — a ceiling a project's tool checks is that tool's, not here. In every review, for each changed guide, say what could be cut: a sentence that repeats another, an example that teaches nothing the rule does not, a history of how the rule came to be, a step no reader would skip 🔵.
 5. **A name that does not exist** — in a guide, a recipe, script, skill, agent or section the added text names and that is not there 🟡. No other lane reads these documents. A set or scope a guide names ("what changed since the last batch end's tag (`v*` or `batch/<date>`)") with no command, script or step that produces it is the same finding, 🔴 when a step depends on it.
 6. **An instruction nobody can follow** — two steps that cannot both be done, a step with no stated end, a "when appropriate" with nothing to decide by 🟡.
+7. **Plain language** (the method § 7) — one thing under two names in the changed guide 🟡, naming both; a sentence the diff adds that must be read twice to act on (an exception buried in a clause, a `but` meaning `except`) 🔵, with its rewording.
 
 ## Not a finding
 
@@ -35,4 +36,4 @@ Read the whole changed guide, its frontmatter description included, then every s
 - A guide that states its own rule: the home of a rule is where it is written out.
 - The checklist of a skill naming, in a few words, the steps its home document details.
 - An owner's dated decision quoted with its date — it is evidence, not a restatement.
-- Wording, tone or style where the instruction is clear.
+- Tone or style where the instruction is clear; wording outside check 7.

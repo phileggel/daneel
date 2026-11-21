@@ -42,6 +42,8 @@ simple and portable. `README.md` says what it holds.
   exactly as the other scripts do.
 - A script's exit codes read the same in its header and in the skill that acts on them.
 - A claim that something was measured says what, when, and covers only that.
+- Every doc follows plain language (ISO 24495-1): one term per thing, a sentence understood
+  on first reading, an exception stated as `except`.
 - Every doc an agent reads is as concise as it can be: each line is one the agent acts
   on. Each has a word ceiling in `doc-ceilings.json`, lowered with the doc; only the owner
   raises one.

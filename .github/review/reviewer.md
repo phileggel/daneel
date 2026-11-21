@@ -41,6 +41,9 @@ Only what the diff adds or changes; each finding names file, line, claim and fix
 Also critical: a changelog entry that asks a project to act, on a version whose middle
 number did not move; a claim of a measurement that does not say what and when.
 
+A breach of `CLAUDE.md`'s plain-language line is a `warning`, never critical: name the two
+terms, or quote the sentence.
+
 Quote the line of `CLAUDE.md` a critical rests on. Without one that you can quote or
 behaviour you can show breaks, it is a warning. No style preferences. An empty list is a
 correct answer.
