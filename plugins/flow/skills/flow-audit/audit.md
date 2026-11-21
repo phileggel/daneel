@@ -5,16 +5,16 @@ as a comment on that batch's `batch-audit` issue: quality first, weighed against
 and effort. Nothing of it runs during a batch.
 
 - **An auditor of its own** — the skill runs forked, with a fresh context, and judges
-  from the figures, the batch's pull requests and the issues filed and closed during it —
+  from the figures, the batch's PRs and the issues filed and closed during it —
   never the session agent's account. What it cannot rebuild from those records is a
   finding; the questions put to the owner are the dated answers in the issue threads.
 - **Measures** — `scripts/flow-audit.py` counts every figure beside the batch before:
-  the pull requests, the batch's length, CI and its rounds sorted by cause, the open
-  issues and Dependabot pull requests, the backlog by size against its ceiling, the usage
+  the PRs, the batch's length, CI and its rounds sorted by cause, the open
+  issues and Dependabot PRs, the backlog by size against its ceiling, the usage
   log, dead paths and the guides' length; and reads the records the auditor judges (the
-  pull requests with their reviews, the issues with their threads) in a few calls, so the
-  auditor reads one document instead of gathering it. The auditor counts from the pull
-  requests what the reviewers caught, got wrong and left to CI and, if the project has a
+  PRs with their reviews, the issues with their threads) in a few calls, so the
+  auditor reads one document instead of gathering it. The auditor counts from the PRs
+  what the reviewers caught, got wrong and left to CI and, if the project has a
   guide that lists the agent's tools, reads each generic piece against its line there.
 - **Six questions**, asked of every batch: what would have avoided a conflict; where it
   waited, and what would shorten it without costing quality; what can be simplified;
@@ -33,7 +33,7 @@ and effort. Nothing of it runs during a batch.
   reads the figure and judges nothing from it.
 
 A flow issue (the project's `flow` form) carries `Observed` with its evidence — a count,
-a duration, a pull request — then a `Proposal` with what it `Costs` and what it protects.
+a duration, a PR — then a `Proposal` with what it `Costs` and what it protects.
 A change that buys speed says what it risks; one that buys safety says what it costs. A
 tool nobody used is named, with a verdict: keep, fold or remove. The owner decides each in
 its thread; the agent copies the decision, dated, into its Decision field, and it can be
@@ -43,7 +43,7 @@ queued. One done, or whose verdict is to keep things as they are, is closed.
 
 - A git checkout with an `origin` on GitHub, and `gh` signed in to it.
 - Batch ends as tags: releases `v*` (published or still a draft) or `batch/<date>` tags, each dated by its tag.
-- Pull requests whose CI runs one workflow on every push (`round_workflow`, default
+- PRs whose CI runs one workflow on every push (`round_workflow`, default
   `Quality`), and a `batch-audit` label.
 - Optionally `logs/usage.log` (local, never committed): one line per run of a project
   script or recipe — `time<TAB>tool<TAB>duration<TAB>result`, the result `ok`, `started`

@@ -97,7 +97,7 @@ prompt: |
 Read that way the agent file is plain text: Claude Code fills `${CLAUDE_PLUGIN_ROOT}`
 only for an installed or `--plugin-dir` plugin, so the prompt says what it stands for.
 The workflow's allowed tools name `bash .daneel/plugins/app/scripts/branch.sh *` and
-`bash .daneel/plugins/app/scripts/review-path.sh *`. A pull request of the project
+`bash .daneel/plugins/app/scripts/review-path.sh *`. A pull request (PR) of the project
 cannot soften a reviewer: the reviewer comes from the pinned tag, never the branch.
 
 ## Versions and releases
@@ -113,7 +113,7 @@ A release is a tag, `<plugin>--v<version>`, made on `main` once the bump is merg
 - **Local and headless runs** follow `main`: `claude plugin update flow@daneel` (or the
   marketplace's auto-update) takes the newest version. Claude Code caches a plugin by its
   version, so a change that does not bump it never reaches a project.
-- **CI** pins a tag (`ref: app--v0.2.0`) and moves it in a pull request of the project,
+- **CI** pins a tag (`ref: app--v0.2.0`) and moves it in a PR of the project,
   so a reviewer change is reviewed where it lands.
 - **To pin a machine**, register the marketplace at the ref, once per machine:
   `claude plugin marketplace add phileggel/daneel#<ref>`; `update` keeps it. A `ref` in
@@ -141,7 +141,7 @@ On `allowed-tools` under `claude -p`, and only this:
     as the script's absolute path.
   - **Denied:** a chain of commands with any part not listed, 11 times (#92); the `Read`
     of the plugin's `loop.md`, `method.md` and `protocol.md`, by the session and by both
-    reviewers it started (#91); the `Write` of a pull request's body under `/tmp` and
+    reviewers it started (#91); the `Write` of a PR's body under `/tmp` and
     under `.git/` (#93); `gh pr view` and `gh pr checks` on a resumed task, which the skill
     does not name (#95). No project runs a skill headless, so none of these was fixed.
   - **Not reached**, so not measured: `merge.py`, `git commit --fixup`, `gh run view`,

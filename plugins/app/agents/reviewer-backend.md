@@ -33,6 +33,6 @@ You review Rust code quality. Follow `${CLAUDE_PLUGIN_ROOT}/protocol.md`; this f
 
 **Idioms** — `#[allow(clippy::…)]` without a reason 🟡; a needless `.clone()` 🟡; a one-arm `match` that is an `if let` 🔵; repeated `push` with a known size instead of `with_capacity` 🔵.
 
-**Vocabulary** — a domain word the project's glossary (`review.glossary`) does not hold 🟡: the word is the owner's to confirm, and the glossary changes in the same pull request. A name built from confirmed words is no finding.
+**Vocabulary** — a domain word the project's glossary (`review.glossary`) does not hold 🟡: the word is the owner's to confirm, and the glossary changes in the same PR. A name built from confirmed words is no finding.
 
 **Tests** — unit tests outside an inline `#[cfg(test)]` module 🟡; `unwrap()` inside an assertion rather than setup 🟡; a name that does not say subject, condition and outcome (`test_<subject>_<condition>_<outcome>`) 🔵.

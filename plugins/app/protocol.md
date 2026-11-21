@@ -6,7 +6,7 @@ Each `reviewer-*` prompt names its lane: the files it owns, the rules documents 
 
 ## Modes
 
-- **Changed lines (default).** Judge only what this branch changed. A finding on a line the branch did not change was there before: it is listed without a severity and never refuses the pull request.
+- **Changed lines (default).** Judge only what this branch changed. A finding on a line the branch did not change was there before: it is listed without a severity and never refuses the PR.
 - **Release sweep.** Only when the invoking prompt contains `release-sweep` and names `<tag>`, the last batch end (a release or a `batch/<date>` tag). The scope is the files `git diff --name-only <tag>...HEAD` lists — Step 1 takes that set in place of `branch.sh`'s, and Step 3 reads `git diff <tag>...HEAD -- <path>`. Every finding carries a severity; there is no older-findings section. The report ends with a `## Files read` section: those read in full (Step 4) and those only searched (the greps of Step 5). "Full audit", "thorough review" and the like do not start it. A `release-sweep` prompt with no tag: reply `ℹ️ Release sweep without a tag — review skipped.` and stop.
 
 ## Steps
@@ -39,7 +39,7 @@ The headline comes first. One line per finding: location, claim, fix — no rest
 
 Locally the reply is the report: write no file.
 
-In CI the invoking prompt asks for a saved report, because the workflow builds the pull request comment from it. A reply without the written file is no report, and the lane fails.
+In CI the invoking prompt asks for a saved report, because the workflow builds the PR comment from it. A reply without the written file is no report, and the lane fails.
 
 1. `bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-path.sh reviewer-{lane}` prints the report path, under the project's `.review/`.
 2. `Write` the full output there — the only path a reviewer ever writes.
@@ -52,5 +52,5 @@ In CI the invoking prompt asks for a saved report, because the workflow builds t
 3. **Stay in the lane.** A finding owned by another lane is left to it.
 4. **External claims need a source.** A version, a deprecation or a "current best practice" cites a link, or is softened ("as of training cutoff — verify with …", naming the command) and capped at 🟡. The caller verifies; a reviewer does not.
 5. **Not a finding in any lane:** a test named by what it proves, with or without its issue number or spec rule in the name; no rule asks for a `test_` prefix.
-6. **In CI, what the workflow takes from the base branch is the base branch's on disk** — the project's top-level rules and `.claude/` at least. Such a file the pull request changed shows as modified in `git status` and reads as the old text: never a revert, an uncommitted edit or a lost change. Review it from `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh diff <path>` or `git show HEAD:<path>`, or, when the invoking prompt names a folder holding the branch's tree as pushed, read every file under review there; say nothing about the copy on disk.
+6. **In CI, what the workflow takes from the base branch is the base branch's on disk** — the project's top-level rules and `.claude/` at least. Such a file the PR changed shows as modified in `git status` and reads as the old text: never a revert, an uncommitted edit or a lost change. Review it from `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh diff <path>` or `git show HEAD:<path>`, or, when the invoking prompt names a folder holding the branch's tree as pushed, read every file under review there; say nothing about the copy on disk.
 7. **In CI, each shell call is one command, never chained**; Grep and Read search and read files.

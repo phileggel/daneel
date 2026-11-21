@@ -2,6 +2,12 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## flow 0.6.2 — 2026-11-21
+
+- Wording only: every doc says `PR`; `method.md` § 1 says once what it stands for.
+
+To take it: nothing.
+
 ## flow 0.6.1 — 2026-11-21
 
 - The skills, wording only (`method.md` § 7): `/flow:backlog` and `audit.md` say `issue`
