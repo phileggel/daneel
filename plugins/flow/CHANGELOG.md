@@ -2,6 +2,14 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## flow 0.6.1 — 2026-11-21
+
+- The skills, wording only (`method.md` § 7): `/flow:backlog` and `audit.md` say `issue`
+  where they said `ticket`; `/flow:init`'s re-run and three sentences of
+  `/flow:flow-audit` and `/flow:plan-batch` are reworded. No rule changes.
+
+To take it: nothing.
+
 ## flow 0.6.0 — 2026-11-21
 
 - `method.md` § 7, a new convention: plain language (ISO 24495-1) in every document,

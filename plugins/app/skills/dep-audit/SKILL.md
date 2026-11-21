@@ -1,6 +1,6 @@
 ---
 name: dep-audit
-description: Audit npm and Cargo dependencies for outdated versions and CVEs, with web-verified version data. Run at the point of the batch end the project's workflow names, or periodically during development.
+description: Audits npm and Cargo dependencies for outdated versions and CVEs, with web-verified version data. Run at the point of the batch end the project's workflow names, or periodically during development.
 allowed-tools:
   - Bash(rustc --version)
   - Bash(npm outdated)
@@ -33,7 +33,7 @@ cargo audit --file src-tauri/Cargo.lock
 just {licence_check}          # only with licence_check set
 ```
 
-It reports a shipped dependency whose licence the project does not allow. With
+`licence_check` reports a shipped dependency whose licence the project does not allow. With
 `terms_doc` set, re-read it — the terms of the services the
 application calls and the reference data copied into the source, which no tool checks:
 report an item whose terms are unverified, or whose conditions the application no longer

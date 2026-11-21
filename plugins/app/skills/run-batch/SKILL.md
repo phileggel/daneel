@@ -52,7 +52,7 @@ For each remaining item that is ready, in order: `/app:run-entry #123` (the next
 prepared while one waits, loop § 7).
 
 Stop, and say where, when `/app:run-entry` stops by its own rules (an open question, the
-same gate red three times, the three-hour budget). An item that is not ready is said so
+same gate red three times, the three-hour budget). An item that is not ready is named
 and skipped.
 
 ## Step 4 — End the batch

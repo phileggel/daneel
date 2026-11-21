@@ -62,13 +62,19 @@ its body lists what was made.
 
 What was present, what was added, what the owner declined; the record of the run.
 
-## Re-run — a project already set up
+## Re-run on a set-up project
 
 Step 1 also reads the pin (`extraKnownMarketplaces.daneel.source.ref` in
 `.claude/settings.json`) and the sections of `${CLAUDE_PLUGIN_ROOT}/CHANGELOG.md` newer
-than the pinned version. Step 2 adds three blocks: a `daneel.json` path that no longer
-exists or no longer says what its reader asks, or a form or label drifted from the template;
-a default the project's docs now contradict with no key set; the "To
-take it" lines between the pins, one checklist. Step 3 adds what is missing — labels,
-forms, keys — and names for the owner, with its new value, a drifted form or label, the
-pin, and any change to the project's rules docs, settings or CI.
+than the pinned version.
+
+Step 2 adds three blocks:
+
+- a `daneel.json` path that no longer exists or no longer says what its reader asks, or a
+  form or label drifted from the template;
+- a default the project's docs now contradict with no key set;
+- the "To take it" lines between the pins, one checklist.
+
+Step 3 adds what is missing (labels, forms, keys). It names for the owner, each with its
+new value: a drifted form or label, the pin, and any change to the project's rules
+documents, settings or CI.

@@ -122,6 +122,7 @@ rm -rf src/__preview__
 
 A capture that exited non-zero is reported (a state with no `#state-{name}` element is
 one), and nothing is staged.
+
 ## Step 5 — Stage and report
 
 The screenshots are tracked in `screenshots/`; the console-errors file is not. Each line

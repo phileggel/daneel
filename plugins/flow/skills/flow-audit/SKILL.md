@@ -56,12 +56,12 @@ State a count only when you counted it; otherwise write "not counted".
   request body rejected with a source; the criticals only CI found.
 - The owner's answers given during the batch, and which the reading before the work
   should have asked earlier.
-- Every statement in a guide that a pull request shows to be false or contradicted, and
-  each generic piece of the guide that lists the agent's tools, if the project has one,
-  against its line.
+- Every statement in a guide that a pull request shows to be false or contradicted and,
+  if the project has a guide that lists the agent's tools, each generic piece against its
+  line there.
 - Tool failures only where the log has an outcome. A tool only CI runs, or a plugin's
-  script, is never logged: its absence there is no data, not no failures, nor a reason to
-  remove it.
+  script, is never logged: its absence there is no data: neither a clean record nor a reason
+  to remove it.
 
 What the records cannot show is itself a finding: name it, and where it belonged.
 
@@ -78,7 +78,7 @@ cost — and never softened because the same agent family did the work.
 ## Step 5 — Post
 
 - The audit, as a comment on the batch's `batch-audit` issue (`gh issue create --label
-batch-audit --title "Batch <dates>"` first if it has none): `## Measured`, each figure
+  batch-audit --title "Batch <dates>"` first if it has none): `## Measured`, each figure
   beside the previous one (`35, was 19`), a "Reading" paragraph of three sentences — what
   the figures say, not what was done — then `## Not in the records`.
 - Each settled flow issue: a comment naming the pull request that settled it, then closed.

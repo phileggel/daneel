@@ -68,6 +68,7 @@ Produces `{out}/{id}-{light|dark}-{state}.png`, `-current` included. Then `rm -f
 The comment is a scratchpad file (the note, then each image; an existing screen's
 state is a table row per theme, Current left, Proposed right), posted with
 `gh issue comment {id} --body-file <file>`; without an issue, the links go in chat.
+
 - **Chat:** show or point to the images and the note, and ask. On a yes, set the issue's
   Design to `validated` (`gh issue edit`; without an issue, say so in the PR body) and
   continue. On a no, write what the owner wants on the issue and stop.
