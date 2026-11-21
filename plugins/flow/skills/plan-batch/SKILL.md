@@ -31,9 +31,9 @@ unknown, never as none.
 - **Inbox**: give each its label, its form's fields and its size, as the method says;
   one that changes what a user sees gets the project's design step, if it has one; Ready as
   the method defines it.
-- **Task**: obsolete — the path is gone or the observation no longer holds (grep the
-  code, read the git log): propose closing it with the reason. Owner's call (a visible
-  change, a product call): its question goes to **Needs you**. One theme is one line.
+- **Task**: obsolete (the path is gone or the observation no longer holds: grep the
+  code, read the git log), propose closing it with the reason; the owner's call (a visible
+  change, a product call), its question goes to **Needs you**. One theme is one line.
 - **Flow**: workable once it carries a Decision; otherwise its question goes to the owner.
 
 ## Step 3 — Draft and refine

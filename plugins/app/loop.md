@@ -4,7 +4,7 @@
 
 How a task moves through a Tauri + React app that runs `app` beside `flow`. The batch
 around it is `flow`'s method, `${CLAUDE_PLUGIN_ROOT}/method.md`. The project's rules
-document names what is its own: its harness checks, its rules docs and IDs, where its
+document names what is its own: its harness checks, its rules documents and IDs, where its
 mocks live, its release steps.
 
 ## 1. One run, one task

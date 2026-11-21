@@ -52,7 +52,7 @@ the architecture document (default `ARCHITECTURE.md`), the spec README and its s
 
 **F — Specs**
 
-- 🔴 An ADR contradicting an active spec rule: state both sides, pick no winner — the user
+- 🔴 An ADR contradicting an active spec rule: state both sides, pick no winner — the owner
   decides: the spec changes, or the ADR is superseded.
 - 🟡 A feature, entity or context the ADR names that no spec or the architecture document still
   holds, or that was renamed.

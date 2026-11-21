@@ -14,8 +14,8 @@ and effort. Nothing of it runs during a batch.
   log, dead paths and the guides' length; and reads the records the auditor judges (the
   pull requests with their reviews, the issues with their threads) in a few calls, so the
   auditor reads one document instead of gathering it. The auditor counts from the pull
-  requests what the reviewers caught, got wrong and left to CI, and reads each generic piece of the
-  guide that lists the agent's tools, if the project has one, against its line.
+  requests what the reviewers caught, got wrong and left to CI and, if the project has a
+  guide that lists the agent's tools, reads each generic piece against its line there.
 - **Six questions**, asked of every batch: what would have avoided a conflict; where it
   waited, and what would shorten it without costing quality; what can be simplified;
   which script, recipe, skill or agent went unused (keep, fold or remove); where a guide
@@ -26,7 +26,7 @@ and effort. Nothing of it runs during a batch.
   change, "keep" is a verdict said in the audit, and no issue is filed.
 - **The ceiling** — the open backlog by size (S 1, M 2, L 4, XL 8; no size 2; a parent
   with an open slice 0; `batch-audit` none) at a batch end stays at or under the last
-  end's, raised by the owner's tickets (every ticket without the coder's mark, and the
+  end's, raised by the owner's issues (every issue without the coder's mark, and the
   coder's marked `owner-asked`) and the waived ones (security, data loss, flaky). The audit's
   Backlog block states it by size at both ends, the ceiling, what was added (coder,
   owner, waived) and removed (done, folded, closed). A project that holds no ceiling

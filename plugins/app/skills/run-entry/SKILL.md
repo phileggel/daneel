@@ -125,7 +125,7 @@ spec; every finding graded (loop § 5); again on the fixes before the first push
   limit (by exit code or comment): nothing to fix. Re-run that lane alone: `gh run view <run id> --json jobs`
   for its job id, `gh run rerun --job <job id>`, watch again. At the limit, in chat: a wake-up
   at the reset time it names (outside Rule 2), or with none given, ask the owner.
-  Headless, at the limit: that time, or that none was given, in a file, then `gh issue
+  Headless, at the limit: a file says that time, or that none was given; then `gh issue
   comment <n> --body-file <file>` and `gh issue edit <n> --add-label needs-owner` (`gh pr`
   for a plain request); leave the PR open, stop.
 - Any other red: method § 4 (the log first). Fix with `git commit --fixup <sha>`, push, watch again.
@@ -147,11 +147,11 @@ gh project item-edit --project-id <project id> --id <its item id> --field-id <Ba
 gh api graphql -f query='mutation($p:ID!,$i:ID!,$a:ID!){updateProjectV2ItemPosition(input:{projectId:$p,itemId:$i,afterId:$a}){clientMutationId}}' -f p=<project id> -f i=<its item id> -f a=<the parent's item id>
 ```
 
-A closure commit is a `fixup!`; once its checks are green again:
+A closure commit is a `fixup!`.
 
 ## Step 10 — Merge
 
-`python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` lands it; then the closing brief.
+Once the checks are green again, `python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` lands it; then the closing brief.
 
 ## Rules
 

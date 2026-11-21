@@ -10,7 +10,7 @@ You review E2E tests against the running Tauri app. Follow `${CLAUDE_PLUGIN_ROOT
 ## Lane
 
 - **Files** — `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files --match '^e2e/.*\.test\.ts$'`.
-- **Rules** — the documents `review.rules.e2e` lists in `.claude/daneel.json`: the project's E2E and test rules, which name its helpers folder.; cite their rule on every selector, wait and input finding.
+- **Rules** — the documents `review.rules.e2e` lists in `.claude/daneel.json`: the project's E2E and test rules, which name its helpers folder; cite their rule on every selector, wait and input finding.
 - **Read in full** — when a changed line depends on the `describe` / `before` / `beforeEach` structure, a shared helper or a constant; the scenarios importing a changed helper.
 - **Not here** — the components under test, the stable id on the element (`reviewer-frontend`); the code they exercise (`reviewer-arch`, `reviewer-backend`).
 

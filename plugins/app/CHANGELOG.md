@@ -2,6 +2,15 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.11.1 — 2026-11-21
+
+- The skills and agents, wording only (`flow`'s `method.md` § 7): `app:adr-reviewer` says
+  `the owner` where it said `the user`; `app:contract-reviewer` and `app:spec-checker` say
+  in one sentence which document they take; `/app:run-entry` Step 10 says when the merge
+  runs; `rules documents` everywhere. No rule changes.
+
+To take it: nothing.
+
 ## app 0.11.0 — 2026-11-21
 
 - `app:reviewer-guides`, a new check, plain language (`flow`'s `method.md` § 7): one thing
