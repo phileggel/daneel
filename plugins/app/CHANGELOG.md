@@ -2,6 +2,15 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.10.1 — 2026-11-21
+
+- Wording only: `loop.md` § 1 lists the two readings of step 1, an exception reads
+  `except` (it read `but`), `/app:run-entry` and `/app:design-proposal` say `the owner`
+  where they said `the human`, and `protocol.md` says `rules documents`. No rule changes.
+- `release.py` prints `Everything is made except the publishing` (it printed `but`).
+
+To take it: nothing.
+
 ## app 0.10.0 — 2026-11-21
 
 - `lane-reviewed.py` and `merge.py` read a lane report or a grade only from

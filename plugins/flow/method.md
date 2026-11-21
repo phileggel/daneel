@@ -59,8 +59,8 @@ request says `Closes #123`, so its merge closes the issue.
 - **Fixed, folded, then filed**: a gap in a pull request's own files is fixed in it; one
   in the files of an open issue joins that issue with its evidence, while it stays one
   pull request; else it is filed. A fold puts the clause in the target's body and re-labels
-  its size, on a feature or a bug by asking the owner; the target stays open until the clause is done, and one
-  closing or moving with it undone hands it on, folded again or filed.
+  its size, on a feature or a bug by asking the owner. The target stays open until the
+  clause is done; if it closes or moves first, the clause is folded again or filed.
 - **A dependency** is GitHub's "blocked by"; the slices of a programme are its
   sub-issues.
 - **A gate** an issue carries ("when next touched", "not as a sweep") is honoured, or the
@@ -93,7 +93,7 @@ request says `Closes #123`, so its merge closes the issue.
   feature or bug whose Design is none or validated; a flow issue with its Decision.
 - **A batch** is the Queued items in row order, their Batch field its date.
   `/flow:plan-batch` proposes it in chat; the owner's yes sets Batch, order and Status,
-  and nothing else makes an item Queued, but a slice split off an item during its run:
+  and nothing else makes an item Queued, except a slice split off an item during its run:
   its own issue, Queued in the same Batch right after its parent. It is the item, not an
   addition. A cut during a batch is the owner's.
 - **Sized by its work**, not its number of items: the sum of the proposal's sizes stops
@@ -139,13 +139,18 @@ marks every issue it files (`agent-filed`, or `backlog.coder_mark`).
   by re-running it: it is skipped in its own pull request and a `task` issue labelled `flaky` is
   filed with the failure text and the run's link; the fix that re-enables it closes the issue.
   The run continues.
-- **Never:** what the project's core rules forbid; nor change the batch without the
-  owner's yes (but a slice, § 2); nor push to the project's `main`, force-push (but the script that lands a
-  task pushing the task's own branch, with lease, once it folded its fixups or rebased
-  it), or publish a release (cutting it is the agent's); nor edit `.claude/settings.json`
-  (the owner edits it; the agent commits that edit through a pull request). A repository that holds only mocks
-  and notes, with no code and nothing shipped from it, is not the project's: its `main`
-  takes a push.
+- **Never:**
+  - do what the project's core rules forbid;
+  - change the batch without the owner's yes, except by a slice (§ 2);
+  - push to the project's `main`;
+  - force-push, except the landing script pushing the task's own branch, with lease,
+    once it folded its fixups or rebased it;
+  - publish a release (cutting it is the agent's);
+  - edit `.claude/settings.json`: the owner edits it; the agent commits that edit
+    through a pull request.
+
+  A repository that holds only mocks and notes, with no code and nothing shipped from it,
+  is not the project's: its `main` takes a push.
 
 ## 5. How a batch ends
 
@@ -158,7 +163,7 @@ checked again on what it changed, released.
 - **A batch with a `feat` or `fix` is released**: once every pull request of the batch
   has merged and the workflow runs of `main`'s head are green, the agent cuts it: the
   `v*` tag and its draft release, with its notes. Its closing brief says everything is
-  made but the publishing, naming the draft and the runs. The owner publishes it later,
+  made except the publishing, naming the draft and the runs. The owner publishes it later,
   outside the run.
 - **Any other batch** the agent closes with a `batch/<date>` tag: it publishes nothing,
   its chores ride in the next release, no fix is picked to fill a changelog.

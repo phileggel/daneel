@@ -377,7 +377,7 @@ class Draft(unittest.TestCase):
             said = self.draft(root, settings, github)
         create = next(c for c in github.ran if c[:3] == ["gh", "release", "create"])
         self.assertIn("--draft", create)
-        self.assertIn("Everything is made but the publishing", said)
+        self.assertIn("Everything is made except the publishing", said)
         self.assertFalse(any("--draft=false" in c or "publish" in " ".join(c) for c in github.ran))
 
     def test_with_a_workflow_its_draft_gets_the_notes(self):

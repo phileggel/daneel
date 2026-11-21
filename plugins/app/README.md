@@ -53,12 +53,12 @@ the helpers folder; the security lane's say which data the project holds as pers
 missing or divergent (the harness items below, and which doc plays each role the reviewers
 read: `review.rules.<lane>`, `review.rules.spec`, `.contract`, `.adr`, `review.glossary`,
 `flow-audit.guides`, `visual-proof.rules`), adds what the agent may, and names the rest for
-the owner. By hand, the same:
+the owner.
 
 The machine that runs the agent needs `gh` 2.50.0 or newer, the first with `gh pr checks
 --json`, which `release.py` reads; no other command was checked against an older `gh`.
 
-In this order, since a ruleset refuses a project's own push of `main` and the plugin's
+By hand, the same, in this order, since a ruleset refuses a project's own push of `main` and the plugin's
 `merge.py` lands only with the pull request that enables it:
 
 1. One pull request, which the owner merges by hand: the plugins enabled;

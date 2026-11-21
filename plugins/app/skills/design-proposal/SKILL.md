@@ -1,6 +1,6 @@
 ---
 name: design-proposal
-description: Produces the design proposal required before anything the user sees changes — rendered mocks of the target state in light and dark, plus a five-line note, posted on the issue — for an issue or a chat request. Invoked as `/app:design-proposal <id>` (an issue number, or a slug for a chat request). The human validates; nothing visible is built before.
+description: Produces the design proposal required before anything the user sees changes — rendered mocks of the target state in light and dark, plus a five-line note, posted on the issue — for an issue or a chat request. Invoked as `/app:design-proposal <id>` (an issue number, or a slug for a chat request). The owner validates; nothing visible is built before.
 argument-hint: "[123 | slug]"
 allowed-tools:
   - Bash(gh issue view *)
@@ -27,7 +27,7 @@ Setting, optional: `design-proposal.repo` in `.claude/daneel.json`, a repository
 
 Load the issue (`gh issue view <id> --json title,body,comments`) or the chat request. From it and
 its Done when, list the screens and states that change: one state per distinct thing the
-human must see (the row with the new column, the empty case if it changes).
+owner must see (the row with the new column, the empty case if it changes).
 
 ## Step 2 — Build the target state as a preview
 
@@ -70,8 +70,8 @@ state is a table row per theme, Current left, Proposed right), posted with
 `gh issue comment {id} --body-file <file>`; without an issue, the links go in chat.
 - **Chat:** show or point to the images and the note, and ask. On a yes, set the issue's
   Design to `validated` (`gh issue edit`; without an issue, say so in the PR body) and
-  continue. On a no, write what the human wants on the issue and stop.
-- **Headless:** `gh issue edit {id} --add-label needs-owner`. The human validates in the
+  continue. On a no, write what the owner wants on the issue and stop.
+- **Headless:** `gh issue edit {id} --add-label needs-owner`. The owner validates in the
   thread.
 
 ## Rules

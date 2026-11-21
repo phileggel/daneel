@@ -2,7 +2,7 @@
 
 `${CLAUDE_PLUGIN_ROOT}` is the folder holding this file.
 
-Each `reviewer-*` prompt names its lane: the files it owns, the rules docs it loads and the checks it adds. Everything a reviewer does that is not its lane is in this file; a check the lane's rules documents state for it is one of the lane's.
+Each `reviewer-*` prompt names its lane: the files it owns, the rules documents it loads and the checks it adds. Everything a reviewer does that is not its lane is in this file; a check the lane's rules documents state for it is one of the lane's.
 
 ## Modes
 

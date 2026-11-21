@@ -2,6 +2,14 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## flow 0.5.2 — 2026-11-21
+
+- `method.md`, wording only: § 4's Never line is a list, an exception reads `except`
+  (it read `but`), and § 2 says in one sentence what happens to a folded clause whose
+  target closes first. No rule changes.
+
+To take it: nothing.
+
 ## flow 0.5.1 — 2026-11-15
 
 - `method.md` § 2: a slice split off an item during its run is its own issue, Queued in

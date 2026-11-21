@@ -1,6 +1,6 @@
 ---
 name: run-entry
-description: Runs one task end to end under the loop, to its merge on green. The task is the first ready Queued item of the Project (headless, no argument), an issue the human names (#123), or a plain request typed in chat.
+description: Runs one task end to end under the loop, to its merge on green. The task is the first ready Queued item of the Project (headless, no argument), an issue the owner names (#123), or a plain request typed in chat.
 argument-hint: "[#123 | a request]"
 allowed-tools:
   - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py *)
@@ -75,7 +75,7 @@ Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and `.number
 Before any branch exists, and before the item moves: anything the user sees changes and
 `Design` is not `validated` — `/app:design-proposal <id>`.
 
-- Chat: nothing is built before the human's yes to the mocks; on a no, stop.
+- Chat: nothing is built before the owner's yes to the mocks; on a no, stop.
 - Headless: the proposal is posted on the issue (loop § 2), its Design set to `needed`;
   the item stays Queued. Back to Step 0 for the next ready item.
 
@@ -155,5 +155,5 @@ A closure commit is a `fixup!`; once its checks are green again:
 
 ## Rules
 
-1. The project's core rules and Step 5 hold, and the batch is never edited but for a slice (method § 2, § 4).
+1. The project's core rules and Step 5 hold, and the batch is never edited except by a slice (method § 2, § 4).
 2. Method § 4's wall-clock budget per task; over it, open question and stop.
