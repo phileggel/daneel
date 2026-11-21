@@ -8,7 +8,9 @@ The merge guard: the branch must be the head of an open pull request whose every
 run is green, and every check named in `required-checks.json` (at the checkout's root)
 must be among them. Every 🔴 and 🟡 of each reviewer lane's newest comment (headed
 `<!-- review:<lane> -->`) must be graded in a newer comment: a line with (a), (b) or (c)
-and the finding's first 40 characters. When the rebase moved the tested tree (the target advanced), the
+and the finding's first 40 characters. A report or a grade counts only from the repository's
+own workflow (`github-actions[bot]`) or an account the repository gave access (its owner, a
+member, a collaborator); any other account's comment is ignored. When the rebase moved the tested tree (the target advanced), the
 rebased branch is pushed and the merge stops until CI has run on it, unless the rebase
 changed record files only (`record_paths`) or nothing at all.
 
@@ -303,6 +305,18 @@ def _reviewer_notes(number: int, failed: list[str]) -> dict[str, str]:
 LANE_COMMENT = re.compile(r"^<!-- review:(?P<lane>[\w-]+) -->")
 GRADE = re.compile(r"\([abc]\)")
 QUOTED = 40  # the opening characters of a finding its grading line quotes
+# Whose comment is read as a report or a grade. Anyone can comment on a public
+# repository's pull request; only the repository's own workflow token posts as the bot,
+# and only an account it gave access carries one of these associations.
+WORKFLOW_LOGIN = "github-actions[bot]"
+WRITERS = {"OWNER", "MEMBER", "COLLABORATOR"}
+COMMENT_FIELDS = ".[] | {body, created_at, updated_at, author_association, login: .user.login} | @json"
+
+
+def trusted(comment: dict) -> bool:
+    """True for a comment of the repository's workflow or of an account it gave access.
+    A comment that does not say who wrote it is not trusted."""
+    return comment.get("login") == WORKFLOW_LOGIN or comment.get("author_association") in WRITERS
 
 
 def _words(text: str) -> str:
@@ -324,10 +338,12 @@ def severe_findings(body: str) -> list[str]:
 def ungraded_findings(comments: list[dict]) -> list[tuple[str, str]]:
     """(lane, opening words) of each 🔴 or 🟡 in a lane's newest comment that no newer
     comment grades: a line carrying (a), (b) or (c) and the finding's opening words.
-    `comments` are the pull request's, with `body` and `updated_at` (a sticky comment is
-    edited in place), else `created_at`."""
+    `comments` are the pull request's, with `body`, `login`, `author_association` and
+    `updated_at` (a sticky comment is edited in place), else `created_at`. One that is not
+    `trusted` is neither a report nor a grade."""
     def when(comment: dict) -> str:
         return comment.get("updated_at") or comment["created_at"]
+    comments = [comment for comment in comments if trusted(comment)]
     newest: dict[str, dict] = {}
     for comment in sorted(comments, key=when):
         lane = LANE_COMMENT.match(comment["body"])
@@ -351,7 +367,7 @@ def ensure_findings_graded(number: int) -> None:
     """Refuse the merge while a reviewer's 🔴 or 🟡 has no grade newer than its comment."""
     result = gh(
         "api", f"repos/{{owner}}/{{repo}}/issues/{number}/comments", "--paginate",
-        "--jq", ".[] | {body, created_at, updated_at} | @json",
+        "--jq", COMMENT_FIELDS,
     )
     if result.returncode != 0:
         fail(f"Could not read the comments of PR #{number}, so not their grades.", (result.stderr or "").strip())

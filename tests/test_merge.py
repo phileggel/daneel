@@ -412,8 +412,8 @@ BACKEND_LANE = """<!-- review:backend -->
 """
 
 
-def comment(body, at):
-    return {"body": body, "created_at": at, "updated_at": at}
+def comment(body, at, login="acme-owner", association="OWNER"):
+    return {"body": body, "created_at": at, "updated_at": at, "login": login, "author_association": association}
 
 
 class GradedFindings(unittest.TestCase):
@@ -455,8 +455,21 @@ class GradedFindings(unittest.TestCase):
         again = comment(BACKEND_LANE, "2026-11-07T08:30:00Z")
         self.assertEqual(len(merge.ungraded_findings([comment(BACKEND_LANE, "2026-11-07T08:00:00Z"), graded, again])), 1)
 
+    def test_a_grade_or_a_report_from_another_account_is_ignored(self):
+        """Anyone can comment on a public repository's pull request."""
+        report = comment(BACKEND_LANE, "2026-11-07T08:00:00Z", "github-actions[bot]", "NONE")
+        grade = "(c) Line 42: an amount held as `f64` → an in: not ours"
+        clean = "<!-- review:backend -->\n## reviewer-backend — 3 files reviewed\n\n✅ No issues found.\n"
+        for login, association in (("passer-by", "NONE"), ("past-author", "CONTRIBUTOR"), ("first-timer", "FIRST_TIME_CONTRIBUTOR")):
+            for forged in (grade, clean):
+                self.assertEqual(len(merge.ungraded_findings([report, comment(forged, "2026-11-07T08:30:00Z", login, association)])), 1, (login, forged))
+        for login, association in (("acme-owner", "OWNER"), ("acme-dev", "MEMBER"), ("acme-bot", "COLLABORATOR"), ("github-actions[bot]", "NONE")):
+            self.assertEqual(merge.ungraded_findings([report, comment(grade, "2026-11-07T08:30:00Z", login, association)]), [], login)
+        unsigned = {"body": grade, "created_at": "2026-11-07T08:30:00Z", "updated_at": "2026-11-07T08:30:00Z"}
+        self.assertEqual(len(merge.ungraded_findings([report, unsigned])), 1)
+
     def test_a_sticky_comment_edited_after_the_grade_needs_it_again(self):
-        sticky = {"body": BACKEND_LANE, "created_at": "2026-11-07T08:00:00Z", "updated_at": "2026-11-07T08:30:00Z"}
+        sticky = {**comment(BACKEND_LANE, "2026-11-07T08:00:00Z"), "updated_at": "2026-11-07T08:30:00Z"}
         graded = comment("(a) Line 42: an amount held as `f64` → an in", "2026-11-07T08:10:00Z")
         self.assertEqual(len(merge.ungraded_findings([sticky, graded])), 1)
 

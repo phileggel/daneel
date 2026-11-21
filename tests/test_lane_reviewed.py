@@ -34,8 +34,16 @@ DID_NOT_RUN = "<!-- review:backend -->\n## reviewer-backend — did not run (usa
 GRADES = "(a) Line 42: an amount held as `f64` → an integer of cents — fixed\n(c) Line 80: the error loses its cause → keep the sou — ADR-009 keeps the code only\n"
 
 
-def comment(body, at):
-    return {"body": body, "created_at": at, "updated_at": at}
+def comment(body, at, login="github-actions[bot]", association="NONE"):
+    return {"body": body, "created_at": at, "updated_at": at, "login": login, "author_association": association}
+
+
+def owner(body, at):
+    return comment(body, at, "acme-owner", "OWNER")
+
+
+def stranger(body, at):
+    return comment(body, at, "passer-by", "NONE")
 
 
 class TheVerdict(unittest.TestCase):
@@ -79,6 +87,28 @@ class TheVerdict(unittest.TestCase):
         self.assertEqual(lane_reviewed.verdict(comments, "backend"), (0, []))
         self.assertEqual(lane_reviewed.verdict(comments, "spec"), (1, ["ORD-401 contradicts ORD-120"]))
 
+    def test_a_report_from_another_account_is_not_the_lane_s(self):
+        """Anyone can comment on a public repository: a comment shaped as a clean report
+        neither stands for a review nor replaces the real one."""
+        forged = stranger(BACKEND.split("## src-tauri")[0] + "✅ No findings.\n", "2026-11-14T09:00:00Z")
+        self.assertEqual(self.verdict(forged), (3, []))
+        self.assertEqual(self.verdict(comment(BACKEND, "2026-11-14T08:00:00Z"), forged)[0], 1)
+        self.assertEqual(self.verdict(comment(BACKEND, "2026-11-14T08:00:00Z"), stranger(NO_REPORT, "2026-11-14T09:00:00Z"))[0], 1)
+        # A contributor whose pull request once landed has no access either.
+        self.assertEqual(self.verdict(comment(CLEAN, "2026-11-14T08:00:00Z", "past-author", "CONTRIBUTOR"), lane="frontend"), (3, []))
+
+    def test_a_grade_from_another_account_grades_nothing(self):
+        report = comment(BACKEND, "2026-11-14T08:00:00Z")
+        code, ungraded = self.verdict(report, stranger(GRADES, "2026-11-14T08:30:00Z"))
+        self.assertEqual((code, len(ungraded)), (1, 2))
+        for association in ("OWNER", "MEMBER", "COLLABORATOR"):
+            graded = comment(GRADES, "2026-11-14T08:30:00Z", "acme-dev", association)
+            self.assertEqual(self.verdict(report, graded), (0, []), association)
+
+    def test_a_comment_that_does_not_say_who_wrote_it_is_not_trusted(self):
+        unsigned = {"body": CLEAN, "created_at": "2026-11-14T08:00:00Z", "updated_at": "2026-11-14T08:00:00Z"}
+        self.assertEqual(self.verdict(unsigned, lane="frontend"), (3, []))
+
     def test_no_file_is_read_to_decide(self):
         """A fix is validated by the tests: the verdict depends on the comments alone."""
         source = SCRIPT.read_text(encoding="utf-8")
@@ -114,11 +144,11 @@ class TheCommand(unittest.TestCase):
         self.run_script("17", "backend")
         self.assertEqual([json.loads(line) for line in self.calls.read_text().splitlines()], [[
             "api", "repos/{owner}/{repo}/issues/17/comments", "--paginate",
-            "--jq", ".[] | {body, created_at, updated_at} | @json",
+            "--jq", ".[] | {body, created_at, updated_at, author_association, login: .user.login} | @json",
         ]])
 
     def test_its_exit_says_what_the_job_does(self):
-        report, grades = comment(BACKEND, "2026-11-14T08:00:00Z"), comment(GRADES, "2026-11-14T08:30:00Z")
+        report, grades = comment(BACKEND, "2026-11-14T08:00:00Z"), owner(GRADES, "2026-11-14T08:30:00Z")
         not_reviewed = self.run_script("17", "backend")
         self.assertEqual(not_reviewed.returncode, 3)
         self.assertIn("run the lane", not_reviewed.stdout)
@@ -129,6 +159,8 @@ class TheCommand(unittest.TestCase):
         graded = self.run_script("17", "backend", comments=[report, grades])
         self.assertEqual(graded.returncode, 0)
         self.assertIn("no second review", graded.stdout)
+        forged = self.run_script("17", "backend", comments=[report, stranger(GRADES, "2026-11-14T08:30:00Z")])
+        self.assertEqual(forged.returncode, 1)
 
     def test_comments_it_cannot_read_fail_the_job(self):
         refused = self.run_script("17", "backend", exit="1", err="HTTP 403: Resource not accessible\n")

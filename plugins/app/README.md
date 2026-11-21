@@ -118,6 +118,10 @@ session:
 | 1 | reviewed, a 🔴 or 🟡 ungraded (each printed) | fails, no session |
 | 2 | the comments could not be read | fails |
 
+A report or a grade counts only from `github-actions[bot]` (the workflow's own token) or
+from the repository's owner, a member or a collaborator; `merge.py` reads them the same way.
+A workflow that posts its reports as another account gives that account access.
+
 The step needs a token that reads the pull request's comments, and no Claude token. The
 lane's first run still fails its check on a 🔴; the agent grades every finding in a comment,
 then pushes its fix, and the next run passes on exit 0. A lane that first touches the pull
