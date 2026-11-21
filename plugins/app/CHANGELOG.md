@@ -2,6 +2,19 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.10.0 — 2026-11-21
+
+- `lane-reviewed.py` and `merge.py` read a lane report or a grade only from
+  `github-actions[bot]` or from the repository's owner, a member or a collaborator. On a
+  public repository any account can comment: one shaped as a clean report, or as grade
+  lines, no longer passes a lane or clears a 🔴.
+- `/app:design-proposal`: with `repo`, an image is linked as
+  `https://github.com/{repo}/blob/<sha>/{id}/<file>?raw=true`, which GitHub serves to a
+  viewer with access to a private repository; `raw.githubusercontent.com` answered 404.
+
+To take it: nothing when the review workflow posts its reports with the workflow's own
+token. One that posts them as another account makes that account a collaborator.
+
 ## app 0.9.0 — 2026-11-15
 
 - `/app:design-proposal`: for a state of an existing screen, the preview also renders the

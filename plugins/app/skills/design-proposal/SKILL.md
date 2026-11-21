@@ -61,7 +61,7 @@ Produces `{out}/{id}-{light|dark}-{state}.png`, `-current` included. Then `rm -f
 `publish.sh` commits and pushes, never the console-errors file, and prints the sha:
 
 - **With `repo`**: `bash ${CLAUDE_SKILL_DIR}/scripts/publish.sh repo {repo} {clone} {id}`;
-  images from `https://raw.githubusercontent.com/{repo}/<sha>/{id}/<file>`.
+  images from `https://github.com/{repo}/blob/<sha>/{id}/<file>?raw=true`.
 - **Without**, headless only: `bash ${CLAUDE_SKILL_DIR}/scripts/publish.sh branch {id}`
   (on `design/{id}`, back on `main` after); images from that branch.
 

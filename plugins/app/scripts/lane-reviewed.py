@@ -14,8 +14,10 @@ Exit: 0 reviewed, and every 🔴 and 🟡 of its report is graded: the job passe
 "Reviewed" is the lane's newest comment (`<!-- review:<lane> -->`) being a report. One
 headed `## reviewer-<lane> — no report` or `— did not run …` is none, so the lane runs
 again. "Graded" is what `merge.py` asks before a merge: a newer comment line carrying
-(a), (b) or (c) and the finding's opening words. Nothing here reads the code: a fix is
-validated by the project's tests, never by a second review.
+(a), (b) or (c) and the finding's opening words. A report or a grade counts only from the
+repository's own workflow (`github-actions[bot]`) or an account the repository gave access
+(its owner, a member, a collaborator): any other account's comment is ignored. Nothing here
+reads the code: a fix is validated by the project's tests, never by a second review.
 """
 
 from __future__ import annotations
@@ -40,8 +42,9 @@ def when(comment: dict) -> str:
 
 
 def report_of(comments: list[dict], lane: str) -> dict | None:
-    """The lane's newest comment when it is a report, else None."""
-    own = [c for c in sorted(comments, key=when) if c["body"].startswith(f"<!-- review:{lane} -->")]
+    """The lane's newest trusted comment when it is a report, else None."""
+    own = [c for c in sorted(comments, key=when)
+           if merge.trusted(c) and c["body"].startswith(f"<!-- review:{lane} -->")]
     if not own or merge.reviewer_heading([own[-1]["body"]], f"reviewer-{lane}"):
         return None
     return own[-1]
@@ -58,7 +61,7 @@ def verdict(comments: list[dict], lane: str) -> tuple[int, list[str]]:
 def read_comments(number: str) -> list[dict]:
     result = subprocess.run(
         ["gh", "api", f"repos/{{owner}}/{{repo}}/issues/{number}/comments", "--paginate",
-         "--jq", ".[] | {body, created_at, updated_at} | @json"],
+         "--jq", merge.COMMENT_FIELDS],
         capture_output=True, text=True, check=False, timeout=60,
     )
     if result.returncode != 0:
