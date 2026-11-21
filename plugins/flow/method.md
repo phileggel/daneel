@@ -15,9 +15,9 @@ its release); where the two disagree on what is here, this file is the rule.
   owner queues from them.
 - **Agent** — the flow issues: the same about the workflow itself (checks, waits, tools,
   the owner's part), audited after each batch (§ 6).
-- **Agent** — the task, end to end: tests, code, review, merge. No pull request is
+- **Agent** — the task, end to end: tests, code, review, merge. No pull request (PR) is
   validated by the owner.
-- **Harness** — proving it, mechanically, on every pull request. Nothing merges that the
+- **Harness** — proving it, mechanically, on every PR. Nothing merges that the
   harness has not passed.
 
 The owner is not the QA: no issue waits for the owner to check by hand that what was
@@ -29,8 +29,8 @@ welcome and is no gate.
 ## 2. Issues and the Project
 
 The backlog is the repository's GitHub issues and its Project, never files in git: no
-commit touches it. In prose an issue is "ticket #123", a pull request "PR #123"; a pull
-request says `Closes #123`, so its merge closes the issue.
+commit touches it. In prose an issue is "ticket #123", a PR "PR #123"; a PR
+says `Closes #123`, so its merge closes the issue.
 
 ### Filing an issue
 
@@ -41,11 +41,11 @@ request says `Closes #123`, so its merge closes the issue.
   `--label <kind> --label size:<S|M|L|XL>` and the form's fields as `### <field>`
   sections, then `gh project item-add`. Its title is one plain sentence stating the
   observation, no kind prefix; it carries its evidence (what was seen, where, a figure or
-  a pull request), one observation only. Before the agent files one, `/flow:backlog`
+  a PR), one observation only. Before the agent files one, `/flow:backlog`
   checks it fits (§ 3), and the issue gets the coder's mark.
-- **Size** (the `size:` label), by facts, not effort — **S**: one pull request, one
-  layer, nothing from the owner; **M**: any other single pull request — several layers,
-  a spec, an answer from the owner; **L**: two or three pull requests, or mocks or a spec
+- **Size** (the `size:` label), by facts, not effort — **S**: one PR, one
+  layer, nothing from the owner; **M**: any other single PR — several layers,
+  a spec, an answer from the owner; **L**: two or three PRs, or mocks or a spec
   interview with the owner; **XL**: a programme, sliced into sub-issues before it is
   queued. The agent sets it on a task or a flow issue; on a feature or a bug
   `/flow:plan-batch` proposes it and the owner confirms it.
@@ -53,12 +53,12 @@ request says `Closes #123`, so its merge closes the issue.
   owner answers in the thread and the label goes once nothing is open. A feature or bug
   the agent files waits for the owner to confirm its User value; a flow issue waits for
   its Decision. The agent does not change, without asking, what the owner confirmed.
-- **A bug is always filed**, even when fixed in the same session: its pull request closes
-  it. A chat request that is not a bug needs no issue: the pull request is its record. An
+- **A bug is always filed**, even when fixed in the same session: its PR closes
+  it. A chat request that is not a bug needs no issue: the PR is its record. An
   issue someone else opens is given its label, its form's fields and its size.
-- **Fixed, folded, then filed**: a gap in a pull request's own files is fixed in it; one
+- **Fixed, folded, then filed**: a gap in a PR's own files is fixed in it; one
   in the files of an open issue joins that issue with its evidence, while it stays one
-  pull request; else it is filed. A fold puts the clause in the target's body and re-labels
+  PR; else it is filed. A fold puts the clause in the target's body and re-labels
   its size, on a feature or a bug by asking the owner. The target stays open until the
   clause is done; if it closes or moves first, the clause is folded again or filed.
 - **A dependency** is GitHub's "blocked by"; the slices of a programme are its
@@ -79,7 +79,7 @@ request says `Closes #123`, so its merge closes the issue.
   asks what is still open before its branch exists.
 - **Banked** — a question is asked alone only where the options differ in cost, risk or
   what is seen; a trivial one is the agent's. A choice where one option keeps what a user
-  sees today is not asked: it is taken and stated in the pull request. A flow proposal so
+  sees today is not asked: it is taken and stated in the PR. A flow proposal so
   answered is recorded as accepted ("banked" in its Decision) and reported in one line.
 - During the work, a question remains right for what the reading could not show — a
   reviewer's finding, a failing machine, a behaviour found in the code: ask, never guess.
@@ -87,7 +87,7 @@ request says `Closes #123`, so its merge closes the issue.
 ### The Project — Status and Batch
 
 - **Status**: Inbox (filed) → Ready → Queued (in the batch) → In progress (its branch
-  exists) → In review (a pull request is linked) → Done (closed). GitHub sets the last
+  exists) → In review (a PR is linked) → Done (closed). GitHub sets the last
   two.
 - **Ready**: its form's fields written and its `size:` label set; no `needs-owner`; a
   feature or bug whose Design is none or validated; a flow issue with its Decision.
@@ -99,14 +99,14 @@ request says `Closes #123`, so its merge closes the issue.
 - **Sized by its work**, not its number of items: the sum of the proposal's sizes stops
   at what the last batches merged (their `batch-audit` issues), both figures said. About
   a third of it goes to tasks. A programme enters as its first slice.
-- **The order**: what the owner asked to have next first; an item with an open pull
-  request next; what changes the tools next; a
+- **The order**: what the owner asked to have next first; an item with an open PR
+  next; what changes the tools next; a
   dependency before what depends on it; items that touch the same files next to each
   other, so one can be prepared on the other; small fixes a user notices early; what
   needs the owner flagged at the top. Where two disagree, the proposal says so in one
   line.
-- **Nothing open is passed over**: every open issue and every open Dependabot pull
-  request is on the Project, queued or named as left out with its reason.
+- **Nothing open is passed over**: every open issue and every open Dependabot PR
+  is on the Project, queued or named as left out with its reason.
 - Each queued size is checked against the code before the branch (a feature's or a bug's
   as a question to the owner); one that changes during the work is written before
   closure.
@@ -136,7 +136,7 @@ marks every issue it files (`agent-filed`, or `backlog.coder_mark`).
   adds observation and makes the failure cheap to reproduce, never a fix.
 - The same gate failing three times on one task → open question, stop.
 - A test that fails for a reason the change cannot explain is flaky and is never accepted
-  by re-running it: it is skipped in its own pull request and a `task` issue labelled `flaky` is
+  by re-running it: it is skipped in its own PR and a `task` issue labelled `flaky` is
   filed with the failure text and the run's link; the fix that re-enables it closes the issue.
   The run continues.
 - **Never:**
@@ -147,7 +147,7 @@ marks every issue it files (`agent-filed`, or `backlog.coder_mark`).
     once it folded its fixups or rebased it;
   - publish a release (cutting it is the agent's);
   - edit `.claude/settings.json`: the owner edits it; the agent commits that edit
-    through a pull request.
+    through a PR.
 
   A repository that holds only mocks and notes, with no code and nothing shipped from it,
   is not the project's: its `main` takes a push.
@@ -160,7 +160,7 @@ last thing the run says. A security issue that puts users at
 risk is a `fix` instead: a `bug` issue put to the owner, worked before the batch ends,
 checked again on what it changed, released.
 
-- **A batch with a `feat` or `fix` is released**: once every pull request of the batch
+- **A batch with a `feat` or `fix` is released**: once every PR of the batch
   has merged and the workflow runs of `main`'s head are green, the agent cuts it: the
   `v*` tag and its draft release, with its notes. Its closing brief says everything is
   made except the publishing, naming the draft and the runs. The owner publishes it later,
@@ -177,7 +177,7 @@ brief.
 After a batch ends, `/flow:flow-audit` audits it once, on that
 batch's `batch-audit` issue.
 
-A flow issue carries `Observed` with its evidence — a count, a duration, a pull request —
+A flow issue carries `Observed` with its evidence — a count, a duration, a PR —
 then a `Proposal` with what it `Costs` and what it protects. A change that buys speed
 says what it risks; one that buys safety says what it costs. The owner decides each in
 its thread, or has banked it (§ 2); the agent copies the decision, dated, into its
@@ -193,11 +193,11 @@ they are, is closed.
   run of a project script or recipe, emptied once its figures are in the batch's audit
   (its format: `audit.md`, What the project provides). Nothing is logged in CI. Skills
   and agents are counted from the session's transcript.
-- **Plain language** (ISO 24495-1) in every document, issue and pull request: one term
+- **Plain language** (ISO 24495-1) in every document, issue and PR: one term
   per thing, a sentence understood on first reading, an exception stated as `except`.
 - **Branches** `<type>/123-slug`, the issue's number leading the slug, or `<type>/slug`,
   off a fresh `main`; `<type>` is the conventional commit type the change will carry.
-- **The ceremony**: a task lands on `main` only through a pull request whose checks are
+- **The ceremony**: a task lands on `main` only through a PR whose checks are
   all green; a docs or flow change too.
 
 ## What the project provides
@@ -220,12 +220,12 @@ The checklist `/flow:init` sets up.
   the flow pieces never require nor remove it; `/flow:plan-batch` may show it.
 - **A GitHub Project** with the fields **Status** — single select `Inbox`, `Ready`,
   `Queued`, `In progress`, `In review`, `Done`, its workflows setting In review on a
-  linked pull request and Done on close — and **Batch**, holding the batch's date.
+  linked PR and Done on close — and **Batch**, holding the batch's date.
 - **Issue forms** in `.github/ISSUE_TEMPLATE/`, each adding its kind's label and the
   Project, blank issues off, each with the fields of `/flow:init`'s template. A form may add the
   project's own field, such as a no-private-data checkbox.
 - **Tags** for batch ends: releases `v*` and `batch/<date>` annotated tags.
-- **A CI workflow** that runs on every push of a pull request (`Quality` unless
+- **A CI workflow** that runs on every push of a PR (`Quality` unless
   `flow-audit.round_workflow` names another): its runs count the CI rounds.
 - **Optionally `logs/usage.log`**, gitignored (§ 7).
 - **`.claude/daneel.json`**, the project's own part, one key per piece:

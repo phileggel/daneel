@@ -2,6 +2,13 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.11.2 — 2026-11-21
+
+- Wording only: every doc says `PR` (`flow`'s `method.md` § 1 says what it stands for);
+  `loop.md`'s "Dependabot PRs" section is named so where a skill points to it.
+
+To take it: nothing.
+
 ## app 0.11.1 — 2026-11-21
 
 - The skills and agents, wording only (`flow`'s `method.md` § 7): `app:adr-reviewer` says

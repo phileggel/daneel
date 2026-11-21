@@ -55,7 +55,7 @@ Only what is missing, replacing no file, field or label:
    flow (`flow@daneel`); its method is the plugin's `method.md`, and this file and the
    project's documents hold only what is this project's own."
 
-Then one pull request on its own branch (`chore: set up daneel's flow`), never on `main`;
+Then one PR on its own branch (`chore: set up daneel's flow`), never on `main`;
 its body lists what was made.
 
 ## Report

@@ -1,6 +1,6 @@
 ---
 name: flow-audit
-description: After a batch ends (a release or a batch tag), judges it from its records alone — the figures of its `flow-audit.py`, the batch's pull requests with their review comments, the issues filed and closed — in a forked context that never sees the session's account, posts the audit on the batch's `batch-audit` issue and files the flow issues it proposes. Use once per batch, right after it ends.
+description: After a batch ends (a release or a batch tag), judges it from its records alone — the figures of its `flow-audit.py`, the batch's PRs with their review comments, the issues filed and closed — in a forked context that never sees the session's account, posts the audit on the batch's `batch-audit` issue and files the flow issues it proposes. Use once per batch, right after it ends.
 context: fork
 allowed-tools: Read, Grep, Glob, Bash
 model: opus
@@ -52,11 +52,11 @@ State a count only when you counted it; otherwise write "not counted".
 
 - What caused each CI round beyond the first: a rebase, a fix after a review or a
   failed check, a cancelled job — from the commits and the comments.
-- The defects the reviewers found before merge, each in a few words; the claims a pull
-  request body rejected with a source; the criticals only CI found.
+- The defects the reviewers found before merge, each in a few words; the claims a PR
+  body rejected with a source; the criticals only CI found.
 - The owner's answers given during the batch, and which the reading before the work
   should have asked earlier.
-- Every statement in a guide that a pull request shows to be false or contradicted and,
+- Every statement in a guide that a PR shows to be false or contradicted and,
   if the project has a guide that lists the agent's tools, each generic piece against its
   line there.
 - Tool failures only where the log has an outcome. A tool only CI runs, or a plugin's
@@ -72,7 +72,7 @@ The owner's six questions (`audit.md`), each answered with its figure or
 left. Then the issues to propose — the three strongest (`audit.md`, Hard points), only
 where a figure moved the wrong way, a rule of the method or the project's guides was not
 followed, a guide was wrong, or the owner corrected the flow. "Keep" is a verdict: propose nothing for it. A rule not followed is
-stated as plainly as a figure — who was to do what, which pull request shows it, what it
+stated as plainly as a figure — who was to do what, which PR shows it, what it
 cost — and never softened because the same agent family did the work.
 
 ## Step 5 — Post
@@ -81,7 +81,7 @@ cost — and never softened because the same agent family did the work.
   batch-audit --title "Batch <dates>"` first if it has none): `## Measured`, each figure
   beside the previous one (`35, was 19`), a "Reading" paragraph of three sentences — what
   the figures say, not what was done — then `## Not in the records`.
-- Each settled flow issue: a comment naming the pull request that settled it, then closed.
+- Each settled flow issue: a comment naming the PR that settled it, then closed.
 - Each proposal: a `flow` issue from the project's form, Decision left
   for the owner; the audit comment links them.
 - Then empty `logs/usage.log` (local, never committed): its figures are recorded.

@@ -61,5 +61,5 @@ the draft); bypass a hook (`--no-verify`).
 - Every change to a plugin bumps its `version` in `plugin.json` and adds its
   line to the plugin's `CHANGELOG.md`, saying what a project must do.
 - `claude plugin validate .` and `python3 -m unittest discover -s tests` pass before a
-  commit. A pull request lands only with `validate` and `review` green. A
+  commit. A PR lands only with `validate` and `review` green. A
   release is `claude plugin tag plugins/<plugin> --push` on `main`.

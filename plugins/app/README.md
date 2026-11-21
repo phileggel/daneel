@@ -59,9 +59,9 @@ The machine that runs the agent needs `gh` 2.50.0 or newer, the first with `gh p
 --json`, which `release.py` reads; no other command was checked against an older `gh`.
 
 By hand, the same, in this order, since a ruleset refuses a project's own push of `main` and the plugin's
-`merge.py` lands only with the pull request that enables it:
+`merge.py` lands only with the pull request (PR) that enables it:
 
-1. One pull request, which the owner merges by hand: the plugins enabled;
+1. One PR, which the owner merges by hand: the plugins enabled;
    `required-checks.json` at the root (`{"checks": [...]}`), its names the real job names,
    each job already reporting; and in `.claude/settings.json` the deny lines for publishing
    a release (the plugin's scripts run their own `gh`, which these do not stop):
@@ -96,15 +96,15 @@ root, which only add to the defaults (a lane name it does not know is an error):
 ```
 
 In CI the workflow checks daneel out (see daneel's `README.md`), takes `.claude/daneel.json`
-from the base branch, so a pull request cannot turn its own reviewers off, and runs
+from the base branch, so a PR cannot turn its own reviewers off, and runs
 `git diff --name-only "origin/$BASE...HEAD" | bash .daneel/plugins/app/scripts/review-lanes.sh --json`.
 The workflow should give the reviewers the rules documents (`review.rules`, the READMEs)
-from the base branch too, or a pull request can loosen the review that judges it; daneel
+from the base branch too, or a PR can loosen the review that judges it; daneel
 ships no step for that, the project's workflow does it.
 
-### One review per pull request
+### One review per PR
 
-In CI a lane reviews a pull request once; a fix is validated by the project's tests, never
+In CI a lane reviews a PR once; a fix is validated by the project's tests, never
 by a second review (`loop.md` § 5). Local reviews are run as often as wanted. Daneel ships
 no review workflow: the project's asks, in each lane's job, before it starts the reviewer's
 session:
@@ -113,7 +113,7 @@ session:
 
 | Exit | The lane | The job |
 | --- | --- | --- |
-| 3 | has no report on this pull request yet (none, or its newest comment says `no report` or `did not run`) | starts the session |
+| 3 | has no report on this PR yet (none, or its newest comment says `no report` or `did not run`) | starts the session |
 | 0 | reviewed, every 🔴 and 🟡 graded in a newer comment | passes, no session |
 | 1 | reviewed, a 🔴 or 🟡 ungraded (each printed) | fails, no session |
 | 2 | the comments could not be read | fails |
@@ -122,10 +122,10 @@ A report or a grade counts only from `github-actions[bot]` (the workflow's own t
 from the repository's owner, a member or a collaborator; `merge.py` reads them the same way.
 A workflow that posts its reports as another account gives that account access.
 
-The step needs a token that reads the pull request's comments, and no Claude token. The
+The step needs a token that reads the PR's comments, and no Claude token. The
 lane's first run still fails its check on a 🔴; the agent grades every finding in a comment,
-then pushes its fix, and the next run passes on exit 0. A lane that first touches the pull
-request on a later push has no report, so it runs then, once.
+then pushes its fix, and the next run passes on exit 0. A lane that first touches the PR
+on a later push has no report, so it runs then, once.
 
 ## Headless runs
 

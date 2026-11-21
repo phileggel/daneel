@@ -1,6 +1,6 @@
 ---
 name: plan-batch
-description: Shows where the Project stands (Ready, Inbox, needs-owner, open pull requests), refines the candidates against their code and proposes the next batch for the owner to approve in chat; on the yes, sets the batch on the Project. Chat only. Use when the batch is empty or short, after a batch ends, or when returning to the project.
+description: Shows where the Project stands (Ready, Inbox, needs-owner, open PRs), refines the candidates against their code and proposes the next batch for the owner to approve in chat; on the yes, sets the batch on the Project. Chat only. Use when the batch is empty or short, after a batch ends, or when returning to the project.
 ---
 
 # Skill — `plan-batch`
@@ -22,7 +22,7 @@ gh pr list --state open --json number,title,headRefName,author,statusCheckRollup
 ```
 
 From them: the items by Status, the `needs-owner` issues, open issues not on the Project,
-open Dependabot pull requests, open pull requests with their checks, and what the last
+open Dependabot PRs, open PRs with their checks, and what the last
 batches merged (the last two `batch-audit` issues). A call that fails is reported as
 unknown, never as none.
 
@@ -47,14 +47,14 @@ propose its first slice as a sub-issue.
 ## Step 4 — Propose
 
 1. **Needs you** — the decisions and drafts of Steps 2 and 3, one line each.
-2. **In flight** — open pull requests and their checks. The sum of the proposal's `size:`
+2. **In flight** — open PRs and their checks. The sum of the proposal's `size:`
    labels beside the sums of the last batches, the proposal stopping at the latter; when the
    method ends such a batch without a release, say so.
 3. **Proposed batch** — in the method's order: each line `#123`, a
    concise summary, at most a clause on why it sits there; where two ordering rules
    disagree, one line says so. Nothing waiting on the owner is in it.
-4. **Left out** — one line per theme, with why, and each open issue or Dependabot pull
-   request not proposed.
+4. **Left out** — one line per theme, with why, and each open issue or Dependabot PR
+   not proposed.
 
 No value scores, no hour estimates, no "do now": the reason on each line is the argument.
 
@@ -69,7 +69,7 @@ again. On the yes, on GitHub only:
 - each item of the batch: Batch = the date, Status = Queued, in the approved row order
   (`gh project item-edit`; the order through `gh api graphql`,
   `updateProjectV2ItemPosition`); what the batch before left unshipped goes back to Ready;
-- a Dependabot pull request added as itself (`gh project item-add`);
+- a Dependabot PR added as itself (`gh project item-add`);
 - the obsolete issues closed with their reason, once the owner agrees.
 
 ## Rules

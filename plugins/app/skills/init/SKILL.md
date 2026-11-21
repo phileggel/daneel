@@ -51,7 +51,7 @@ Then, per role, the doc the project's `CLAUDE.md` names, else the default:
 
 One message: the table, a doc guessed per role or "none → default", and each
 harness item missing or divergent — a required check not reporting on `main`, a deny line
-absent, a ruleset with a bypass actor or no pull-request rule, a merge method off, `gh`
+absent, a ruleset with a bypass actor or no PR rule, a merge method off, `gh`
 below 2.50.0. A default beside each line; one reply; nothing is done before it. A blank
 role is a conscious default.
 
@@ -70,7 +70,7 @@ Only what is missing, replacing nothing:
    `gh api repos/<owner>/<repo>/rulesets/<id> --method PUT --input <file>` (the one Step 1 found).
 5. **Merge settings** off: named for the owner.
 
-Then one pull request, never from `main`: `git checkout -b chore/take-app`, `git add
+Then one PR, never from `main`: `git checkout -b chore/take-app`, `git add
 <path>` per file written, `git commit -m "chore: set up daneel's app"`, `git push -u
 origin HEAD`, `gh pr create --body-file <file>`, the body this report.
 

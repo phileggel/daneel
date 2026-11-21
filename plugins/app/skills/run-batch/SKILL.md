@@ -68,7 +68,7 @@ findings folded or filed. Then, on the final `main`:
 
       python3 ${CLAUDE_SKILL_DIR}/scripts/release.py
 
-  in the background: it lands the version and changelog through a green pull request,
+  in the background: it lands the version and changelog through a green PR,
   tags `v<version>` and leaves the draft release; it never publishes. Stopped, it says
   what to do; `--draft v<version>` redoes the draft alone once the tag is pushed.
 - **Exit 3, no `feat` or `fix`:** `bash ${CLAUDE_SKILL_DIR}/scripts/batch-end.sh` tags
@@ -80,7 +80,7 @@ draft made (method § 5).
 ## Step 5 — The closing brief, last
 
 The last thing the run says: what shipped (each issue with
-its pull request), what a user notices (the `feat` and `fix` titles, or "nothing"), what
+its PR), what a user notices (the `feat` and `fix` titles, or "nothing"), what
 was filed during the run, what was left — skipped, stopped or not ready — with why, the
 dependency audit's verdict, the flow audit's verdict, and for a release "everything is
 made except the publishing: <the draft>, <the runs>".

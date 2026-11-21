@@ -10,7 +10,7 @@ mocks live, its release steps.
 ## 1. One run, one task
 
 A task — a Queued item (`/app:run-entry`, headless), an issue the owner names, or a chat
-request (its record is the pull request body) — lands on `main` through a pull request
+request (its record is the PR body) — lands on `main` through a PR
 with every check green, merged by run-entry's `merge.py`.
 
 1. **Pick and brief.** The questions come first (the method's decision scan), with two
@@ -60,13 +60,13 @@ changed layout or wording pattern — the agent renders mocks of the target stat
 real components and tokens (`/app:design-proposal`): `{id}-{light|dark}-{state}.png` plus
 a five-line note, posted on the issue; an issue whose design needs a mock carries
 `mock`. Nothing is built before the owner's yes. The mocks show invented data only and
-never reach `main`; the pull request's visual proofs are the record.
+never reach `main`; the PR's visual proofs are the record.
 
 ## 3. The harness
 
 The harness recipe (`just {harness}`, `run-entry.recipes.harness`) runs it locally,
-scoped to the layers the branch touched. The same checks are required on every pull
-request (`required-checks.json` at the root) and CI runs on every push to `main`. The
+scoped to the layers the branch touched. The same checks are required on every PR
+(`required-checks.json` at the root) and CI runs on every push to `main`. The
 git hooks run only fast checks for the same scope; nothing is run by hand before a commit
 or a push. Every app's harness holds at least:
 
@@ -76,7 +76,7 @@ or a push. Every app's harness holds at least:
 - coverage floors (`coverage-gates.json`), logic code only, a ratchet never lowered; a
   file leaves the measure only when generated or holding no logic, never to reach a
   number;
-- E2E on the real app, every pull request that touches code;
+- E2E on the real app, every PR that touches code;
 - the reviewers (`review.yml`), one check per lane the diff touches, any 🔴 failing;
 - commit hygiene: a conventional title, no trailer;
 - dependency advisories (`security-audit.yml`), weekly;
@@ -112,8 +112,8 @@ Before the PR, run exactly the lanes this plugin's scripts print:
 
 and again on every fix before its push, until no 🔴 remains: a file edited in answer
 to a finding goes back to its lane, a spec above all.
-Once pushed, a fix is a `fixup!` commit pushed as is. In CI a lane reviews a pull
-request once: its findings graded, the tests alone validate the fix. A local reviewer
+Once pushed, a fix is a `fixup!` commit pushed as is. In CI a lane reviews a PR
+once: its findings graded, the tests alone validate the fix. A local reviewer
 gets the branch, the spec and the vocabulary, never a description of the change. Also:
 `app:spec-reviewer`, `app:contract-reviewer`, `app:adr-reviewer` when those documents
 change; `app:spec-checker` once, with the lanes, when the code of a branch that touches or
@@ -143,8 +143,8 @@ A CI 🔴 or 🟡's line quotes its opening words; `merge.py` refuses without it
   its options. The agent never clears it with a "not a finding" rule it writes itself.
 - **A 🔴 security finding that already exists on `main`**, outside the task: shown to the
   owner with three options — file it as a `task` issue and ship the scoped change (the
-  default), widen this pull request, or block. Never deferred silently. A finding the
-  pull request introduces blocks.
+  default), widen this PR, or block. Never deferred silently. A finding the
+  PR introduces blocks.
 
 ## 6. Gold for new code, bit by bit for existing
 
@@ -163,14 +163,14 @@ glossary, ADR or architecture document drifting from right code is a `task`.
 
 ## 7. PR size and split
 
-One story per pull request. The target is about 400 hand-written lines per reviewer
+One story per PR. The target is about 400 hand-written lines per reviewer
 lane; above about 800 in a lane, split. Generated files, lockfiles, screenshots and spec
 documents are not counted, and the total has no limit: a mechanical change that one
 check proves is one story whatever its size. A feature whose backend or frontend exceeds
 about 20 files or 500 lines ships as one PR per layer, in order: spec, contract, migration,
 backend and bindings; then the frontend; then E2E and closure. Each is mergeable alone.
 
-While a pull request waits for its checks, the next task may be prepared on a branch not
+While a PR waits for its checks, the next task may be prepared on a branch not
 pushed yet: its harness and reviewers run there, the reviewers given its last commit
 only, and it is rebased onto `main` before its first push — a local rebase, never a
 force-push.
@@ -194,9 +194,9 @@ goes to the owner in chat, and the PR stays open. The choice is recorded before 
 a technical one as an ADR (the ADR README's gate), a domain one in the spec or the
 glossary.
 
-### Dependabot pull requests
+### Dependabot PRs
 
-A Dependabot pull request's green reviewer checks are skips, not reviews. Once queued, the agent reads the diff and
+A Dependabot PR's green reviewer checks are skips, not reviews. Once queued, the agent reads the diff and
 checks each pinned commit against the upstream tag it names; runs run-entry's `merge.py` on its
 branch, so the rebase and push are the agent's and CI runs the reviewers for real; grades
 that review (a warning is not merged past); and runs `merge.py` again once every check

@@ -86,7 +86,7 @@ function is called, or never).
 ### Rust toolchain
 Installed: {rustc --version}
 Stable:    {version from the web — source URL}
-Status: ✅ up to date / 🟡 behind (with a `rust-toolchain.toml`: raise its `channel`, in a pull request of its own; without one: `rustup update stable`)
+Status: ✅ up to date / 🟡 behind (with a `rust-toolchain.toml`: raise its `channel`, in a PR of its own; without one: `rustup update stable`)
 
 ### Summary
 🔴 {N} CVE(s), {n} reached by the application

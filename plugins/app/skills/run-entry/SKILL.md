@@ -55,13 +55,13 @@ Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and `.number
 - `git status --short` is empty, `git branch --show-current` is `main`, and `main` is
   fresh (`git pull --ff-only`). Otherwise stop and report.
 - **Headless** (no argument): `gh project item-list {number} --owner {owner} --format json --limit 500`;
-  an In progress or In review item without `needs-owner` and with an open pull request
+  an In progress or In review item without `needs-owner` and with an open PR
   resumes; else the first Queued item, in row order, that is ready.
 - **Chat, named issue** (`#123`): `gh issue view 123 --json title,body,comments`; one with an
-  open pull request resumes.
+  open PR resumes.
 - **Resume**: `gh pr list --state open --json number,headRefName` has its branch
-  (`<type>/123-<slug>`); `gh pr checkout <number>`, then Step 8 from the watch, without the scan; a Dependabot pull request does not resume.
-- **A Dependabot pull request** (queued or named): loop § Dependabot pull requests, not
+  (`<type>/123-<slug>`); `gh pr checkout <number>`, then Step 8 from the watch, without the scan; a Dependabot PR does not resume.
+- **A Dependabot PR** (queued or named): loop § Dependabot PRs, not
   Steps 1 to 10; `python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py` on its branch.
 - **Chat, plain request**: no issue is created; its Done when goes in the opening brief.
 - **Decision scan and Ready** (method § 2), for an issue, before the branch exists; a flow
@@ -113,7 +113,7 @@ spec; every finding graded (loop § 5); again on the fixes before the first push
 
 `/app:visual-proof` for every changed `.tsx` / `.css`. One commit (the commit rules): `git add <path>`, `git commit -m <title>`.
 
-## Step 8 — Pull request and checks
+## Step 8 — PR and checks
 
 - Every push: `git push -u origin HEAD`. `gh pr create --body-file <file>`: the body of loop § 1, step 8.
 - `python3 ${CLAUDE_SKILL_DIR}/scripts/watch-pr.py` in the background: exit 0 is green, 1 a

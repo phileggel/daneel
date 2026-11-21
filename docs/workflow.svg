@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1420 648" width="1420" height="648" role="img" aria-labelledby="t d">
 <title id="t">The workflow daneel brings</title>
-<desc id="d">Five phases across three lanes. The owner asks, approves the batch, validates the design, publishes the release and decides the flow proposals. The agent files issues, proposes the batch, runs each task to its merge on green, ends the batch and audits it. The harness holds the backlog and the Project, checks every push and lands a pull request only when all is green. The audit feeds the backlog.</desc>
+<desc id="d">Five phases across three lanes. The owner asks, approves the batch, validates the design, publishes the release and decides the flow proposals. The agent files issues, proposes the batch, runs each task to its merge on green, ends the batch and audits it. The harness holds the backlog and the Project, checks every push and lands a PR only when all is green. The audit feeds the backlog.</desc>
 <defs><marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#57606a"/></marker><marker id="tail" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M10 0 L0 5 L10 10 z" fill="#57606a"/></marker></defs>
 <rect x="0.5" y="0.5" width="1419" height="647" rx="12" fill="#ffffff" stroke="#d0d7de"/>
 <text x="20" y="36" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#1f2328" text-anchor="start">The workflow daneel brings</text>
@@ -70,10 +70,10 @@
 <rect x="540" y="124" width="440" height="70" rx="8" fill="#fff8c5" stroke="#d4a72c" stroke-width="1.2"/>
 <text x="760.0" y="146.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Answers the questions the agent asks before the work starts</text>
 <text x="760.0" y="163.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Validates the design mocks before anything visible is built</text>
-<text x="760.0" y="180.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Validates no pull request: the harness does</text>
+<text x="760.0" y="180.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Validates no PR: the harness does</text>
 <rect x="540" y="424" width="440" height="90" rx="8" fill="#f6f8fa" stroke="#afb8c1" stroke-width="1.2"/>
 <text x="760.0" y="454.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">CI on every push: lint, types, tests, E2E, coverage floors</text>
-<text x="760.0" y="473.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Reviewer lanes: one review per pull request, a critical fails</text>
+<text x="760.0" y="473.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Reviewer lanes: one review per PR, a critical fails</text>
 <text x="760.0" y="492.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">merge.py: lands only when all is green and graded</text>
 <rect x="540" y="224" width="440" height="170" rx="8" fill="#fbefff" stroke="#c297ff" stroke-width="1.2"/>
 <text x="554" y="246" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#6639ba" text-anchor="start">/app:run-entry</text>
@@ -97,7 +97,7 @@
 <text x="706.0" y="328.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">6  Visual</text>
 <text x="706.0" y="343.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">proof</text>
 <rect x="764" y="310" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
-<text x="814.0" y="328.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">7  Pull request,</text>
+<text x="814.0" y="328.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">7  PR opened,</text>
 <text x="814.0" y="343.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">CI checks</text>
 <rect x="872" y="310" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
 <text x="922.0" y="328.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">8  Grade, then</text>
