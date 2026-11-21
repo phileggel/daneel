@@ -193,6 +193,8 @@ they are, is closed.
   run of a project script or recipe, emptied once its figures are in the batch's audit
   (its format: `audit.md`, What the project provides). Nothing is logged in CI. Skills
   and agents are counted from the session's transcript.
+- **Plain language** (ISO 24495-1) in every document, issue and pull request: one term
+  per thing, a sentence understood on first reading, an exception stated as `except`.
 - **Branches** `<type>/123-slug`, the issue's number leading the slug, or `<type>/slug`,
   off a fresh `main`; `<type>` is the conventional commit type the change will carry.
 - **The ceremony**: a task lands on `main` only through a pull request whose checks are

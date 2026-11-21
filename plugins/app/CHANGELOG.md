@@ -2,6 +2,14 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.11.0 — 2026-11-21
+
+- `app:reviewer-guides`, a new check, plain language (`flow`'s `method.md` § 7): one thing
+  under two names in a changed guide is a 🟡; an added sentence that must be read twice
+  to act on is a 🔵, with its rewording.
+
+To take it: with `flow` 0.6.0. A 🟡 of the new check is graded like any other.
+
 ## app 0.10.1 — 2026-11-21
 
 - Wording only: `loop.md` § 1 lists the two readings of step 1, an exception reads
