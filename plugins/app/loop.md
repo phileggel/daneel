@@ -14,12 +14,15 @@ request (its record is the pull request body) — lands on `main` through a pull
 with every check green, merged by run-entry's `merge.py`.
 
 1. **Pick and brief.** The questions come first (the method's decision scan), with two
-   readings the code an issue changes does not show: for an issue that changes what an
-   interface can do, the sentences that list what it can do (the strings, the specs, the
-   `README.md`) — one that would say less than what is allowed is a question; for every
-   record the issue writes, the ADRs that name it — a Done when that stands against one
-   is a question. For an issue with a spec the order is: spec draft, `app:spec-reviewer`,
-   then the questions, new vocabulary included.
+   readings the code an issue changes does not show:
+   - for an issue that changes what an interface can do, the sentences that list what it
+     can do (the strings, the specs, the `README.md`): one that would say less than what
+     is allowed is a question;
+   - for every record the issue writes, the ADRs that name it: a Done when that stands
+     against one is a question.
+
+   For an issue with a spec the order is: spec draft, `app:spec-reviewer`, then the
+   questions, new vocabulary included.
 2. **Design gate** (§ 2) for anything the user sees, before any branch exists. Then the
    opening brief states Task, Scope, Design, Touching; the branch is made and the item
    moves to In progress.
@@ -207,7 +210,7 @@ Before a batch ends, run in `release-sweep` mode the lanes this prints:
 
 `<tag>` the last batch end (`git describe --tags --abbrev=0 --match 'v*' --match 'batch/*'`), plus
 `reviewer-security`, which reads the whole command surface. Each lane's `## Files read` goes into the closing brief.
-What they find is folded or filed, not fixed in the batch, but for the method's user-risk
+What they find is folded or filed, not fixed in the batch, except in the method's user-risk
 case; a finding not critical and older than the batch is filed and reported, not asked
 (§ 5 keeps a 🔴 security finding for the owner). Items the owner adds after it get a
 second sweep before the batch ends, on what merged since (`<tag>` the commit the first

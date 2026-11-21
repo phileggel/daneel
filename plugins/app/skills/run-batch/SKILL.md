@@ -83,7 +83,7 @@ The last thing the run says: what shipped (each issue with
 its pull request), what a user notices (the `feat` and `fix` titles, or "nothing"), what
 was filed during the run, what was left — skipped, stopped or not ready — with why, the
 dependency audit's verdict, the flow audit's verdict, and for a release "everything is
-made but the publishing: <the draft>, <the runs>".
+made except the publishing: <the draft>, <the runs>".
 
 ## Rules
 

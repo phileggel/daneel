@@ -532,7 +532,7 @@ def draft(root: Path, settings: dict, tag: str) -> None:
         url, ran = _draft(root, settings["release_workflow"], tag, file.name)
     finally:
         Path(file.name).unlink(missing_ok=True)
-    print(f"Everything is made but the publishing: the draft {url}{ran}")
+    print(f"Everything is made except the publishing: the draft {url}{ran}")
 
 
 def _draft(root: Path, workflow: str | None, tag: str, notes_file: str) -> tuple[str, str]:
