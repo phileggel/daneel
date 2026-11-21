@@ -2,7 +2,7 @@
 
 What a project must act on when it takes a new version of this plugin.
 
-## app 0.9.1 — 2026-11-21
+## app 0.10.0 — 2026-11-21
 
 - `lane-reviewed.py` and `merge.py` read a lane report or a grade only from
   `github-actions[bot]` or from the repository's owner, a member or a collaborator. On a
