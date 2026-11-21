@@ -2,6 +2,13 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.11.3 — 2026-11-21
+
+- `app:reviewer-arch`, wording only: "For both" names what it covers, the two use-case
+  checks above it (a use case importing another, a use case naming a sqlx type).
+
+To take it: nothing.
+
 ## app 0.11.2 — 2026-11-21
 
 - Wording only: every doc says `PR` (`flow`'s `method.md` § 1 says what it stands for);
