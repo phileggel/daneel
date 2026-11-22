@@ -98,9 +98,30 @@ root, which only add to the defaults (a lane name it does not know is an error):
 In CI the workflow checks daneel out (see daneel's `README.md`), takes `.claude/daneel.json`
 from the base branch, so a PR cannot turn its own reviewers off, and runs
 `git diff --name-only "origin/$BASE...HEAD" | bash .daneel/plugins/app/scripts/review-lanes.sh --json`.
-The workflow should give the reviewers the rules documents (`review.rules`, the READMEs)
-from the base branch too, or a PR can loosen the review that judges it; daneel
-ships no step for that, the project's workflow does it.
+
+### A reviewer's session in CI
+
+Daneel ships no review workflow. It ships what a lane's session needs, versioned with the
+reviewers at the same tag, so a project's workflow calls three scripts and restates
+nothing. Each runs from the project's checkout, on the commit under review, and its header
+says the rest:
+
+| Script | What it gives | Exit |
+| --- | --- | --- |
+| `review-prepare.sh <base> <tree>` | The checkout made ready: `main` at `<base>` for `branch.sh`; the plugin's folder out of the changed files; the commit under review in `<tree>`, a folder outside the checkout, without its skills and agents; `.review/`; and from `<base>`, `CLAUDE.md`, `.claude/` and every document `review.rules`, `review.glossary`, `review.owners` and `review.setup` name, with the README of each kind `review.rules` leaves out. One that `<base>` does not have is removed. | 0 prepared · 1 refused, nothing changed · 2 usage |
+| `review-tools.sh <lane>` | One line for `--allowedTools`: `Read`, `Grep`, `Glob`; the report's folder, granted from the session's folder and from the filesystem root, so a session that changed folder still writes it; the two helpers under both spellings; the reading subcommands of `git`; `grep`, `ls`, `wc`, `head`, `tail`; for `infra`, the tags of an action on github.com. | 0 printed · 2 usage or unknown lane |
+| `review-prompt.sh <lane> <tree>` | The instruction: which agent file and on what, what `${CLAUDE_PLUGIN_ROOT}` stands for, what on disk is the base branch's, where the files under review are, where the report goes and how it begins. | 0 printed · 2 usage, unknown lane or unreadable settings |
+
+    bash .daneel/plugins/app/scripts/review-prepare.sh "origin/$BASE" "$RUNNER_TEMP/branch"
+    bash .daneel/plugins/app/scripts/review-tools.sh "$LANE"
+    bash .daneel/plugins/app/scripts/review-prompt.sh "$LANE" "$RUNNER_TEMP/branch"
+
+`review-prepare.sh` replaces files: it is for a CI checkout, and refuses one with
+uncommitted work. The project keeps what is its choice or its budget: the triggers, the
+runner, the lanes it runs, the model and its turns, the secret, the checks' names, what it
+does with the report. It adds its own entries after the tools line, and its own lines after
+the prompt; the session reads the commit under review in `<tree>`, so the workflow gives
+it that folder (`--add-dir`).
 
 ### One review per PR
 
