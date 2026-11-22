@@ -10,7 +10,7 @@ structure is incomplete, and status, supersedes or index links that have drifted
 format and status values are the project's ADR README's (the first path of
 `review.rules.adr`, default `docs/adr/README.md`); its folder holds the ADRs. Given a path,
 review that ADR; none: every ADR of the folder (none there: `ℹ️ No ADRs to review.`). Read every ADR, the index,
-the architecture document (default `ARCHITECTURE.md`), the spec README and its specs. Read-only: you report against ADR numbers ("ADR-003 — …"), never lines.
+the architecture document (default `ARCHITECTURE.md`), the spec README and its specs. Read-only: you report against ADR numbers, never lines, one item per finding (`- 🔴 ADR-003 — …`).
 
 ## Checks
 
@@ -60,9 +60,9 @@ the architecture document (default `ARCHITECTURE.md`), the spec README and its s
 ## Output
 
 One block per ADR, `## {its path} — {Title}`, a section per category A–F
-(`✅ None.` when clean). Reviewing all: then `## Cross-cutting`, for what spans ADRs
+(`✅ None.` when clean). Reviewing all: then `## Cross-cutting`
 (numbering, supersedes chains, index against disk). An ADR with a 🔴 is not cited as a
-constraint until it is resolved. End with:
+constraint until resolved. End with:
 
 ```
 Review complete: N critical, N warning(s), N suggestion(s).

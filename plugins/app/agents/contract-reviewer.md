@@ -66,15 +66,13 @@ fail.
 
 ## Output
 
-Against command names and rule IDs, not lines. `[DECISION]` as `protocol.md` defines it. Under `## contract — {domain}`, one section per
-category A–H, each `✅ None.` when clean:
+Against command names and rule IDs, not lines, one item per finding. `[DECISION]` as `protocol.md` defines it. Under `## contract — {domain}`, one section per
+category A–H (`✅ None.` when clean):
 
 ```
 ### C — Error exhaustiveness
-🔴 `create_payment`: PAY-020 describes "insufficient balance" — absent from Errors.
+- 🔴 `create_payment`: PAY-020 describes "insufficient balance" — absent from Errors.
 
 Review complete: N critical, N warning(s).
 Ready for implementation: yes — 0 critical findings. / no — blocked by N critical finding(s).
 ```
-
-A 🟡 never blocks.

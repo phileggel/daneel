@@ -400,6 +400,21 @@ SPEC_LANE = """<!-- review:spec -->
 - The spec has backend rules but no `## Entity Definition` section.
 """
 
+INLINE_LANE = """<!-- review:spec -->
+## reviewer-spec — 1 files reviewed
+
+🔴 0 critical, 🟡 2 warning(s), 🔵 1 suggestion(s) across 1 file(s).
+
+## docs/spec/orders.md
+
+**A — Structure**: ✅ None.
+**B — Rule quality**: 🟡 "Refund" entry (line 12) omits the partial case.
+
+### C — Completeness
+- 🟡 ORD-020 — scope missing
+- 🔵 No workflow diagram for the refund.
+"""
+
 BACKEND_LANE = """<!-- review:backend -->
 ## reviewer-backend — 3 files reviewed
 
@@ -422,6 +437,35 @@ class GradedFindings(unittest.TestCase):
     def test_only_red_and_yellow_findings_are_read(self):
         self.assertEqual(merge.severe_findings(BACKEND_LANE), ["Line 42: an amount held as `f64` → an in"])
         self.assertEqual(len(merge.severe_findings(SPEC_LANE)), 2)
+
+    def test_a_finding_written_inline_after_a_category_label_is_read(self):
+        """A document reviewer groups by category and may write the finding on the label's
+        line: it needs its grade like any other, and its words start after the mark."""
+        self.assertEqual(merge.severe_findings(INLINE_LANE), [
+            '"Refund" entry (line 12) omits the partial case.'[:40],
+            "ORD-020 — scope missing",
+        ])
+
+    def test_a_line_that_only_counts_findings_is_not_one(self):
+        for headline in ("🔴 1 critical, 🟡 2 warning(s), 🔵 0 suggestion(s) across 3 file(s).",
+                         "🟡 1 warning(s) across 1 file(s).", "🔴 2 critical"):
+            self.assertEqual(merge.severe_findings(f"## reviewer-spec — 1 files reviewed\n\n{headline}\n"), [], headline)
+        # A count beside a finding's words is still a finding.
+        self.assertEqual(merge.severe_findings("🟡 2 warning(s) and 🔴 the amount is a float\n"),
+                         ["2 warning(s) and 🔴 the amount is a float"])
+
+    def test_a_mark_alone_on_its_line_is_still_a_finding(self):
+        self.assertEqual(merge.severe_findings("**C — Errors**: 🔴\n"), ["**C — Errors**: 🔴"])
+
+    def test_an_inline_finding_blocks_until_it_is_graded(self):
+        report = comment(INLINE_LANE, "2026-11-22T08:00:00Z")
+        self.assertEqual(merge.ungraded_findings([report]), [
+            ("spec", '"Refund" entry (line 12) omits the partial case.'[:40]),
+            ("spec", "ORD-020 — scope missing"),
+        ])
+        grades = ('(a) "Refund" entry (line 12) omits the partial case. — the entry says it now\n'
+                  "(c) ORD-020 — scope missing: the README allows a rule without one")
+        self.assertEqual(merge.ungraded_findings([report, comment(grades, "2026-11-22T08:20:00Z")]), [])
 
     def test_findings_nobody_graded_are_named(self):
         ungraded = merge.ungraded_findings([comment(SPEC_LANE, "2026-11-07T08:09:39Z")])
