@@ -68,16 +68,17 @@ Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and `.number
   issue's Decision and a task's Observation are its Done when. Chat: each open question
   alone (method § 2), its answer written on the issue.
   Headless: each a comment with `needs-owner`; skip what is not ready, and if nothing is,
-  say what blocks each issue and stop. With a spec, loop § 1 step 1's order.
+  say what blocks each issue and stop.
 
-## Step 1 — Design gate
+## Step 1 — The gates
 
-Before any branch exists, and before the item moves: anything the user sees changes and
-`Design` is not `validated` — `/app:design-proposal <id>`.
+Before any branch exists and the item moves (loop § 2): anything the user sees
+changes and `Design` is not `validated` — `/app:design-proposal <id>`; a spec rule is new
+or changed — its diff and its questions, after `app:spec-reviewer`.
 
-- Chat: nothing is built before the owner's yes to the mocks; on a no, stop.
-- Headless: the proposal is posted on the issue (loop § 2), its Design set to `needed`;
-  the item stays Queued. Back to Step 0 for the next ready item.
+- Chat: nothing is built before the owner's yes to each; a no stops.
+- Headless: the proposal is posted on the issue, its Design set to `needed`; the diff
+  posted there with `needs-owner`. The item stays Queued. Then Step 0.
 
 ## Step 2 — Opening brief, branch, task list
 
@@ -89,8 +90,8 @@ Before any branch exists, and before the item moves: anything the user sees chan
 
 ## Step 3 — Acceptance first
 
-- A new or changed business rule goes into its spec, a changed command into its contract,
-  with their reviewer, before the code (their folder's `README.md`).
+- Step 1's spec change is the first commit; a changed command goes into its contract,
+  with its reviewer, before the code (its folder's `README.md`).
 - Every Done-when clause becomes a failing test, confirmed red, unless no test can prove it (loop § 1, step 3). A clause the agent cannot run: method § 1 (an
   E2E scenario when it needs the real window).
 
@@ -122,7 +123,7 @@ spec; every finding graded (loop § 5); again on the fixes before the first push
 - Every lane's newest comment, red or green, is graded in a PR comment (loop § 5)
   before the push that applies it as `fixup!`s. A lane never reviews again: graded, its check passes.
 - A lane with no verdict, its comment `no report` or stopped by the CI account's usage
-  limit (by exit code or comment): nothing to fix. Re-run that lane alone: `gh run view <run id> --json jobs`
+  limit: nothing to fix. Re-run it alone: `gh run view <run id> --json jobs`
   for its job id, `gh run rerun --job <job id>`, watch again. At the limit, in chat: a wake-up
   at the reset time it names (outside Rule 2), or with none given, ask the owner.
   Headless, at the limit: a file says that time, or that none was given; then `gh issue
@@ -132,9 +133,7 @@ spec; every finding graded (loop § 5); again on the fixes before the first push
 
 ## Step 9 — Closure
 
-Before the merge:
-
-- **The source docs still match the code** (spec, contract, ADR, architecture doc); the PR body says which, or "docs: none needed".
+- **The source docs still match the code** (spec, contract, ADR, architecture doc), a spec changed at Step 1 only; the PR body says which, or "docs: none needed".
 - What the task met and did not fix is folded or filed as loop § 5 says; a task issue the work resolved is `Closes #NN` too.
 - A slice split off the item, once its issue is filed, is Queued right after it (method § 2),
   each line its own call; the project id from `gh project view {number} --owner {owner} --format json`,
