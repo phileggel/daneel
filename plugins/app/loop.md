@@ -20,7 +20,7 @@ with every check green, merged by run-entry's `merge.py`.
      is allowed is a question;
    - for every record the issue writes, the ADRs that name it: a Done when that stands
      against one is a question.
-2. **Design and spec gates** (§ 2), before any branch exists. Then the
+2. **Both gates** (§ 2), before any branch exists. Then the
    opening brief states Task, Scope, Design, Touching; the branch is made and the item
    moves to In progress.
 3. **Acceptance first.** Each Done-when clause becomes a failing test in the layers the
@@ -191,8 +191,8 @@ force-push.
 A reviewer critical tagged `[DECISION]` needs an architectural choice, not a mechanical
 fix. It is never fixed unilaterally: it becomes a `needs-owner` question on the issue, or
 goes to the owner in chat, and the PR stays open. The choice is recorded before the fix:
-a technical one as an ADR (the ADR README's gate), a domain one in the spec or the
-glossary.
+a technical one as an ADR (the ADR README's gate), a domain one at the spec's gate or in
+the glossary.
 
 ### Dependabot PRs
 

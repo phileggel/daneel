@@ -72,13 +72,13 @@ Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and `.number
 
 ## Step 1 — The gates
 
-Before any branch exists, and before the item moves (loop § 2): anything the user sees
+Before any branch exists and the item moves (loop § 2): anything the user sees
 changes and `Design` is not `validated` — `/app:design-proposal <id>`; a spec rule is new
 or changed — its diff and its questions, after `app:spec-reviewer`.
 
-- Chat: nothing is built before the owner's yes to each; on a no, stop.
-- Headless: the proposal is posted on the issue, its Design set to `needed`; the diff is
-  posted there with `needs-owner`. The item stays Queued. Then Step 0 again.
+- Chat: nothing is built before the owner's yes to each; a no stops.
+- Headless: the proposal is posted on the issue, its Design set to `needed`; the diff
+  posted there with `needs-owner`. The item stays Queued. Then Step 0.
 
 ## Step 2 — Opening brief, branch, task list
 
@@ -133,9 +133,7 @@ spec; every finding graded (loop § 5); again on the fixes before the first push
 
 ## Step 9 — Closure
 
-Before the merge:
-
-- **The source docs still match the code** (spec, contract, ADR, architecture doc); the PR body says which, or "docs: none needed".
+- **The source docs still match the code** (spec, contract, ADR, architecture doc), a spec changed at Step 1 only; the PR body says which, or "docs: none needed".
 - What the task met and did not fix is folded or filed as loop § 5 says; a task issue the work resolved is `Closes #NN` too.
 - A slice split off the item, once its issue is filed, is Queued right after it (method § 2),
   each line its own call; the project id from `gh project view {number} --owner {owner} --format json`,
