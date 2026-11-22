@@ -2,6 +2,20 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.11.5 — 2026-11-22
+
+- `merge.py` and `lane-reviewed.py` trust a report or a grade by what the repository lets
+  its author do: a permission of `admin` or `write`, asked of GitHub once per account that
+  commented. They no longer read the comment's `author_association`, which depends on who
+  asks: on an organisation's repository, a member whose membership is private reads as
+  `CONTRIBUTOR` to the workflow's token, so `lane-reviewed.py` ignored the owner's grades
+  and the lane stayed red. A member or collaborator who may only read is no longer
+  trusted. An account whose permission could not be read is named.
+
+To take it: nothing in the workflow when its token already reads the PR's comments. An
+allow list that names the scripts' `gh` calls adds
+`gh api repos/{owner}/{repo}/collaborators/*/permission`.
+
 ## app 0.11.4 — 2026-11-22
 
 - `merge.py` and `lane-reviewed.py` read every 🔴 and 🟡 of a lane's report: an item under

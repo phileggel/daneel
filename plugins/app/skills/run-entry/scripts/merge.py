@@ -10,8 +10,9 @@ must be among them. Every 🔴 and 🟡 of each reviewer lane's newest comment (
 `<!-- review:<lane> -->`), an item under a 🔴 or 🟡 heading or any line carrying the mark,
 must be graded in a newer comment: a line with (a), (b) or (c) and the finding's opening
 words, the 40 characters a refusal prints. A report or a grade counts only from the repository's
-own workflow (`github-actions[bot]`) or an account the repository gave access (its owner, a
-member, a collaborator); any other account's comment is ignored. When the rebase moved the tested tree (the target advanced), the
+own workflow (`github-actions[bot]`) or an account whose permission on the repository is
+`admin` or `write`, asked of GitHub once per account; any other account's comment is ignored,
+and so is one whose permission GitHub did not give. When the rebase moved the tested tree (the target advanced), the
 rebased branch is pushed and the merge stops until CI has run on it, unless the rebase
 changed record files only (`record_paths`) or nothing at all.
 
@@ -308,16 +309,48 @@ GRADE = re.compile(r"\([abc]\)")
 QUOTED = 40  # the opening characters of a finding its grading line quotes
 # Whose comment is read as a report or a grade. Anyone can comment on a public
 # repository's pull request; only the repository's own workflow token posts as the bot,
-# and only an account it gave access carries one of these associations.
+# and only an account the repository lets write has one of these permissions. The
+# comment's `author_association` is not read: it depends on who asks (a member whose
+# membership of the organisation is private reads as CONTRIBUTOR to a workflow's token).
 WORKFLOW_LOGIN = "github-actions[bot]"
-WRITERS = {"OWNER", "MEMBER", "COLLABORATOR"}
-COMMENT_FIELDS = ".[] | {body, created_at, updated_at, author_association, login: .user.login} | @json"
+WRITE = {"admin", "write"}  # GitHub reports `maintain` as write and `triage` as read
+COMMENT_FIELDS = ".[] | {body, created_at, updated_at, login: .user.login} | @json"
+
+
+def permission_of(login: str) -> str | None:
+    """The account's permission on the repository (`admin`, `write`, `read` or `none`),
+    None when GitHub did not give it: an unknown login, a token that may not ask, no answer."""
+    try:
+        result = subprocess.run(
+            ["gh", "api", f"repos/{{owner}}/{{repo}}/collaborators/{login}/permission", "--jq", ".permission"],
+            capture_output=True, text=True, check=False, timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    return result.stdout.strip() if result.returncode == 0 and result.stdout.strip() else None
+
+
+def with_permissions(comments: list[dict], ask=None) -> list[dict]:
+    """Each comment with its author's `permission`, asked once per account. A bot is not
+    asked: the workflow's own login is trusted by name, another bot is not trusted. An
+    account whose permission GitHub did not give is named, since its grades then count
+    for nothing."""
+    ask = ask or permission_of
+    known: dict[str, str | None] = {}
+    for comment in comments:
+        login = comment.get("login")
+        if login and not login.endswith("[bot]") and login not in known:
+            known[login] = ask(login)
+            if known[login] is None:
+                print(f"{BLUE}ℹ The permission of {login} on the repository could not be read: "
+                      f"its comments count as neither a report nor a grade.{NC}", file=sys.stderr)
+    return [{**comment, "permission": known.get(comment.get("login"))} for comment in comments]
 
 
 def trusted(comment: dict) -> bool:
-    """True for a comment of the repository's workflow or of an account it gave access.
-    A comment that does not say who wrote it is not trusted."""
-    return comment.get("login") == WORKFLOW_LOGIN or comment.get("author_association") in WRITERS
+    """True for a comment of the repository's workflow or of an account the repository
+    lets write (`with_permissions`). A comment that does not say who wrote it is not trusted."""
+    return comment.get("login") == WORKFLOW_LOGIN or comment.get("permission") in WRITE
 
 
 def _words(text: str) -> str:
@@ -354,7 +387,7 @@ def severe_findings(body: str) -> list[str]:
 def ungraded_findings(comments: list[dict]) -> list[tuple[str, str]]:
     """(lane, opening words) of each 🔴 or 🟡 in a lane's newest comment that no newer
     comment grades: a line carrying (a), (b) or (c) and the finding's opening words.
-    `comments` are the pull request's, with `body`, `login`, `author_association` and
+    `comments` are the pull request's, with `body`, `login`, `permission` and
     `updated_at` (a sticky comment is edited in place), else `created_at`. One that is not
     `trusted` is neither a report nor a grade."""
     def when(comment: dict) -> str:
@@ -391,7 +424,7 @@ def ensure_findings_graded(number: int) -> None:
         comments = [json.loads(line) for line in result.stdout.splitlines() if line.strip()]
     except json.JSONDecodeError as exc:
         fail(f"The comments of PR #{number} could not be read: {exc}")
-    ungraded = ungraded_findings(comments)
+    ungraded = ungraded_findings(with_permissions(comments))
     if ungraded:
         fail(
             f"PR #{number}: {len(ungraded)} reviewer finding(s) with no grade newer than their comment.",

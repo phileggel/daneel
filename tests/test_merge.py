@@ -427,8 +427,8 @@ BACKEND_LANE = """<!-- review:backend -->
 """
 
 
-def comment(body, at, login="acme-owner", association="OWNER"):
-    return {"body": body, "created_at": at, "updated_at": at, "login": login, "author_association": association}
+def comment(body, at, login="acme-owner", permission="admin"):
+    return {"body": body, "created_at": at, "updated_at": at, "login": login, "permission": permission}
 
 
 class GradedFindings(unittest.TestCase):
@@ -501,16 +501,65 @@ class GradedFindings(unittest.TestCase):
 
     def test_a_grade_or_a_report_from_another_account_is_ignored(self):
         """Anyone can comment on a public repository's pull request."""
-        report = comment(BACKEND_LANE, "2026-11-07T08:00:00Z", "github-actions[bot]", "NONE")
+        report = comment(BACKEND_LANE, "2026-11-07T08:00:00Z", "github-actions[bot]", None)
         grade = "(c) Line 42: an amount held as `f64` → an in: not ours"
         clean = "<!-- review:backend -->\n## reviewer-backend — 3 files reviewed\n\n✅ No issues found.\n"
-        for login, association in (("passer-by", "NONE"), ("past-author", "CONTRIBUTOR"), ("first-timer", "FIRST_TIME_CONTRIBUTOR")):
+        # On a public repository every account reads; `none` is a private one's stranger.
+        for login, permission in (("passer-by", "read"), ("triager", "read"), ("stranger", "none"), ("unread", None), ("other[bot]", None)):
             for forged in (grade, clean):
-                self.assertEqual(len(merge.ungraded_findings([report, comment(forged, "2026-11-07T08:30:00Z", login, association)])), 1, (login, forged))
-        for login, association in (("acme-owner", "OWNER"), ("acme-dev", "MEMBER"), ("acme-bot", "COLLABORATOR"), ("github-actions[bot]", "NONE")):
-            self.assertEqual(merge.ungraded_findings([report, comment(grade, "2026-11-07T08:30:00Z", login, association)]), [], login)
+                self.assertEqual(len(merge.ungraded_findings([report, comment(forged, "2026-11-07T08:30:00Z", login, permission)])), 1, (login, forged))
+        for login, permission in (("acme-owner", "admin"), ("acme-dev", "write"), ("github-actions[bot]", None)):
+            self.assertEqual(merge.ungraded_findings([report, comment(grade, "2026-11-07T08:30:00Z", login, permission)]), [], login)
         unsigned = {"body": grade, "created_at": "2026-11-07T08:30:00Z", "updated_at": "2026-11-07T08:30:00Z"}
         self.assertEqual(len(merge.ungraded_findings([report, unsigned])), 1)
+
+    def test_a_grade_counts_by_the_account_s_permission_not_its_association(self):
+        """A member whose membership of the organisation is private reads as CONTRIBUTOR to
+        a workflow's token: what the repository lets the account do decides, not that."""
+        report = comment(BACKEND_LANE, "2026-11-07T08:00:00Z", "github-actions[bot]", None)
+        grade = "(c) Line 42: an amount held as `f64` → an in: not ours"
+        writer = {**comment(grade, "2026-11-07T08:30:00Z", "acme-owner", "write"), "author_association": "CONTRIBUTOR"}
+        reader = {**comment(grade, "2026-11-07T08:30:00Z", "past-author", "read"), "author_association": "CONTRIBUTOR"}
+        member = {**comment(grade, "2026-11-07T08:30:00Z", "acme-reader", "read"), "author_association": "MEMBER"}
+        self.assertEqual(merge.ungraded_findings([report, writer]), [])
+        self.assertEqual(len(merge.ungraded_findings([report, reader])), 1)
+        self.assertEqual(len(merge.ungraded_findings([report, member])), 1)
+
+    def test_each_account_s_permission_is_asked_once_and_no_bot_s(self):
+        at = "2026-11-07T08:00:00Z"
+        raw = [{"body": "x", "created_at": at, "updated_at": at, "login": login}
+               for login in ("github-actions[bot]", "acme-owner", "passer-by", "acme-owner", "dependabot[bot]")]
+        raw.append({"body": "unsigned", "created_at": at, "updated_at": at})
+        asked = []
+        def ask(login):
+            asked.append(login)
+            return {"acme-owner": "admin", "passer-by": "read"}[login]
+        with contextlib.redirect_stderr(io.StringIO()) as err:
+            read = merge.with_permissions(raw, ask)
+        self.assertEqual(asked, ["acme-owner", "passer-by"])
+        self.assertEqual([c["permission"] for c in read], [None, "admin", "read", "admin", None, None])
+        self.assertEqual(err.getvalue(), "")
+
+    def test_an_account_whose_permission_was_not_given_is_named(self):
+        at = "2026-11-07T08:00:00Z"
+        with contextlib.redirect_stderr(io.StringIO()) as err:
+            read = merge.with_permissions([{"body": "x", "created_at": at, "login": "acme-owner"}], lambda login: None)
+        self.assertIsNone(read[0]["permission"])
+        self.assertIn("The permission of acme-owner on the repository could not be read", err.getvalue())
+
+    def test_the_permission_is_read_with_one_exact_command(self):
+        answers = iter([subprocess.CompletedProcess([], 0, stdout="write\n", stderr=""),
+                        subprocess.CompletedProcess([], 1, stdout="", stderr="HTTP 404"),
+                        subprocess.CompletedProcess([], 0, stdout="", stderr="")])
+        with unittest.mock.patch.object(merge.subprocess, "run", side_effect=lambda *a, **k: next(answers)) as run:
+            self.assertEqual(merge.permission_of("acme-owner"), "write")
+            self.assertIsNone(merge.permission_of("nobody"))
+            self.assertIsNone(merge.permission_of("silent"))
+        self.assertEqual(run.call_args_list[0].args[0], [
+            "gh", "api", "repos/{owner}/{repo}/collaborators/acme-owner/permission", "--jq", ".permission",
+        ])
+        with unittest.mock.patch.object(merge.subprocess, "run", side_effect=subprocess.TimeoutExpired("gh", 30)):
+            self.assertIsNone(merge.permission_of("acme-owner"))
 
     def test_a_sticky_comment_edited_after_the_grade_needs_it_again(self):
         sticky = {**comment(BACKEND_LANE, "2026-11-07T08:00:00Z"), "updated_at": "2026-11-07T08:30:00Z"}
@@ -522,11 +571,14 @@ class GradedFindings(unittest.TestCase):
         err = io.StringIO()
         with (
             unittest.mock.patch.object(merge, "gh", return_value=answer) as gh,
+            unittest.mock.patch.object(merge, "permission_of", return_value="admin") as permission,
             contextlib.redirect_stderr(err),
             self.assertRaises(SystemExit),
         ):
             merge.ensure_findings_graded(7)
         self.assertEqual(gh.call_args.args[:3], ("api", "repos/{owner}/{repo}/issues/7/comments", "--paginate"))
+        self.assertEqual(gh.call_args.args[-1], ".[] | {body, created_at, updated_at, login: .user.login} | @json")
+        permission.assert_called_once_with("acme-owner")
         self.assertIn('reviewer-spec: ORD-401 — "real" is overloaded in one se', err.getvalue())
         self.assertIn("gh pr comment 7 --body-file", err.getvalue())
 
