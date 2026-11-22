@@ -6,22 +6,6 @@ on:
   pull_request:
 
 jobs:
-  # TEMPORARY, removed before this pull request merges: can a workflow's token, given
-  # only `contents: read`, read an account's permission on the repository?
-  probe:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api "repos/$GITHUB_REPOSITORY/collaborators/$GITHUB_ACTOR/permission" --jq '"permission of the actor = " + .permission'
-      - env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api "repos/$GITHUB_REPOSITORY/collaborators/octocat/permission" --jq '"permission of a stranger = " + .permission'
-
   validate:
     runs-on: ubuntu-latest
     steps:

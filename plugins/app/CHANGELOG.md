@@ -12,9 +12,11 @@ What a project must act on when it takes a new version of this plugin.
   and the lane stayed red. A member or collaborator who may only read is no longer
   trusted. An account whose permission could not be read is named.
 
-To take it: nothing in the workflow when its token already reads the PR's comments. An
-allow list that names the scripts' `gh` calls adds
-`gh api repos/{owner}/{repo}/collaborators/*/permission`.
+To take it: nothing. The workflow's token reads the permission with `contents: read`
+alone: probed on 2026-11-22 in a job of daneel's own CI (a user's repository), which read
+`admin` for the PR's author and `read` for a stranger. Not probed on an organisation's
+repository: there, a lane that stays red after its grades now names the account whose
+permission it could not read.
 
 ## app 0.11.4 — 2026-11-22
 
