@@ -102,13 +102,22 @@ Each plugin has its own version, in its `plugin.json`: semver, the middle number
 when a project must act (a setting renamed, a figure changed), the last for anything
 else. Each plugin's `CHANGELOG.md` says, per version, what a project must do.
 
-A release is a tag, `<plugin>--v<version>`, made on `main` once the bump is merged:
+A version is a coherent set of changes or a batch, never one PR for its own sake. Between
+two versions a change adds its line under `## Unreleased`, the changelog's first section,
+and leaves `version` alone.
+
+The owner says when a version is released. One PR then sets `version` in `plugin.json` and
+names the section `## <plugin> <version> — <date>`; once it is merged, the tag
+`<plugin>--v<version>` is made on `main`:
 
     claude plugin tag plugins/flow --push
 
+`tests/test_repo_rules.py` holds both halves: a change with no line, a line outside
+`## Unreleased`, or a `version` that moves while `## Unreleased` stays, fails.
+
 - **Local and headless runs** follow `main`: `claude plugin update flow@daneel` (or the
   marketplace's auto-update) takes the newest version. Claude Code caches a plugin by its
-  version, so a change that does not bump it never reaches a project.
+  version, so what waits under `## Unreleased` reaches nobody before its release.
 - **CI** pins a tag (`ref: app--v0.2.0`) and moves it in a PR of the project,
   so a reviewer change is reviewed where it lands.
 - **To pin a machine**, register the marketplace at the ref, once per machine:

@@ -47,6 +47,35 @@ def key(number: str) -> tuple[int, ...]:
     return tuple(int(part) for part in number.split("."))
 
 
+UNRELEASED = "## Unreleased"
+
+
+def release_fault(plugin: str, before: str | None, now: str, changed: list[str], changelog: str) -> str | None:
+    """What a change to a plugin gets wrong about its changelog and its version; None when
+    nothing. A version is a coherent set of changes or a batch, released when the owner
+    says so: a change adds its line under `## Unreleased`, the changelog's first section,
+    and leaves `version` alone; the PR that releases raises `version` (`before` to `now`)
+    and names that section `## <plugin> <version> — <date>`. A plugin `before` did not have
+    owes its changelog only."""
+    if f"plugins/{plugin}/CHANGELOG.md" not in changed:
+        return f"plugins/{plugin}/CHANGELOG.md: add the change's line, saying what a project must do"
+    if before is None:
+        return None
+    sections = re.findall(r"^## .*$", changelog, re.MULTILINE)
+    first = sections[0] if sections else ""
+    if key(now) < key(before):
+        return f"plugins/{plugin}: its version went down, {before} to {now}"
+    if now == before:
+        if first != UNRELEASED:
+            return f"plugins/{plugin}/CHANGELOG.md: the line goes under `{UNRELEASED}`, its first section; `version` moves at a release only"
+        return None
+    if UNRELEASED in sections:
+        return f"plugins/{plugin}: `version` moved to {now} and `{UNRELEASED}` is still there: a release names the section"
+    if not re.fullmatch(rf"## {re.escape(plugin)} {re.escape(now)} — \d{{4}}-\d{{2}}-\d{{2}}", first):
+        return f"plugins/{plugin}/CHANGELOG.md: its first section is not `## {plugin} {now} — <date>`"
+    return None
+
+
 def agent_docs() -> list[Path]:
     return [
         path
@@ -78,19 +107,53 @@ class EveryPluginChange(unittest.TestCase):
         self.assertEqual(listed.returncode, 0, listed.stderr)
         self.changed = listed.stdout.split()
 
-    def test_it_raises_its_plugins_version(self):
-        for plugin in changed_plugins(self.changed):
-            before = version(self.base, plugin)
-            if before is None:
-                continue
-            with self.subTest(plugin):
-                self.assertGreater(key(version("HEAD", plugin)), key(before), "bump plugin.json")
-
-    def test_it_adds_its_changelog_section(self):
+    def test_it_adds_its_line_and_leaves_the_version_to_a_release(self):
         for plugin in changed_plugins(self.changed):
             changelog = (ROOT / "plugins" / plugin / "CHANGELOG.md").read_text(encoding="utf-8")
             with self.subTest(plugin):
-                self.assertIn(f"## {plugin} {version('HEAD', plugin)} ", changelog)
+                self.assertIsNone(release_fault(
+                    plugin, version(self.base, plugin), version("HEAD", plugin), self.changed, changelog))
+
+
+class TheReleaseRule(unittest.TestCase):
+    """`release_fault`: a version is a set of changes the owner releases, never one PR."""
+
+    CHANGED = ["plugins/app/loop.md", "plugins/app/CHANGELOG.md"]
+    WAITING = "# Changelog — app\n\n## Unreleased\n\n- A new line.\n\n## app 0.14.0 — 2026-11-22\n\n- An old one.\n"
+    RELEASED = "# Changelog — app\n\n## app 0.15.0 — 2026-11-30\n\n- A new line.\n\n## app 0.14.0 — 2026-11-22\n\n- An old one.\n"
+
+    def fault(self, before, now, changelog, changed=None):
+        return release_fault("app", before, now, self.CHANGED if changed is None else changed, changelog)
+
+    def test_a_change_under_unreleased_with_the_version_left_alone_is_right(self):
+        self.assertIsNone(self.fault("0.14.0", "0.14.0", self.WAITING))
+
+    def test_a_release_names_its_section_and_raises_the_version(self):
+        self.assertIsNone(self.fault("0.14.0", "0.15.0", self.RELEASED))
+
+    def test_a_change_with_no_changelog_line_is_refused(self):
+        self.assertIn("CHANGELOG.md", self.fault("0.14.0", "0.14.0", self.WAITING, ["plugins/app/loop.md"]))
+
+    def test_a_change_whose_line_is_not_under_unreleased_is_refused(self):
+        tagged = self.RELEASED.replace("0.15.0 — 2026-11-30", "0.14.1 — 2026-11-30")
+        self.assertIn("## Unreleased", self.fault("0.14.0", "0.14.0", tagged))
+        # `## Unreleased` under a version already named is not the section being prepared.
+        below = self.RELEASED + "\n## Unreleased\n\n- A stray line.\n"
+        self.assertIn("## Unreleased", self.fault("0.15.0", "0.15.0", below))
+
+    def test_a_version_that_moves_while_unreleased_stays_is_refused(self):
+        self.assertIn("names the section", self.fault("0.14.0", "0.15.0", self.WAITING))
+
+    def test_a_release_whose_section_is_missing_or_undated_is_refused(self):
+        self.assertIn("## app 0.15.0", self.fault("0.14.0", "0.15.0", self.RELEASED.replace("0.15.0 — 2026-11-30", "0.15.0")))
+        self.assertIn("## app 0.16.0", self.fault("0.14.0", "0.16.0", self.RELEASED))
+
+    def test_a_version_never_goes_down(self):
+        self.assertIn("went down", self.fault("0.14.0", "0.13.9", self.WAITING))
+
+    def test_a_new_plugin_owes_only_its_changelog(self):
+        self.assertIsNone(self.fault(None, "0.1.0", "# Changelog — app\n\n## app 0.1.0 — 2026-11-30\n\n- The first.\n"))
+        self.assertIn("CHANGELOG.md", self.fault(None, "0.1.0", "", ["plugins/app/loop.md"]))
 
 
 class EveryDoc(unittest.TestCase):
