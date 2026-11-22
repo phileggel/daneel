@@ -1,6 +1,6 @@
 ---
 name: init
-description: Sets a project up for `app`, after `/flow:init` — the harness (`required-checks.json`, the ruleset, the merge settings, the deny lines) and where the project keeps the rules its reviewers read — adding only what is missing, after asking the owner once. Never overwrites. Use when a project enables `app`, and again when its rules or daneel's version move: a re-run re-aligns it.
+description: Sets a project up for `app`, after `/flow:init` — the harness (`required-checks.json`, the ruleset, the merge settings, the deny lines) and where the project keeps the rules its reviewers read — adding only what is missing, after asking the owner once. Use when a project enables `app`, and again when its rules or daneel's version move.
 disable-model-invocation: true
 allowed-tools:
   - Bash(gh repo view --json nameWithOwner,rebaseMergeAllowed,squashMergeAllowed)
@@ -21,10 +21,10 @@ project keeps its own part only.
 
 ## Step 1 — Look
 
-From the checkout, read:
+Read:
 
 - `.claude/daneel.json`, `required-checks.json`,
-  `.claude/settings.json`'s `permissions.deny`, `CLAUDE.md`, `docs/`;
+  `.claude/settings.json`'s `permissions.deny`, `CLAUDE.md`, `docs/`, `.github/workflows/`;
 - `gh repo view --json nameWithOwner,rebaseMergeAllowed,squashMergeAllowed`;
 - `gh api repos/{owner}/{repo}/rulesets`, then each one's bypass actors and required checks;
 - the check names on `main`: `gh api 'repos/{owner}/{repo}/commits/main/check-runs?per_page=100' --jq '[.check_runs[].name]'`;
@@ -52,7 +52,7 @@ Then, per role, the doc the project's `CLAUDE.md` names, else the default:
 One message: the table, a doc guessed per role or "none → default", and each
 harness item missing or divergent — a required check not reporting on `main`, a deny line
 absent, a ruleset with a bypass actor or no PR rule, a merge method off, `gh`
-below 2.50.0. A default beside each line; one reply; nothing is done before it. A blank
+below 2.50.0, a review workflow without `review-prepare.sh`, `review-tools.sh` and `review-prompt.sh`. A default beside each line; one reply; nothing is done before it. A blank
 role is a conscious default.
 
 ## Step 3 — Add

@@ -19,6 +19,8 @@ What a project must act on when it takes a new version of this plugin.
   - `review-prompt.sh <lane> <tree>` prints the instruction given to the session.
 - Daneel still ships no review workflow: the triggers, the runner, the lanes, the model,
   the secret and the checks' names stay the project's.
+- `/app:init` lists, among the harness items, a review workflow that does not call the
+  three scripts.
 
 To take it: in the review workflow, replace the step that restores files from the base
 branch by `review-prepare.sh`, the `--allowedTools` list by `review-tools.sh`'s line and
