@@ -2,6 +2,16 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## Unreleased
+
+- `merge.py` finishes a branch whose rebase the agent resolved by hand. A rebase that
+  conflicts is still aborted and left to the agent. On the re-run, origin holds the
+  commits as they were before that rebase: the script refused them as commits "not in
+  local", and its advice (`git pull --rebase`) brought the conflict back, so the only way
+  out was a new PR. It now accepts what the local branch once pointed at, and its push
+  with lease replaces it. A commit origin holds that the local branch never held still
+  refuses the merge. Nothing for a project to do.
+
 ## app 0.14.0 — 2026-11-22
 
 - `/app:spec-proposal <id>` is the spec gate of 0.13.0 as a skill: it drafts the change to

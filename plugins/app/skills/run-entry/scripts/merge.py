@@ -25,7 +25,10 @@ under the folded commit's message when the branch carried `fixup!` commits, reba
 otherwise: the target has a ruleset that accepts only a commit whose checks passed, and
 the repository allows rebase and squash merges. The only push is of the task's own
 branch, with lease, once its fixups are folded or it is rebased (the method's one
-exception to never force-pushing).
+exception to never force-pushing). A rebase that conflicts is aborted and left to the
+agent, who resolves it and re-runs: origin then still holds the commits as they were, which
+the local branch once pointed at, so the push replaces them. A commit origin holds that
+the local branch never held refuses the merge.
 """
 
 from __future__ import annotations
@@ -238,6 +241,63 @@ def restore_unpushed(branch: str, before: str) -> None:
         print(f"{BLUE}ℹ {branch} is back on {before[:7]}, as it was before the rebase.{NC}", file=sys.stderr)
     else:
         print(f"{RED}❌ {branch} is rebased; its original head was {before[:7]} (git reset --hard {before[:7]}).{NC}", file=sys.stderr)
+
+
+def commits_only_origin_holds(branch: str) -> int | None:
+    """How many commits of `origin/<branch>` the local branch never held: those no commit
+    the branch has pointed at reaches (its reflog, and where it points now). None when git
+    could not say.
+
+    After a rebase the agent resolved by hand, origin still holds the commits as they were
+    before it. The local branch pointed at them, so nothing of them is lost when the push
+    replaces them: they do not count. A commit pushed from elsewhere was never the local
+    branch's, and counts. Patches are not compared: a resolved conflict changes the patch."""
+    held = git("reflog", "show", "--format=%H", branch, check=False)
+    if held.returncode != 0:
+        return None
+    known = sorted(set(held.stdout.split()) | {branch})
+    count = git("rev-list", "--count", "--ignore-missing", f"origin/{branch}", "--not", *known, check=False)
+    if count.returncode != 0 or not count.stdout.strip().isdigit():
+        return None
+    return int(count.stdout.strip())
+
+
+def ensure_nothing_only_on_origin(branch: str) -> None:
+    """Refuse the merge while `origin/<branch>` holds a commit the local branch never held."""
+    if git("fetch", "--quiet", "origin", branch, check=False).returncode != 0:
+        fail(
+            f"Could not fetch origin/{branch}.",
+            "Origin is unreachable or the branch was deleted server-side.",
+            f"Investigate: git fetch origin {branch}",
+        )
+    # Fail closed if a count itself fails.
+    ahead = git("rev-list", "--count", f"{branch}..origin/{branch}", check=False)
+    if ahead.returncode != 0:
+        fail(
+            f"Could not compare {branch} with origin/{branch}.",
+            f"Investigate: git rev-list --count {branch}..origin/{branch}",
+        )
+    if ahead.stdout.strip() == "0":
+        return
+    only_origin = commits_only_origin_holds(branch)
+    if only_origin is None:
+        fail(
+            f"Could not compare {branch} with origin/{branch}.",
+            f"Investigate: git reflog show {branch}",
+        )
+    if only_origin:
+        fail(
+            f"origin/{branch} has {only_origin} commit(s) the local {branch} never held.",
+            f"The merge would replace or delete origin/{branch} and lose those commits.",
+            f"  git pull --ff-only origin {branch}    # incorporate them",
+            f"  git pull --rebase origin {branch}     # if local has also diverged",
+            "Then re-run the merge. Discarding them is the owner's call, never the agent's.",
+        )
+    print(
+        f"{BLUE}ℹ origin/{branch} holds {ahead.stdout.strip()} commit(s) as they were before the local "
+        f"{branch} was rewritten; the push replaces them.{NC}",
+        file=sys.stderr,
+    )
 
 
 def rebase_folding_fixups(target: str) -> subprocess.CompletedProcess[str]:
@@ -591,31 +651,10 @@ def main() -> int:
     if git("rev-parse", "--verify", "--quiet", target, check=False).returncode != 0:
         fail(f"Target branch {target} does not exist locally.", f"Create or fetch it: git fetch origin {target}:{target}")
 
-    # Pre-flight 6 — the branch's origin is not ahead of local: the remote branch is
-    # deleted at the end, and commits only it holds would vanish silently.
+    # Pre-flight 6 — origin holds no commit the local branch never held: the remote branch
+    # is replaced by a push or deleted at the end, and such a commit would vanish silently.
     if git("rev-parse", "--verify", "--quiet", f"origin/{branch}", check=False).returncode == 0:
-        if git("fetch", "--quiet", "origin", branch, check=False).returncode != 0:
-            fail(
-                f"Could not fetch origin/{branch}.",
-                "Origin is unreachable or the branch was deleted server-side.",
-                f"Investigate: git fetch origin {branch}",
-            )
-        # Fail closed if the count itself fails.
-        ahead = git("rev-list", "--count", f"{branch}..origin/{branch}", check=False)
-        if ahead.returncode != 0:
-            fail(
-                f"Could not compare {branch} with origin/{branch}.",
-                f"Investigate: git rev-list --count {branch}..origin/{branch}",
-            )
-        count = ahead.stdout.strip()
-        if count != "0":
-            fail(
-                f"origin/{branch} has {count} commit(s) not in local {branch}.",
-                f"The merge would delete origin/{branch} and lose those commits.",
-                f"  git pull --ff-only origin {branch}    # incorporate them",
-                f"  git pull --rebase origin {branch}     # if local has also diverged",
-                "Then re-run the merge. Discarding them is the owner's call, never the agent's.",
-            )
+        ensure_nothing_only_on_origin(branch)
 
     # Step 1 — sync local target with origin (skip if no remote).
     has_origin_target = git("rev-parse", "--verify", "--quiet", f"origin/{target}", check=False).returncode == 0
