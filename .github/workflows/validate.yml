@@ -15,10 +15,12 @@ jobs:
     steps:
       - env:
           GH_TOKEN: ${{ github.token }}
-        run: gh api "repos/$GITHUB_REPOSITORY/collaborators/$GITHUB_ACTOR/permission" --jq '"permission of the actor: " + .permission'
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/collaborators/$GITHUB_ACTOR/permission" --jq '"permission of the actor = " + .permission'
       - env:
           GH_TOKEN: ${{ github.token }}
-        run: gh api "repos/$GITHUB_REPOSITORY/collaborators/octocat/permission" --jq '"permission of a stranger: " + .permission'
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/collaborators/octocat/permission" --jq '"permission of a stranger = " + .permission'
 
   validate:
     runs-on: ubuntu-latest
