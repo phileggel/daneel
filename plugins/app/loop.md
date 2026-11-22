@@ -20,7 +20,7 @@ with every check green, merged by run-entry's `merge.py`.
      is allowed is a question;
    - for every record the issue writes, the ADRs that name it: a Done when that stands
      against one is a question.
-2. **Both gates** (§ 2), before any branch exists. Then the
+2. **Design and spec gates** (§ 2), before any branch exists. Then the
    opening brief states Task, Scope, Design, Touching; the branch is made and the item
    moves to In progress.
 3. **Acceptance first.** Each Done-when clause becomes a failing test in the layers the
@@ -58,9 +58,9 @@ a five-line note, posted on the issue; an issue whose design needs a mock carrie
 `mock`. Nothing is built before the owner's yes. The mocks show invented data only and
 never reach `main`; the PR's visual proofs are the record.
 
-A new or changed spec rule has the same gate: reviewed by `app:spec-reviewer` and
-accepted by the owner, it is the branch's first commit. No later commit touches a spec:
-a missing rule returns to the gate.
+A new or changed spec rule has the same gate, `/app:spec-proposal`: reviewed by
+`app:spec-reviewer` and accepted by the owner before any branch exists. Nothing else
+changes a spec: a missing rule returns to the gate.
 
 ## 3. The harness
 

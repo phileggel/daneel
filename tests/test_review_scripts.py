@@ -407,6 +407,26 @@ class ReviewPromptTest(SessionPiece):
         self.assertIn("on each file under `docs/contracts/` that the pull request changed, its README aside, one after the other, against its spec", self.prompt("contract"))
         self.assertIn("agents/adr-reviewer.md` and follow it exactly, on each file under `docs/adr/`", self.prompt("adr"))
 
+    def test_a_spec_kept_in_its_own_repository_is_said_to_the_lanes_that_read_it(self):
+        """CI has no access to such a spec: the lanes that check against it say so and
+        check the rest; the code lanes are told nothing."""
+        absent = "keeps its spec in a repository of its own, which is not in this checkout"
+        self.assertNotIn(absent, self.prompt("contract"))
+        self.write(".claude/daneel.json", json.dumps({"spec-proposal": {"repo": "acme/app-spec"}}))
+        for lane in ("spec", "contract", "adr"):
+            self.assertIn(absent, self.prompt(lane), lane)
+            self.assertIn("report no finding on its absence", self.prompt(lane))
+        for lane in ("backend", "frontend", "infra", "guides"):
+            self.assertNotIn(absent, self.prompt(lane), lane)
+
+    def test_a_spec_proposal_key_no_piece_reads_is_refused(self):
+        self.write(".claude/daneel.json", json.dumps({"spec-proposal": {"repo": "acme/app-spec", "branch": "main"}}))
+        result = self.piece("review-prompt.sh", "backend", "/tmp/acme-tree")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("unknown spec-proposal settings", result.stderr)
+        self.assertIn("branch", result.stderr)
+        self.assertEqual(result.stdout, "")
+
     def test_an_unknown_lane_or_a_missing_tree_is_a_usage_error(self):
         self.assertEqual(self.piece("review-prompt.sh", "rust", "/tmp/acme-tree").returncode, 2)
         self.assertEqual(self.piece("review-prompt.sh", "backend").returncode, 2)

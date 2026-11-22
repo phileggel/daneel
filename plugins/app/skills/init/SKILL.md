@@ -32,7 +32,7 @@ Read:
 
 Every call reads; no `--method`.
 
-Then, per role, the doc the project's `CLAUDE.md` names, else the default:
+Then, per role, the doc `CLAUDE.md` names, else the default:
 
 | Role | Key | The default |
 | --- | --- | --- |
@@ -45,7 +45,8 @@ Then, per role, the doc the project's `CLAUDE.md` names, else the default:
 | owners, setup | `review.owners`, `review.setup` | none |
 | visual-proof rules | `visual-proof.rules` | `docs/visual-proof-rules.md` |
 | a lane's own folders | `review.lanes.<lane>` | `review-lanes.sh`'s header |
-| architecture document (spec, contract and ADR reviewers, `spec-checker`) | none: the rules name it | `ARCHITECTURE.md` |
+| spec repository | `spec-proposal.repo` | none |
+| architecture document | none: the rules name it | `ARCHITECTURE.md` |
 
 ## Step 2 — Ask
 

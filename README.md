@@ -33,7 +33,7 @@ harness proves it. `flow` carries the batch around the work, `app` the run of ea
 | Plugin | Holds |
 | ------ | ----- |
 | `flow` | Any project: the batch method (`method.md`), `init`, `plan-batch`, `backlog`, `flow-audit` (`plugins/flow/README.md`) |
-| `app` | The addon for Tauri + React apps: the loop (`loop.md`), `run-entry`, `run-batch`, `design-proposal`, the document reviewers, the seven stack lanes and `reviewer-guides` with their `protocol.md`, `visual-proof`, `dep-audit` (`plugins/app/README.md`) |
+| `app` | The addon for Tauri + React apps: the loop (`loop.md`), `run-entry`, `run-batch`, `design-proposal`, `spec-proposal`, the document reviewers, the seven stack lanes and `reviewer-guides` with their `protocol.md`, `visual-proof`, `dep-audit` (`plugins/app/README.md`) |
 
 `flow` holds what any project can use. What only the apps share is `app`, used
 beside `flow`; what one project alone runs stays in that project.
@@ -68,7 +68,7 @@ What was measured of this under `claude -p` is in [Measurements](#measurements).
 
 What differs between projects is the project's own: `.claude/daneel.json` (one key per
 piece: `flow-audit`, `plan-batch`, `backlog`, `review`, `run-entry`, `run-batch`,
-`design-proposal`, `visual-proof`, `dep-audit`).
+`design-proposal`, `spec-proposal`, `visual-proof`, `dep-audit`).
 Each skill's doc names its keys; the docs a project's reviewers read are `review.rules.<lane>`
 (`spec`, `contract` and `adr` naming that kind's README first), `review.glossary`,
 `flow-audit.guides` and `visual-proof.rules`.
