@@ -325,6 +325,106 @@ class DeletingTheRemoteBranch(unittest.TestCase):
             self.assertEqual(merge.delete_remote_branch("feature"), "failed")
 
 
+class NothingOnlyOnOrigin(unittest.TestCase):
+    """`ensure_nothing_only_on_origin`: a `work` branch pushed to a bare repository standing
+    in for origin, with a pull request's commit on it."""
+
+    def setUp(self):
+        self.folder = tempfile.TemporaryDirectory()
+        self.addCleanup(self.folder.cleanup)
+        self.addCleanup(os.chdir, os.getcwd())
+        self.root = Path(self.folder.name)
+        self.origin = self.root / "origin.git"
+        self.run_git("init", "--quiet", "--bare", "--initial-branch", "main", str(self.origin))
+        self.clone("project")
+        self.commit("chore: start", {"bindings.ts": "one\n"})
+        self.run_git("push", "--quiet", "origin", "main")
+        self.run_git("checkout", "--quiet", "-b", "work")
+        self.pushed = self.commit("feat: show the total", {"bindings.ts": "one\ntotal\n", "total.txt": "total\n"})
+        self.run_git("push", "--quiet", "origin", "work")
+
+    def clone(self, name):
+        os.chdir(self.root)
+        self.run_git("clone", "--quiet", str(self.origin), name)
+        os.chdir(self.root / name)
+        self.run_git("config", "user.name", "test")
+        self.run_git("config", "user.email", "test@example.invalid")
+        self.run_git("config", "core.hooksPath", os.devnull)
+
+    def run_git(self, *args, check=True):
+        return subprocess.run(["git", *args], capture_output=True, text=True, check=check).stdout.strip()
+
+    def commit(self, title, files):
+        for name, content in files.items():
+            Path(name).write_text(content, encoding="utf-8")
+        self.run_git("add", "--all")
+        self.run_git("commit", "--quiet", "-m", title)
+        return self.run_git("rev-parse", "HEAD")
+
+    def elsewhere_pushes(self, branch, title, files):
+        """Another checkout commits on `branch` and pushes it; this one is left as it was."""
+        here = os.getcwd()
+        self.others = getattr(self, "others", 0) + 1
+        self.clone(f"elsewhere-{self.others}")
+        self.run_git("checkout", "--quiet", branch)
+        self.commit(title, files)
+        self.run_git("push", "--quiet", "origin", branch)
+        os.chdir(here)
+
+    def rebase_by_hand_over_a_conflict(self):
+        """`main` moves on the file the branch changed; the agent rebases, resolves, continues."""
+        self.elsewhere_pushes("main", "feat: another command", {"bindings.ts": "one\nother\n"})
+        self.run_git("fetch", "--quiet", "origin", "main:main")
+        conflict = subprocess.run(["git", "rebase", "main"], capture_output=True, text=True)
+        self.assertNotEqual(conflict.returncode, 0, "the rebase was meant to conflict")
+        Path("bindings.ts").write_text("one\nother\ntotal\n", encoding="utf-8")
+        self.run_git("add", "bindings.ts")
+        subprocess.run(["git", "-c", "core.editor=true", "rebase", "--continue"], capture_output=True, text=True, check=True)
+
+    def guard(self):
+        self.err = io.StringIO()
+        with contextlib.redirect_stderr(self.err):
+            try:
+                merge.ensure_nothing_only_on_origin("work")
+                return True
+            except SystemExit:
+                return False
+
+    def test_a_branch_at_or_ahead_of_its_origin_passes(self):
+        self.assertTrue(self.guard())
+        self.commit("fixup! feat: show the total", {"total.txt": "total, fixed\n"})
+        self.assertTrue(self.guard())
+        self.assertEqual(self.err.getvalue(), "")
+
+    def test_a_commit_pushed_from_elsewhere_refuses_the_merge(self):
+        self.elsewhere_pushes("work", "fix: from another machine", {"other.txt": "x\n"})
+        self.assertFalse(self.guard())
+        self.assertIn("origin/work has 1 commit(s) the local work never held", self.err.getvalue())
+
+    def test_a_rebase_resolved_by_hand_passes_and_says_what_the_push_replaces(self):
+        """The agent did what the conflict's message asked: the re-run must go on."""
+        self.rebase_by_hand_over_a_conflict()
+        self.assertNotEqual(self.run_git("rev-parse", "work"), self.pushed)
+        self.assertEqual(self.run_git("rev-list", "--count", "work..origin/work"), "1")
+        # The resolved commit is not the pushed one's patch: comparing patches would refuse it.
+        self.assertTrue(self.run_git("cherry", "work", "origin/work").startswith("+ "))
+        self.assertEqual(merge.commits_only_origin_holds("work"), 0)
+        self.assertTrue(self.guard())
+        self.assertIn("as they were before the local work was rewritten; the push replaces them", self.err.getvalue())
+
+    def test_a_rebase_by_hand_does_not_hide_a_commit_pushed_from_elsewhere(self):
+        self.elsewhere_pushes("work", "fix: from another machine", {"other.txt": "x\n"})
+        self.rebase_by_hand_over_a_conflict()
+        self.assertFalse(self.guard())  # it fetches origin first
+        self.assertIn("origin/work has 1 commit(s) the local work never held", self.err.getvalue())
+        self.assertEqual(merge.commits_only_origin_holds("work"), 1)
+
+    def test_an_origin_that_cannot_be_fetched_refuses(self):
+        self.run_git("remote", "set-url", "origin", str(self.root / "nowhere.git"))
+        self.assertFalse(self.guard())
+        self.assertIn("Could not fetch origin/work", self.err.getvalue())
+
+
 class Worktrees(unittest.TestCase):
     LISTING = (
         "worktree /home/me/project\nHEAD 1111\nbranch refs/heads/main\n\n"
