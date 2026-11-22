@@ -74,11 +74,11 @@ Settings (`.claude/daneel.json`): the Project is `plan-batch.owner` and `.number
 
 Before any branch exists and the item moves (loop § 2): anything the user sees
 changes and `Design` is not `validated` — `/app:design-proposal <id>`; a spec rule is new
-or changed — its diff and its questions, after `app:spec-reviewer`.
+or changed, or `spec-proposal.repo` is set — `/app:spec-proposal <id>`.
 
-- Chat: nothing is built before the owner's yes to each; a no stops.
-- Headless: the proposal is posted on the issue, its Design set to `needed`; the diff
-  posted there with `needs-owner`. The item stays Queued. Then Step 0.
+- Chat: nothing is built before the owner's yes to each; on a no, stop.
+- Headless: the proposal is posted on the issue, its Design set to `needed`; the spec's
+  question is posted there with `needs-owner`. The item stays Queued. Then Step 0 again.
 
 ## Step 2 — Opening brief, branch, task list
 
@@ -90,8 +90,8 @@ or changed — its diff and its questions, after `app:spec-reviewer`.
 
 ## Step 3 — Acceptance first
 
-- Step 1's spec change is the first commit; a changed command goes into its contract,
-  with its reviewer, before the code (its folder's `README.md`).
+- A changed command goes into its contract, with its reviewer, before the code (its
+  folder's `README.md`).
 - Every Done-when clause becomes a failing test, confirmed red, unless no test can prove it (loop § 1, step 3). A clause the agent cannot run: method § 1 (an
   E2E scenario when it needs the real window).
 
@@ -123,7 +123,7 @@ spec; every finding graded (loop § 5); again on the fixes before the first push
 - Every lane's newest comment, red or green, is graded in a PR comment (loop § 5)
   before the push that applies it as `fixup!`s. A lane never reviews again: graded, its check passes.
 - A lane with no verdict, its comment `no report` or stopped by the CI account's usage
-  limit: nothing to fix. Re-run it alone: `gh run view <run id> --json jobs`
+  limit (by exit code or comment): nothing to fix. Re-run it alone: `gh run view <run id> --json jobs`
   for its job id, `gh run rerun --job <job id>`, watch again. At the limit, in chat: a wake-up
   at the reset time it names (outside Rule 2), or with none given, ask the owner.
   Headless, at the limit: a file says that time, or that none was given; then `gh issue

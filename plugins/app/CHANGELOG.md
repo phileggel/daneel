@@ -2,6 +2,31 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.14.0 — 2026-11-22
+
+- `/app:spec-proposal <id>` is the spec gate of 0.13.0 as a skill: it drafts the change to
+  the rules, has `app:spec-reviewer` read it, shows the owner the diff and the questions,
+  and lands the change only on the yes. `/app:run-entry` Step 1 calls it.
+- `spec-proposal.repo` (`owner/name`), optional: the spec lives in a repository of its
+  own, which may be private. The spec folder is then a clone of it that git ignores and
+  the agent may not edit; an accepted change is pushed to that repository's `main` by the
+  skill's `publish.sh`, which refuses the project itself; public text cites a rule by its
+  ID; `review-prompt.sh` tells the spec, contract and ADR lanes of CI that the spec is not
+  in the checkout (`README.md` § A spec in its own repository).
+- Corrects 0.13.0: an accepted spec change is not "the branch's first commit". It goes
+  into the task's one commit as it is, since `merge.py` lands one commit per entry and
+  refuses a branch that folds into two. Nothing else changes a spec.
+- `/app:init` lists the key among the roles. Its table no longer says who reads the
+  architecture document, to keep the doc's length.
+
+To take it: nothing without the key. To move a spec to its own repository (`README.md`
+§ A spec in its own repository): create the repository and push the spec folder's files to
+its `main`; in the project, remove the folder from git and list it in `.gitignore`; add
+`spec-proposal.repo` to `.claude/daneel.json`; the owner adds the deny line on the folder
+to `.claude/settings.json`; clone the repository at the folder's path on each computer;
+drop a required check of the `spec` lane; move the review workflow to `review-prompt.sh`
+(0.12.0), which tells the contract and ADR lanes that the spec is absent.
+
 ## app 0.13.0 — 2026-11-22
 
 - A spec changes only as the task's stated intent, accepted by the owner before the branch

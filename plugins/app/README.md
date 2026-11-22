@@ -22,6 +22,7 @@ would not. Used with `flow`.
 | `/app:run-entry` | One task end to end, branch to merge on green; optional `run-entry.recipes`, `.record_paths` |
 | `/app:run-batch` | A whole batch: every Queued item through `run-entry`, its end (`release.py` to a draft, or `batch-end.sh`), the closing brief last; optional `run-batch.release_check`, `.version_files`, `.changelog`, `.release_workflow` |
 | `/app:design-proposal` | Mocks of the target state, light and dark, beside the current one for an existing screen, and a note, for the owner to validate; optional `design-proposal.repo` |
+| `/app:spec-proposal` | The spec gate: the change to the rules drafted, read by `app:spec-reviewer`, and its diff shown for the owner to accept, before anything is built; optional `spec-proposal.repo`, a repository of its own for the spec |
 | `/app:init` | After `/flow:init`: the harness (`required-checks.json`, ruleset, merge settings, deny lines) and which project doc plays each role the reviewers read, asked once, added only where missing; re-run, re-aligns the pins, keys and defaults with the project's docs and this changelog |
 
 `protocol.md` is what every reviewer shares: modes, steps, output, the CI report.
@@ -110,7 +111,7 @@ says the rest:
 | --- | --- | --- |
 | `review-prepare.sh <base> <tree>` | The checkout made ready: `main` at `<base>` for `branch.sh`; the plugin's folder out of the changed files; the commit under review in `<tree>`, a folder outside the checkout, without its skills and agents; `.review/`; and from `<base>`, `CLAUDE.md`, `.claude/` and every document `review.rules`, `review.glossary`, `review.owners` and `review.setup` name, with the README of each kind `review.rules` leaves out. One that `<base>` does not have is removed. | 0 prepared · 1 refused, nothing changed · 2 usage |
 | `review-tools.sh <lane>` | One line for `--allowedTools`: `Read`, `Grep`, `Glob`; the report's folder, granted from the session's folder and from the filesystem root, so a session that changed folder still writes it; the two helpers under both spellings; the reading subcommands of `git`; `grep`, `ls`, `wc`, `head`, `tail`; for `infra`, the tags of an action on github.com. | 0 printed · 2 usage or unknown lane |
-| `review-prompt.sh <lane> <tree>` | The instruction: which agent file and on what, what `${CLAUDE_PLUGIN_ROOT}` stands for, what on disk is the base branch's, where the files under review are, where the report goes and how it begins. | 0 printed · 2 usage, unknown lane or unreadable settings |
+| `review-prompt.sh <lane> <tree>` | The instruction: which agent file and on what, what `${CLAUDE_PLUGIN_ROOT}` stands for, what on disk is the base branch's, where the files under review are, where the report goes and how it begins; with `spec-proposal.repo`, the spec, contract and ADR lanes are told that the spec is not in the checkout. | 0 printed · 2 usage, unknown lane, unreadable settings or an unknown `spec-proposal` key |
 
     bash .daneel/plugins/app/scripts/review-prepare.sh "origin/$BASE" "$RUNNER_TEMP/branch"
     bash .daneel/plugins/app/scripts/review-tools.sh "$LANE"
@@ -151,6 +152,40 @@ repository, and no Claude token. The
 lane's first run still fails its check on a 🔴; the agent grades every finding in a comment,
 then pushes its fix, and the next run passes on exit 0. A lane that first touches the PR
 on a later push has no report, so it runs then, once.
+
+## A spec in its own repository
+
+By default a project's spec is a folder of the project (that of the first path of
+`review.rules.spec`, default `docs/spec`), and an accepted change goes into the task's
+commit. With `spec-proposal.repo` (`owner/name`) the spec lives in a repository of its
+own, which the project's owner may keep private:
+
+- The spec folder is a clone of that repository, at the same path, so every reviewer and
+  every path a test or a guide names reads as before. The project's `.gitignore` lists
+  the folder, and `.claude/settings.json` denies its edits (`"Edit(/docs/spec/**)"` under
+  `permissions.deny`, for the default folder). `/app:spec-proposal` checks both each time
+  it runs, and updates the clone.
+- A change is drafted in another clone, in the scratchpad, and shown to the owner in chat.
+  On the yes, the skill's `publish.sh` commits it and pushes the spec repository's `main`;
+  the issue gets the accepted rule IDs. The script refuses the project itself.
+- Public text (a PR, a commit, an issue, a test name) cites a rule by its ID, never its
+  words.
+- CI has no access to the spec. The `spec` lane no longer fires in the project, and the
+  contract and ADR lanes say that the spec is absent and check the rest (`review-prompt.sh`);
+  their checks against the spec, and `app:spec-checker`, run locally.
+- What the project's history already published stays there.
+
+To move a spec there: create the repository and push the folder's files to its `main`;
+in the project, remove the folder from git, list it in `.gitignore`, add the key and the
+deny line; clone the repository at the folder's path on each computer; drop a required
+check of the `spec` lane.
+
+Measured on 2026-11-22, on throwaway projects, with `claude -p --setting-sources project`:
+the deny line refused the Write tool in the folder and allowed it beside it; and a
+contract lane's session, prepared and prompted by the three scripts with the key set and
+no spec folder, wrote its report in 6 turns, said under the headline that the spec was
+absent and which checks it could not run, and raised nothing on that absence. The gate
+itself was not run end to end: it waits for an owner's yes.
 
 ## Headless runs
 

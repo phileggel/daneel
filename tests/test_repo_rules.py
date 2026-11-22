@@ -16,6 +16,7 @@ CHAINED = re.compile(r" (&&|\|\|) |; |\$\(")
 HEADLESS = [
     "plugins/app/skills/run-entry/SKILL.md",
     "plugins/app/skills/design-proposal/SKILL.md",
+    "plugins/app/skills/spec-proposal/SKILL.md",
     "plugins/app/skills/visual-proof/SKILL.md",
     "plugins/app/skills/dep-audit/SKILL.md",
     "plugins/flow/skills/flow-audit/SKILL.md",
