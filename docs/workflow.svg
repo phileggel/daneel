@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1420 648" width="1420" height="648" role="img" aria-labelledby="t d">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1420 718" width="1420" height="718" role="img" aria-labelledby="t d">
 <title id="t">The workflow daneel brings</title>
-<desc id="d">Five phases across three lanes. The owner asks, approves the batch, validates the design, publishes the release and decides the flow proposals. The agent files issues, proposes the batch, runs each task to its merge on green, ends the batch and audits it. The harness holds the backlog and the Project, checks every push and lands a PR only when all is green. The audit feeds the backlog.</desc>
+<desc id="d">Five phases across three lanes. The owner asks, approves the batch, validates the design, publishes the release and decides the flow proposals. The agent files issues and proposes the batch. One run-batch invocation then asks every question first, loops run-entry over each Queued item to its merge on green, ends the batch, audits it and gives the closing brief. The harness holds the backlog and the Project, checks every push and lands a PR only on green checks and graded findings. The audit's proposals are filed as flow issues.</desc>
 <defs><marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#57606a"/></marker><marker id="tail" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M10 0 L0 5 L10 10 z" fill="#57606a"/></marker></defs>
-<rect x="0.5" y="0.5" width="1419" height="647" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+<rect x="0.5" y="0.5" width="1419" height="717" rx="12" fill="#ffffff" stroke="#d0d7de"/>
 <text x="20" y="36" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#1f2328" text-anchor="start">The workflow daneel brings</text>
 <text x="20" y="58" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#57606a" text-anchor="start">The owner decides and publishes. The agent does the work. The harness proves it.</text>
 <rect x="870" y="24" width="16" height="16" rx="4" fill="#ddf4ff" stroke="#54aeff" stroke-width="1.2"/>
@@ -15,10 +15,10 @@
 <text x="1279.4" y="37" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">the harness</text>
 <rect x="10" y="114" width="1400" height="90" rx="8" fill="#fafbfc" stroke="#eaeef2"/>
 <text x="58" y="163.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#57606a" text-anchor="middle">OWNER</text>
-<rect x="10" y="214" width="1400" height="190" rx="8" fill="#fafbfc" stroke="#eaeef2"/>
-<text x="58" y="313.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#57606a" text-anchor="middle">AGENT</text>
-<rect x="10" y="414" width="1400" height="110" rx="8" fill="#fafbfc" stroke="#eaeef2"/>
-<text x="58" y="473.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#57606a" text-anchor="middle">HARNESS</text>
+<rect x="10" y="214" width="1400" height="260" rx="8" fill="#fafbfc" stroke="#eaeef2"/>
+<text x="58" y="349.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#57606a" text-anchor="middle">AGENT</text>
+<rect x="10" y="484" width="1400" height="110" rx="8" fill="#fafbfc" stroke="#eaeef2"/>
+<text x="58" y="543.0" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="700" fill="#57606a" text-anchor="middle">HARNESS</text>
 <rect x="110" y="76" width="200" height="28" rx="6" fill="#54aeff" fill-opacity="0.35" stroke="#54aeff"/>
 <text x="122" y="95" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#1f2328" text-anchor="start">1  Backlog</text>
 <text x="298" y="95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#0550ae" text-anchor="end">flow</text>
@@ -35,112 +35,119 @@
 <text x="1222" y="95" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#1f2328" text-anchor="start">5  Audit the flow</text>
 <text x="1398" y="95" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="700" fill="#0550ae" text-anchor="end">flow</text>
 <rect x="120" y="124" width="180" height="70" rx="8" fill="#fff8c5" stroke="#d4a72c" stroke-width="1.2"/>
-<text x="210.0" y="146.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Asks for features,</text>
-<text x="210.0" y="163.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">confirms each issue's</text>
+<text x="210.0" y="146.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Asks for features and</text>
+<text x="210.0" y="163.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">fixes, confirms each one's</text>
 <text x="210.0" y="180.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">User value and Done when</text>
-<rect x="120" y="424" width="180" height="90" rx="8" fill="#f6f8fa" stroke="#afb8c1" stroke-width="1.2"/>
-<text x="210.0" y="454.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">GitHub issues, forms</text>
-<text x="210.0" y="473.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">and labels: the backlog</text>
-<text x="210.0" y="492.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">is never a file in git</text>
-<rect x="120" y="244" width="180" height="130" rx="8" fill="#ddf4ff" stroke="#54aeff" stroke-width="1.2"/>
-<text x="210.0" y="268" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#0550ae" text-anchor="middle">/flow:backlog</text>
-<text x="210.0" y="299.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Files every issue from</text>
-<text x="210.0" y="317.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">its form: kind, size,</text>
-<text x="210.0" y="335.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">evidence. Checks it fits</text>
-<text x="210.0" y="353.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">under the backlog ceiling.</text>
-<line x1="210.0" y1="194" x2="210.0" y2="244" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
-<line x1="210.0" y1="374" x2="210.0" y2="424" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
-<line x1="300" y1="309" x2="330" y2="309" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)"/>
+<rect x="120" y="494" width="180" height="90" rx="8" fill="#f6f8fa" stroke="#afb8c1" stroke-width="1.2"/>
+<text x="210.0" y="524.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">GitHub issues, forms</text>
+<text x="210.0" y="543.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">and labels: the backlog</text>
+<text x="210.0" y="562.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">is never a file in git</text>
+<rect x="120" y="280" width="180" height="130" rx="8" fill="#ddf4ff" stroke="#54aeff" stroke-width="1.2"/>
+<text x="210.0" y="304" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#0550ae" text-anchor="middle">/flow:backlog</text>
+<text x="210.0" y="335.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Before it files an issue,</text>
+<text x="210.0" y="353.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">folds it into an open one</text>
+<text x="210.0" y="371.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">or checks its size fits</text>
+<text x="210.0" y="389.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">under the backlog ceiling.</text>
+<line x1="210.0" y1="194" x2="210.0" y2="280" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
+<line x1="210.0" y1="410" x2="210.0" y2="494" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
+<line x1="300" y1="345" x2="330" y2="345" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)"/>
 <rect x="330" y="124" width="180" height="70" rx="8" fill="#fff8c5" stroke="#d4a72c" stroke-width="1.2"/>
 <text x="420.0" y="154.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Approves the batch</text>
 <text x="420.0" y="172.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">with a yes in chat</text>
-<rect x="330" y="424" width="180" height="90" rx="8" fill="#f6f8fa" stroke="#afb8c1" stroke-width="1.2"/>
-<text x="420.0" y="454.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">The GitHub Project:</text>
-<text x="420.0" y="473.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Status, Batch and</text>
-<text x="420.0" y="492.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">row order hold the batch</text>
-<rect x="330" y="244" width="180" height="130" rx="8" fill="#ddf4ff" stroke="#54aeff" stroke-width="1.2"/>
-<text x="420.0" y="268" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#0550ae" text-anchor="middle">/flow:plan-batch</text>
-<text x="420.0" y="299.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Shows the Project and</text>
-<text x="420.0" y="317.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">proposes the next batch,</text>
-<text x="420.0" y="335.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">sized by what the last</text>
-<text x="420.0" y="353.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">batches merged.</text>
-<line x1="420.0" y1="194" x2="420.0" y2="244" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
-<line x1="420.0" y1="374" x2="420.0" y2="424" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
-<line x1="510" y1="309" x2="540" y2="309" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)"/>
+<rect x="330" y="494" width="180" height="90" rx="8" fill="#f6f8fa" stroke="#afb8c1" stroke-width="1.2"/>
+<text x="420.0" y="524.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">The GitHub Project:</text>
+<text x="420.0" y="543.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Status, Batch and</text>
+<text x="420.0" y="562.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">row order hold the batch</text>
+<rect x="330" y="280" width="180" height="130" rx="8" fill="#ddf4ff" stroke="#54aeff" stroke-width="1.2"/>
+<text x="420.0" y="304" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#0550ae" text-anchor="middle">/flow:plan-batch</text>
+<text x="420.0" y="335.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Shows the Project and</text>
+<text x="420.0" y="353.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">proposes the next batch,</text>
+<text x="420.0" y="371.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">sized by what the last</text>
+<text x="420.0" y="389.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">batches merged.</text>
+<line x1="420.0" y1="194" x2="420.0" y2="280" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
+<line x1="420.0" y1="410" x2="420.0" y2="494" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
+<line x1="510" y1="345" x2="530" y2="345" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)"/>
+<rect x="530" y="222" width="875" height="244" rx="10" fill="#ffffff" stroke="#c297ff" stroke-width="1.2"/>
+<text x="544" y="245" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#6639ba" text-anchor="start">/app:run-batch</text>
+<text x="668" y="245" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">the whole batch in one invocation, every question asked first</text>
 <rect x="540" y="124" width="440" height="70" rx="8" fill="#fff8c5" stroke="#d4a72c" stroke-width="1.2"/>
 <text x="760.0" y="146.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Answers the questions the agent asks before the work starts</text>
 <text x="760.0" y="163.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Validates the design mocks before anything visible is built</text>
 <text x="760.0" y="180.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Validates no PR: the harness does</text>
-<rect x="540" y="424" width="440" height="90" rx="8" fill="#f6f8fa" stroke="#afb8c1" stroke-width="1.2"/>
-<text x="760.0" y="454.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">CI on every push: lint, types, tests, E2E, coverage floors</text>
-<text x="760.0" y="473.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Reviewer lanes: one review per PR, a critical fails</text>
-<text x="760.0" y="492.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">merge.py: lands only when all is green and graded</text>
-<rect x="540" y="224" width="440" height="170" rx="8" fill="#fbefff" stroke="#c297ff" stroke-width="1.2"/>
-<text x="554" y="246" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#6639ba" text-anchor="start">/app:run-entry</text>
-<text x="678" y="246" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">one task, from its branch to its merge on green</text>
-<rect x="548" y="258" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
-<text x="598.0" y="276.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">1  Questions</text>
-<text x="598.0" y="291.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">to the owner</text>
-<rect x="656" y="258" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
-<text x="706.0" y="276.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">2  Design</text>
-<text x="706.0" y="291.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">proposal</text>
-<rect x="764" y="258" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
-<text x="814.0" y="276.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">3  Tests first,</text>
-<text x="814.0" y="291.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">seen red</text>
-<rect x="872" y="258" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
-<text x="922.0" y="276.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">4  Code</text>
-<text x="922.0" y="291.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">to green</text>
-<rect x="548" y="310" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
-<text x="598.0" y="328.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">5  Harness and</text>
-<text x="598.0" y="343.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">local reviewers</text>
-<rect x="656" y="310" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
-<text x="706.0" y="328.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">6  Visual</text>
-<text x="706.0" y="343.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">proof</text>
-<rect x="764" y="310" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
-<text x="814.0" y="328.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">7  PR opened,</text>
-<text x="814.0" y="343.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">CI checks</text>
-<rect x="872" y="310" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
-<text x="922.0" y="328.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">8  Grade, then</text>
-<text x="922.0" y="343.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">merge on green</text>
-<text x="760.0" y="382" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#57606a" text-anchor="middle">One run, a 3-hour budget; the same gate failing three times stops it.</text>
-<line x1="700.0" y1="194" x2="700.0" y2="224" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
-<line x1="820.0" y1="394" x2="820.0" y2="424" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
-<line x1="980" y1="309" x2="1010" y2="309" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)"/>
+<rect x="540" y="494" width="440" height="90" rx="8" fill="#f6f8fa" stroke="#afb8c1" stroke-width="1.2"/>
+<text x="760.0" y="524.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">CI on every push: lint, types, tests, E2E, coverage floors</text>
+<text x="760.0" y="543.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Reviewer lanes: each reviews a PR once, a critical fails its check</text>
+<text x="760.0" y="562.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">merge.py: lands a PR only on green checks and graded findings</text>
+<rect x="540" y="260" width="440" height="170" rx="8" fill="#fbefff" stroke="#c297ff" stroke-width="1.2"/>
+<text x="554" y="282" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#6639ba" text-anchor="start">/app:run-entry</text>
+<text x="678" y="282" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">one task end to end, to its merge on green</text>
+<rect x="548" y="294" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
+<text x="598.0" y="312.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">1  Questions</text>
+<text x="598.0" y="327.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">to the owner</text>
+<rect x="656" y="294" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
+<text x="706.0" y="312.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">2  Design</text>
+<text x="706.0" y="327.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">proposal</text>
+<rect x="764" y="294" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
+<text x="814.0" y="312.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">3  Tests first,</text>
+<text x="814.0" y="327.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">seen red</text>
+<rect x="872" y="294" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
+<text x="922.0" y="312.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">4  Code</text>
+<text x="922.0" y="327.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">to green</text>
+<rect x="548" y="346" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
+<text x="598.0" y="364.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">5  Harness and</text>
+<text x="598.0" y="379.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">local reviewers</text>
+<rect x="656" y="346" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
+<text x="706.0" y="364.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">6  Visual</text>
+<text x="706.0" y="379.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">proof</text>
+<rect x="764" y="346" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
+<text x="814.0" y="364.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">7  PR opened,</text>
+<text x="814.0" y="379.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">CI checks</text>
+<rect x="872" y="346" width="100" height="44" rx="6" fill="#ffffff" stroke="#c297ff"/>
+<text x="922.0" y="364.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">8  CI findings</text>
+<text x="922.0" y="379.6" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#1f2328" text-anchor="middle">graded, merge</text>
+<text x="760.0" y="418" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#57606a" text-anchor="middle">One run, a 3-hour budget; the same gate failing three times stops it.</text>
+<line x1="700.0" y1="194" x2="700.0" y2="222" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
+<line x1="956.0" y1="430" x2="956.0" y2="494" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
+<path d="M930 430 V448 H580 V432" fill="none" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)"/>
+<rect x="645" y="438" width="220" height="20" rx="10" fill="#ffffff"/>
+<text x="755" y="452" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#57606a" text-anchor="middle">for each Queued item, in row order</text>
+<text x="1205" y="452" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#57606a" text-anchor="middle">then the closing brief, last</text>
+<line x1="980" y1="345" x2="1010" y2="345" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)"/>
 <rect x="1010" y="124" width="180" height="70" rx="8" fill="#fff8c5" stroke="#d4a72c" stroke-width="1.2"/>
 <text x="1100.0" y="154.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Publishes the draft</text>
 <text x="1100.0" y="172.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">release, outside the run</text>
-<rect x="1010" y="424" width="180" height="90" rx="8" fill="#f6f8fa" stroke="#afb8c1" stroke-width="1.2"/>
-<text x="1100.0" y="454.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">main's runs are green</text>
-<text x="1100.0" y="473.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">before the tag;</text>
-<text x="1100.0" y="492.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">a ruleset guards main</text>
-<rect x="1010" y="244" width="180" height="130" rx="8" fill="#fbefff" stroke="#c297ff" stroke-width="1.2"/>
-<text x="1100.0" y="268" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#6639ba" text-anchor="middle">/app:run-batch</text>
-<text x="1100.0" y="299.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Runs every Queued item,</text>
-<text x="1100.0" y="317.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">then the release sweep,</text>
-<text x="1100.0" y="335.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">the tag and the draft</text>
-<text x="1100.0" y="353.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">release with its notes.</text>
-<line x1="1100.0" y1="194" x2="1100.0" y2="244" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
-<line x1="1100.0" y1="374" x2="1100.0" y2="424" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
-<line x1="1190" y1="309" x2="1220" y2="309" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)"/>
+<rect x="1010" y="494" width="180" height="90" rx="8" fill="#f6f8fa" stroke="#afb8c1" stroke-width="1.2"/>
+<text x="1100.0" y="524.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">main's runs are green</text>
+<text x="1100.0" y="543.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">before the tag;</text>
+<text x="1100.0" y="562.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">a ruleset guards main</text>
+<rect x="1010" y="280" width="180" height="130" rx="8" fill="#fbefff" stroke="#c297ff" stroke-width="1.2"/>
+<text x="1100.0" y="304" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#6639ba" text-anchor="middle">The batch end</text>
+<text x="1100.0" y="335.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">The release sweep, then</text>
+<text x="1100.0" y="353.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">a release: the tag and its</text>
+<text x="1100.0" y="371.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">draft; or a batch tag when</text>
+<text x="1100.0" y="389.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">no feat or fix is in it.</text>
+<line x1="1100.0" y1="194" x2="1100.0" y2="280" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
+<line x1="1100.0" y1="410" x2="1100.0" y2="494" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
+<line x1="1190" y1="345" x2="1220" y2="345" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)"/>
 <rect x="1220" y="124" width="180" height="70" rx="8" fill="#fff8c5" stroke="#d4a72c" stroke-width="1.2"/>
 <text x="1310.0" y="154.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Decides each proposal</text>
 <text x="1310.0" y="172.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">in its issue's thread</text>
-<rect x="1220" y="424" width="180" height="90" rx="8" fill="#f6f8fa" stroke="#afb8c1" stroke-width="1.2"/>
-<text x="1310.0" y="454.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">flow-audit.py: figures</text>
-<text x="1310.0" y="473.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">from commits, CI runs</text>
-<text x="1310.0" y="492.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">and the usage log</text>
-<rect x="1220" y="244" width="180" height="130" rx="8" fill="#ddf4ff" stroke="#54aeff" stroke-width="1.2"/>
-<text x="1310.0" y="268" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#0550ae" text-anchor="middle">/flow:flow-audit</text>
-<text x="1310.0" y="299.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Judges the batch from</text>
-<text x="1310.0" y="317.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">its records alone and</text>
-<text x="1310.0" y="335.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">files the flow issues</text>
-<text x="1310.0" y="353.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">it proposes.</text>
-<line x1="1310.0" y1="194" x2="1310.0" y2="244" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
-<line x1="1310.0" y1="374" x2="1310.0" y2="424" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
-<path d="M1310.0 524 V552 H210.0 V526" fill="none" stroke="#57606a" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#head)"/>
-<rect x="495.0" y="541" width="430" height="22" rx="11" fill="#ffffff"/>
-<text x="710.0" y="556" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#57606a" text-anchor="middle">What the audit finds becomes flow issues: the workflow improves itself</text>
-<rect x="10" y="584" width="1400" height="50" rx="8" fill="#ffebe9" stroke="#ff8182"/>
-<text x="26" y="605" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#a40e26" text-anchor="start">The agent never</text>
-<text x="26" y="623" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">pushes a project's main  ·  force-pushes, except the landing script pushing the task's own branch with lease  ·  publishes a release  ·  bypasses a hook  ·  edits the settings that bind it</text>
+<rect x="1220" y="494" width="180" height="90" rx="8" fill="#f6f8fa" stroke="#afb8c1" stroke-width="1.2"/>
+<text x="1310.0" y="524.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">flow-audit.py: figures</text>
+<text x="1310.0" y="543.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">from PRs, CI runs</text>
+<text x="1310.0" y="562.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">and the usage log</text>
+<rect x="1220" y="280" width="180" height="130" rx="8" fill="#ddf4ff" stroke="#54aeff" stroke-width="1.2"/>
+<text x="1310.0" y="304" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="700" fill="#0550ae" text-anchor="middle">/flow:flow-audit</text>
+<text x="1310.0" y="335.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">Judges the batch from</text>
+<text x="1310.0" y="353.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">its records alone and</text>
+<text x="1310.0" y="371.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">files the flow issues</text>
+<text x="1310.0" y="389.5" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="middle">it proposes.</text>
+<line x1="1310.0" y1="194" x2="1310.0" y2="280" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
+<line x1="1310.0" y1="410" x2="1310.0" y2="494" stroke="#57606a" stroke-width="1.4" marker-end="url(#head)" marker-start="url(#tail)"/>
+<path d="M1310.0 594 V622 H210.0 V596" fill="none" stroke="#57606a" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#head)"/>
+<rect x="495.0" y="611" width="430" height="22" rx="11" fill="#ffffff"/>
+<text x="710.0" y="626" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#57606a" text-anchor="middle">The audit's proposals are filed as flow issues in the backlog</text>
+<rect x="10" y="654" width="1400" height="50" rx="8" fill="#ffebe9" stroke="#ff8182"/>
+<text x="26" y="675" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#a40e26" text-anchor="start">The agent never</text>
+<text x="26" y="693" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#1f2328" text-anchor="start">pushes a project's main  ·  force-pushes, except the landing script pushing the task's own branch with lease  ·  publishes a release  ·  bypasses a hook  ·  edits .claude/settings.json</text>
 </svg>
