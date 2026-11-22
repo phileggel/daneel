@@ -38,8 +38,9 @@ Only what the diff adds or changes; each finding names file, line, claim and fix
 - `warning`: wrong or misleading, and it will cost someone, but nothing breaks now.
 - `info`: a cut, a clearer name.
 
-Also critical: a changelog entry that asks a project to act, on a version whose middle
-number did not move; a claim of a measurement that does not say what and when.
+Also critical: a release that asks a project to act and whose middle number did not
+move; a `version` moved with no word of the owner; a claim of a measurement that does not
+say what and when.
 
 A breach of `CLAUDE.md`'s plain-language line is a `warning`, never critical: name the two
 terms, or quote the sentence.

@@ -58,8 +58,10 @@ the draft); bypass a hook (`--no-verify`).
 
 - A script that pushes, tags or merges has a test for each of those paths, asserting the
   exact command; no test talks to a real remote.
-- Every change to a plugin bumps its `version` in `plugin.json` and adds its
-  line to the plugin's `CHANGELOG.md`, saying what a project must do.
+- A change to a plugin adds its line to the plugin's `CHANGELOG.md`, under
+  `## Unreleased`, saying what a project must do.
 - `claude plugin validate .` and `python3 -m unittest discover -s tests` pass before a
-  commit. A PR lands only with `validate` and `review` green. A
-  release is `claude plugin tag plugins/<plugin> --push` on `main`.
+  commit. A PR lands only with `validate` and `review` green.
+- A version is a coherent set of changes or a batch, released on the owner's word: one PR
+  sets `version` and names the section, then `claude plugin tag plugins/<plugin> --push`
+  on `main`.
