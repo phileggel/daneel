@@ -119,10 +119,14 @@ session:
 | 2 | the comments could not be read | fails |
 
 A report or a grade counts only from `github-actions[bot]` (the workflow's own token) or
-from the repository's owner, a member or a collaborator; `merge.py` reads them the same way.
-A workflow that posts its reports as another account gives that account access.
+from an account whose permission on the repository is `admin` or `write`; `merge.py` reads
+them the same way. Both ask GitHub that permission once per account that commented
+(`gh api repos/{owner}/{repo}/collaborators/<login>/permission`), and name an account whose
+permission they could not read: its grades then count for nothing. A workflow that posts
+its reports as another account gives that account write access.
 
-The step needs a token that reads the PR's comments, and no Claude token. The
+The step needs a token that reads the PR's comments and an account's permission on the
+repository, and no Claude token. The
 lane's first run still fails its check on a 🔴; the agent grades every finding in a comment,
 then pushes its fix, and the next run passes on exit 0. A lane that first touches the PR
 on a later push has no report, so it runs then, once.

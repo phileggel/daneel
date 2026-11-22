@@ -15,8 +15,9 @@ Exit: 0 reviewed, and every 🔴 and 🟡 of its report is graded: the job passe
 headed `## reviewer-<lane> — no report` or `— did not run …` is none, so the lane runs
 again. "Graded" is what `merge.py` asks before a merge: a newer comment line carrying
 (a), (b) or (c) and the finding's opening words. A report or a grade counts only from the
-repository's own workflow (`github-actions[bot]`) or an account the repository gave access
-(its owner, a member, a collaborator): any other account's comment is ignored. Nothing here
+repository's own workflow (`github-actions[bot]`) or an account whose permission on the
+repository is `admin` or `write`, asked of GitHub once per account: any other account's
+comment is ignored, and one whose permission GitHub did not give is named. Nothing here
 reads the code: a fix is validated by the project's tests, never by a second review.
 """
 
@@ -66,7 +67,7 @@ def read_comments(number: str) -> list[dict]:
     )
     if result.returncode != 0:
         raise OSError((result.stderr or result.stdout).strip() or "gh failed")
-    return [json.loads(line) for line in result.stdout.splitlines() if line.strip()]
+    return merge.with_permissions([json.loads(line) for line in result.stdout.splitlines() if line.strip()])
 
 
 def main(argv: list[str]) -> int:

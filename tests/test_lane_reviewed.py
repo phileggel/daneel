@@ -34,16 +34,19 @@ DID_NOT_RUN = "<!-- review:backend -->\n## reviewer-backend — did not run (usa
 GRADES = "(a) Line 42: an amount held as `f64` → an integer of cents — fixed\n(c) Line 80: the error loses its cause → keep the sou — ADR-009 keeps the code only\n"
 
 
-def comment(body, at, login="github-actions[bot]", association="NONE"):
-    return {"body": body, "created_at": at, "updated_at": at, "login": login, "author_association": association}
+def comment(body, at, login="github-actions[bot]", permission=None):
+    return {"body": body, "created_at": at, "updated_at": at, "login": login, "permission": permission}
 
 
 def owner(body, at):
-    return comment(body, at, "acme-owner", "OWNER")
+    return comment(body, at, "acme-owner", "admin")
 
 
 def stranger(body, at):
-    return comment(body, at, "passer-by", "NONE")
+    return comment(body, at, "passer-by", "read")
+
+
+PERMISSIONS = {"acme-owner": "admin", "passer-by": "read"}
 
 
 class TheVerdict(unittest.TestCase):
@@ -104,15 +107,24 @@ class TheVerdict(unittest.TestCase):
         self.assertEqual(self.verdict(comment(BACKEND, "2026-11-14T08:00:00Z"), forged)[0], 1)
         self.assertEqual(self.verdict(comment(BACKEND, "2026-11-14T08:00:00Z"), stranger(NO_REPORT, "2026-11-14T09:00:00Z"))[0], 1)
         # A contributor whose pull request once landed has no access either.
-        self.assertEqual(self.verdict(comment(CLEAN, "2026-11-14T08:00:00Z", "past-author", "CONTRIBUTOR"), lane="frontend"), (3, []))
+        self.assertEqual(self.verdict(comment(CLEAN, "2026-11-14T08:00:00Z", "past-author", "read"), lane="frontend"), (3, []))
 
     def test_a_grade_from_another_account_grades_nothing(self):
         report = comment(BACKEND, "2026-11-14T08:00:00Z")
         code, ungraded = self.verdict(report, stranger(GRADES, "2026-11-14T08:30:00Z"))
         self.assertEqual((code, len(ungraded)), (1, 2))
-        for association in ("OWNER", "MEMBER", "COLLABORATOR"):
-            graded = comment(GRADES, "2026-11-14T08:30:00Z", "acme-dev", association)
-            self.assertEqual(self.verdict(report, graded), (0, []), association)
+        for permission in ("admin", "write"):
+            graded = comment(GRADES, "2026-11-14T08:30:00Z", "acme-dev", permission)
+            self.assertEqual(self.verdict(report, graded), (0, []), permission)
+
+    def test_a_grade_counts_by_the_account_s_permission_not_its_association(self):
+        """The owner of an organisation's repository, membership private, reads as
+        CONTRIBUTOR to the workflow's token and still grades."""
+        report = comment(BACKEND, "2026-11-14T08:00:00Z")
+        writer = {**comment(GRADES, "2026-11-14T08:30:00Z", "acme-owner", "admin"), "author_association": "CONTRIBUTOR"}
+        other = {**comment(GRADES, "2026-11-14T08:30:00Z", "past-author", "read"), "author_association": "CONTRIBUTOR"}
+        self.assertEqual(self.verdict(report, writer), (0, []))
+        self.assertEqual(self.verdict(report, other)[0], 1)
 
     def test_a_comment_that_does_not_say_who_wrote_it_is_not_trusted(self):
         unsigned = {"body": CLEAN, "created_at": "2026-11-14T08:00:00Z", "updated_at": "2026-11-14T08:00:00Z"}
@@ -135,6 +147,11 @@ class TheCommand(unittest.TestCase):
             "#!/usr/bin/env python3\n"
             "import json, os, sys\n"
             f"open({str(self.calls)!r}, 'a').write(json.dumps(sys.argv[1:]) + '\\n')\n"
+            "if sys.argv[2].endswith('/permission'):\n"
+            "    known = json.loads(os.environ['STUB_PERMISSIONS'])\n"
+            "    login = sys.argv[2].split('/')[-2]\n"
+            "    sys.stdout.write(known.get(login, '') + '\\n')\n"
+            "    sys.exit(0 if login in known else 1)\n"
             "sys.stderr.write(os.environ.get('STUB_ERR', ''))\n"
             "sys.stdout.write(os.environ.get('STUB_OUT', ''))\n"
             "sys.exit(int(os.environ.get('STUB_EXIT', '0')))\n", encoding="utf-8")
@@ -145,7 +162,8 @@ class TheCommand(unittest.TestCase):
 
     def run_script(self, *args, comments=(), **stub):
         env = dict(os.environ, PATH=f"{self.folder}{os.pathsep}{os.environ['PATH']}")
-        env["STUB_OUT"] = "".join(json.dumps(c) + "\n" for c in comments)
+        env["STUB_OUT"] = "".join(json.dumps({k: v for k, v in c.items() if k != "permission"}) + "\n" for c in comments)
+        env["STUB_PERMISSIONS"] = json.dumps(PERMISSIONS)
         env.update({f"STUB_{key.upper()}": value for key, value in stub.items()})
         return subprocess.run([sys.executable, str(SCRIPT), *args], env=env, capture_output=True, text=True)
 
@@ -153,8 +171,24 @@ class TheCommand(unittest.TestCase):
         self.run_script("17", "backend")
         self.assertEqual([json.loads(line) for line in self.calls.read_text().splitlines()], [[
             "api", "repos/{owner}/{repo}/issues/17/comments", "--paginate",
-            "--jq", ".[] | {body, created_at, updated_at, author_association, login: .user.login} | @json",
+            "--jq", ".[] | {body, created_at, updated_at, login: .user.login} | @json",
         ]])
+
+    def test_it_asks_each_account_s_permission_once_and_no_bot_s(self):
+        report, grades = comment(BACKEND, "2026-11-14T08:00:00Z"), owner(GRADES, "2026-11-14T08:30:00Z")
+        self.run_script("17", "backend", comments=[report, grades, stranger("hello", "2026-11-14T08:40:00Z"), grades])
+        calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
+        self.assertEqual(calls[1:], [
+            ["api", "repos/{owner}/{repo}/collaborators/acme-owner/permission", "--jq", ".permission"],
+            ["api", "repos/{owner}/{repo}/collaborators/passer-by/permission", "--jq", ".permission"],
+        ])
+
+    def test_an_account_whose_permission_it_cannot_read_grades_nothing_and_is_named(self):
+        report = comment(BACKEND, "2026-11-14T08:00:00Z")
+        unread = comment(GRADES, "2026-11-14T08:30:00Z", "acme-dev", "admin")  # the stub knows no acme-dev
+        result = self.run_script("17", "backend", comments=[report, unread])
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("The permission of acme-dev on the repository could not be read", result.stderr)
 
     def test_its_exit_says_what_the_job_does(self):
         report, grades = comment(BACKEND, "2026-11-14T08:00:00Z"), owner(GRADES, "2026-11-14T08:30:00Z")
