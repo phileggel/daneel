@@ -88,17 +88,13 @@ reads the agent from there:
     path: .daneel
 ```
 
-```yaml
-prompt: |
-  Read `.daneel/plugins/app/agents/spec-reviewer.md` and follow it.
-  `${CLAUDE_PLUGIN_ROOT}` in it is `.daneel/plugins/app`.
-```
-
 Read that way the agent file is plain text: Claude Code fills `${CLAUDE_PLUGIN_ROOT}`
 only for an installed or `--plugin-dir` plugin, so the prompt says what it stands for.
-The workflow's allowed tools name `bash .daneel/plugins/app/scripts/branch.sh *` and
-`bash .daneel/plugins/app/scripts/review-path.sh *`. A pull request (PR) of the project
-cannot soften a reviewer: the reviewer comes from the pinned tag, never the branch.
+`app` ships what a reviewer's session needs there, so no project writes it by hand
+(`plugins/app/README.md` § A reviewer's session in CI): the prompt (`review-prompt.sh`),
+the allowed tools (`review-tools.sh`) and the checkout's preparation
+(`review-prepare.sh`). A pull request (PR) of the project cannot soften a reviewer: the
+reviewer comes from the pinned tag and its rules from the base branch, never the branch.
 
 ## Versions and releases
 

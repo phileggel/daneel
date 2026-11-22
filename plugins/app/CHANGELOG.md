@@ -2,6 +2,30 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.12.0 — 2026-11-22
+
+- Three scripts give a reviewer's CI session what each project wrote by hand in its review
+  workflow, where the copies drifted and two sessions wrote no report
+  (`README.md` § A reviewer's session in CI):
+  - `review-prepare.sh <base> <tree>` makes the checkout ready: a local `main` at the base
+    branch, the plugin's folder out of the changed files, the commit under review in
+    `<tree>`, `.review/`, and from the base branch `CLAUDE.md`, `.claude/` and every
+    document `review.rules`, `review.glossary`, `review.owners` and `review.setup` name.
+    New: the rules documents come from the base branch too, so a PR cannot loosen the
+    rules that judge it. It refuses a checkout with uncommitted work.
+  - `review-tools.sh <lane>` prints the line for `--allowedTools`. The report's folder is
+    granted from the session's folder and from the filesystem root, so a session that
+    changed folder still writes its report; the helpers are granted under both spellings.
+  - `review-prompt.sh <lane> <tree>` prints the instruction given to the session.
+- Daneel still ships no review workflow: the triggers, the runner, the lanes, the model,
+  the secret and the checks' names stay the project's.
+
+To take it: in the review workflow, replace the step that restores files from the base
+branch by `review-prepare.sh`, the `--allowedTools` list by `review-tools.sh`'s line and
+the prompt by `review-prompt.sh`'s text, then add after each what is the project's own (a
+tool its rules documents make a lane run, a line of prompt). A workflow that keeps its own
+three still works.
+
 ## app 0.11.5 — 2026-11-22
 
 - `merge.py` and `lane-reviewed.py` trust a report or a grade by what the repository lets
