@@ -2,6 +2,20 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.11.4 — 2026-11-22
+
+- `merge.py` and `lane-reviewed.py` read every 🔴 and 🟡 of a lane's report: an item under
+  a 🔴 or 🟡 heading as before, and now any line carrying the mark, wherever the reviewer
+  wrote it (`**B — Rule quality**: 🟡 …`). A finding written that way merged ungraded and
+  its lane passed as graded. A heading, or a line that only counts findings, is none. The
+  words to quote in a grade start after the mark; the refusal prints them.
+- `app:spec-reviewer`, `app:contract-reviewer` and `app:adr-reviewer` write one item per
+  finding, its mark first (`- 🟡 ORD-020 — scope missing`), under their categories.
+  `app:contract-reviewer` no longer ends with "A 🟡 never blocks": its last line says so.
+
+To take it: nothing. A report already on an open PR whose findings were written inline
+now asks for their grades.
+
 ## app 0.11.3 — 2026-11-21
 
 - `app:reviewer-arch`, wording only: "For both" names what it covers, the two use-case

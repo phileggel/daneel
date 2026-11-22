@@ -7,8 +7,9 @@ Exit: 0 landed · 1 refused or failed (the reason and the way back are printed)
 The merge guard: the branch must be the head of an open pull request whose every check
 run is green, and every check named in `required-checks.json` (at the checkout's root)
 must be among them. Every 🔴 and 🟡 of each reviewer lane's newest comment (headed
-`<!-- review:<lane> -->`) must be graded in a newer comment: a line with (a), (b) or (c)
-and the finding's first 40 characters. A report or a grade counts only from the repository's
+`<!-- review:<lane> -->`), an item under a 🔴 or 🟡 heading or any line carrying the mark,
+must be graded in a newer comment: a line with (a), (b) or (c) and the finding's opening
+words, the 40 characters a refusal prints. A report or a grade counts only from the repository's
 own workflow (`github-actions[bot]`) or an account the repository gave access (its owner, a
 member, a collaborator); any other account's comment is ignored. When the rebase moved the tested tree (the target advanced), the
 rebased branch is pushed and the merge stops until CI has run on it, unless the rebase
@@ -323,13 +324,28 @@ def _words(text: str) -> str:
     return " ".join(text.split())
 
 
+MARK = re.compile("[🔴🟡]")
+COUNTED = re.compile(r"[🔴🟡]\s*\d+\s+(?:critical|warning)")
+
+
 def severe_findings(body: str) -> list[str]:
-    """The 🔴 and 🟡 findings of a lane comment: each top-level `- ` item under a heading
-    that carries 🔴 or 🟡, up to the next heading. 🔵 and ℹ️ need no grade."""
+    """The 🔴 and 🟡 findings of a lane comment, by their opening words: each top-level
+    `- ` item under a heading that carries 🔴 or 🟡, and any other line that carries one,
+    wherever the reviewer wrote it (`**B — Rule quality**: 🟡 …`). A heading is no finding,
+    nor is a line that only counts them (`🔴 1 critical, 🟡 2 warning(s) …`). The words
+    start after the mark when the line has one. A line read by mistake asks for a grade
+    too many; none read lets a finding merge ungraded. 🔵 and ℹ️ need no grade."""
     severe, found = False, []
     for line in body.splitlines():
         if line.lstrip().startswith("#"):
-            severe = "🔴" in line or "🟡" in line
+            severe = bool(MARK.search(line))
+            continue
+        marks = MARK.findall(line)
+        if marks and len(COUNTED.findall(line)) == len(marks):
+            continue
+        if marks:
+            after = _words(MARK.split(line, maxsplit=1)[1]).lstrip(":—- ")
+            found.append((after or _words(line))[:QUOTED])
         elif severe and line.startswith("- "):
             found.append(_words(line[2:])[:QUOTED])
     return found

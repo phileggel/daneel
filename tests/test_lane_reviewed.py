@@ -87,6 +87,15 @@ class TheVerdict(unittest.TestCase):
         self.assertEqual(lane_reviewed.verdict(comments, "backend"), (0, []))
         self.assertEqual(lane_reviewed.verdict(comments, "spec"), (1, ["ORD-401 contradicts ORD-120"]))
 
+    def test_a_finding_written_inline_keeps_the_lane_ungraded(self):
+        inline = ("<!-- review:spec -->\n## reviewer-spec — 1 files reviewed\n\n🟡 1 warning(s) across 1 file(s).\n\n"
+                  '## docs/spec/orders.md\n\n**B — Rule quality**: 🟡 "Refund" entry (line 12) omits the partial case.\n')
+        words = '"Refund" entry (line 12) omits the partial case.'[:40]
+        report = comment(inline, "2026-11-22T08:00:00Z")
+        self.assertEqual(lane_reviewed.verdict([report], "spec"), (1, [words]))
+        graded = comment(f"(a) {words}: the entry says it now", "2026-11-22T08:30:00Z")
+        self.assertEqual(lane_reviewed.verdict([report, graded], "spec"), (0, []))
+
     def test_a_report_from_another_account_is_not_the_lane_s(self):
         """Anyone can comment on a public repository: a comment shaped as a clean report
         neither stands for a review nor replaces the real one."""
