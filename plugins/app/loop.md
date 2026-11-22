@@ -58,9 +58,9 @@ a five-line note, posted on the issue; an issue whose design needs a mock carrie
 `mock`. Nothing is built before the owner's yes. The mocks show invented data only and
 never reach `main`; the PR's visual proofs are the record.
 
-A new or changed spec rule has the same gate: its change, reviewed by
-`app:spec-reviewer` and accepted by the owner, is the branch's first commit. No later
-commit touches a spec: a missing rule or a finding on one returns to the gate.
+A new or changed spec rule has the same gate: reviewed by `app:spec-reviewer` and
+accepted by the owner, it is the branch's first commit. No later commit touches a spec:
+a missing rule returns to the gate.
 
 ## 3. The harness
 
@@ -111,7 +111,7 @@ Before the PR, run exactly the lanes this plugin's scripts print:
     bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files | bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh
 
 and again on every fix before its push, until no 🔴 remains: a file edited in answer
-to a finding goes back to its lane.
+to a finding goes back to its lane, except a spec, to its gate.
 Once pushed, a fix is a `fixup!` commit pushed as is. In CI a lane reviews a PR
 once: its findings graded, the tests alone validate the fix. A local reviewer
 gets the branch, the spec and the vocabulary, never a description of the change. Also:

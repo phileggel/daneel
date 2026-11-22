@@ -77,8 +77,8 @@ changes and `Design` is not `validated` — `/app:design-proposal <id>`; a spec 
 or changed — its diff and its questions, after `app:spec-reviewer`.
 
 - Chat: nothing is built before the owner's yes to each; on a no, stop.
-- Headless: the proposal is posted on the issue, its Design set to `needed`, the diff
-  with `needs-owner`; the item stays Queued. Then the next ready item (Step 0).
+- Headless: the proposal is posted on the issue, its Design set to `needed`; the diff is
+  posted there with `needs-owner`. The item stays Queued. Then Step 0 again.
 
 ## Step 2 — Opening brief, branch, task list
 
