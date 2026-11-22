@@ -2,6 +2,23 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## app 0.13.0 — 2026-11-22
+
+- A spec changes only as the task's stated intent, accepted by the owner before the branch
+  exists, as a design is (`loop.md` § 2, `/app:run-entry` Step 1). The agent drafts the
+  change, runs `app:spec-reviewer` on it and shows the owner the diff with its questions;
+  on the yes it is the branch's first commit. No later commit of the task touches a spec:
+  a rule found missing while implementing, or a finding on the spec, goes back to that
+  gate. Before, a new rule went into its spec "in the same commit" as its code, and
+  closure updated the spec "if a rule changed".
+- Headless, the spec's diff goes to the issue with `needs-owner` and the item stays Queued.
+- `/app:run-entry`, wording only, to keep its length: the lane with no verdict loses
+  "(by exit code or comment)", which the exit codes above it and the comment's name say.
+
+To take it: a rules document of the project that tells the agent to add a rule to the
+spec with its code, or to update the spec at closure, now says the opposite of the loop:
+reword it, or drop the line.
+
 ## app 0.12.0 — 2026-11-22
 
 - Three scripts give a reviewer's CI session what each project wrote by hand in its review

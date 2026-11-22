@@ -20,17 +20,13 @@ with every check green, merged by run-entry's `merge.py`.
      is allowed is a question;
    - for every record the issue writes, the ADRs that name it: a Done when that stands
      against one is a question.
-
-   For an issue with a spec the order is: spec draft, `app:spec-reviewer`, then the
-   questions, new vocabulary included.
-2. **Design gate** (§ 2) for anything the user sees, before any branch exists. Then the
+2. **Design and spec gates** (§ 2), before any branch exists. Then the
    opening brief states Task, Scope, Design, Touching; the branch is made and the item
    moves to In progress.
 3. **Acceptance first.** Each Done-when clause becomes a failing test in the layers the
    project's test rules ask for (Rust for logic, E2E for what a user does); one no test
    can prove, as a guide's wording, is closed by its diff. Test names carry the issue number or
-   the spec rule. A new business rule goes into its spec in the same commit; a new or
-   changed command updates its contract. Confirm red.
+   the spec rule. A new or changed command updates its contract. Confirm red.
    A fault met in production: the input that shows it is asked for before any fix is
    designed — a log says what failed, not why — and a failing test that reproduces it is
    the fix's acceptance test; when the input holds private data, the agent says what it
@@ -48,7 +44,7 @@ with every check green, merged by run-entry's `merge.py`.
 9. **Closure**, in the same PR before it merges: a coverage floor the run
    measured more than a point above rises to half a point under that figure, never down;
    what the task met and did not fix is folded or filed; the architecture document if a
-   module appeared, the spec if a rule changed.
+   module appeared.
 10. **Merge:** run-entry's `watch-pr.py` waits for the checks; each lane's newest comment,
     green or not, is read and its findings graded (§ 5); then `merge.py`, which folds
     `fixup!` commits. The closing brief says what changed for the user and what the project gained.
@@ -61,6 +57,10 @@ real components and tokens (`/app:design-proposal`): `{id}-{light|dark}-{state}.
 a five-line note, posted on the issue; an issue whose design needs a mock carries
 `mock`. Nothing is built before the owner's yes. The mocks show invented data only and
 never reach `main`; the PR's visual proofs are the record.
+
+A new or changed spec rule has the same gate: its change, reviewed by
+`app:spec-reviewer` and accepted by the owner, is the branch's first commit. No later
+commit touches a spec: a missing rule or a finding on one returns to the gate.
 
 ## 3. The harness
 
@@ -111,7 +111,7 @@ Before the PR, run exactly the lanes this plugin's scripts print:
     bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files | bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh
 
 and again on every fix before its push, until no 🔴 remains: a file edited in answer
-to a finding goes back to its lane, a spec above all.
+to a finding goes back to its lane.
 Once pushed, a fix is a `fixup!` commit pushed as is. In CI a lane reviews a PR
 once: its findings graded, the tests alone validate the fix. A local reviewer
 gets the branch, the spec and the vocabulary, never a description of the change. Also:
