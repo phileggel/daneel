@@ -12,6 +12,12 @@ What a project must act on when it takes a new version of this plugin.
   Without the key nothing changes. To take it, for a project that sets the key: add the
   `Spec` field of `flow`'s forms (same release) to its feature and bug forms.
 - Wording only: `loop.md` § 7 is "One story per PR, whatever its size".
+- `/app:init` proposes a private repository for the spec and one for the mocks, where the
+  project sets neither `spec-proposal.repo` nor `design-proposal.repo`. On the owner's yes
+  its `new-repo.sh` creates each when it does not exist, clones the spec at its folder and
+  lists the folder in `.gitignore`; `/app:init` adds the keys and names the folder's deny
+  line for the owner. A spec already in the project still moves by hand. Nothing for a
+  project to do.
 
 ## app 0.15.0 — 2026-11-28
 
