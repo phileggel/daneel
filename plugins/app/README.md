@@ -109,9 +109,9 @@ says the rest:
 
 | Script | What it gives | Exit |
 | --- | --- | --- |
-| `review-prepare.sh <base> <tree>` | The checkout made ready: `main` at `<base>` for `branch.sh`; the plugin's folder out of the changed files; the commit under review in `<tree>`, a folder outside the checkout, without its skills and agents; `.review/`; and from `<base>`, `CLAUDE.md`, `.claude/` and every document `review.rules`, `review.glossary`, `review.owners` and `review.setup` name, with the README of each kind `review.rules` leaves out. One that `<base>` does not have is removed. | 0 prepared · 1 refused, nothing changed · 2 usage |
+| `review-prepare.sh <base> <tree>` | The checkout made ready: `main` at `<base>` for `branch.sh`; the plugin's folder out of the changed files; the commit under review in `<tree>`, a folder outside the checkout, without its skills and agents; `.review/`; and from `<base>`, `CLAUDE.md`, `.claude/` and every document `review.rules`, `review.glossary`, `review.owners` and `review.setup` name, with the README of each kind `review.rules` leaves out. One that `<base>` does not have is removed. With `spec-proposal.repo`, the spec folder the workflow checked out is left as it is and copied into `<tree>`, its `.git` removed. | 0 prepared · 1 refused, nothing changed · 2 usage |
 | `review-tools.sh <lane>` | One line for `--allowedTools`: `Read`, `Grep`, `Glob`; the report's folder, granted from the session's folder and from the filesystem root, so a session that changed folder still writes it; the two helpers under both spellings; the reading subcommands of `git`; `grep`, `ls`, `wc`, `head`, `tail`; for `infra`, the tags of an action on github.com. | 0 printed · 2 usage or unknown lane |
-| `review-prompt.sh <lane> <tree>` | The instruction: which agent file and on what, what `${CLAUDE_PLUGIN_ROOT}` stands for, what on disk is the base branch's, where the files under review are, where the report goes and how it begins; with `spec-proposal.repo`, the spec, contract and ADR lanes are told that the spec is not in the checkout. | 0 printed · 2 usage, unknown lane, unreadable settings or an unknown `spec-proposal` key |
+| `review-prompt.sh <lane> <tree>` | The instruction: which agent file and on what, what `${CLAUDE_PLUGIN_ROOT}` stands for, what on disk is the base branch's, where the files under review are, where the report goes and how it begins; with `spec-proposal.repo`, the spec, contract and ADR lanes are told how to read a spec that is ahead of the code, or that it is not in the checkout. | 0 printed · 2 usage, unknown lane, unreadable settings or an unknown `spec-proposal` key |
 
     bash .daneel/plugins/app/scripts/review-prepare.sh "origin/$BASE" "$RUNNER_TEMP/branch"
     bash .daneel/plugins/app/scripts/review-tools.sh "$LANE"
@@ -177,9 +177,24 @@ own, which the project's owner may keep private:
 - A PR, a commit and a test name cite a rule by its ID, never its words; a ticket shows
   the change it asks for. Where a project's issues are public, so is that diff: the rest
   of the spec is not.
-- CI has no access to the spec. The `spec` lane no longer fires in the project, and the
-  contract and ADR lanes say that the spec is absent and check the rest (`review-prompt.sh`);
-  their checks against the spec, and `app:spec-checker`, run locally.
+- CI reads the spec when the project's review workflow checks the spec repository out at
+  the spec folder, with a read-only secret, before `review-prepare.sh`:
+
+  ```yaml
+  - uses: actions/checkout@<pin>
+    with:
+      repository: <owner>/<the spec repository>
+      token: ${{ secrets.<its read-only secret> }}
+      path: docs/spec
+      persist-credentials: false
+  ```
+
+  `review-prepare.sh` copies the folder beside the files under review and removes its
+  `.git` from both. The contract and ADR lanes then check against the spec, told that it
+  is ahead of the code and that a report quotes at most a sentence of it
+  (`review-prompt.sh`). A PR that gets no secret (a fork, Dependabot) has no spec: those
+  lanes say so and check the rest. The `spec` lane does not fire in the project, since no
+  PR of it changes a spec file, and `app:spec-checker` runs locally.
 - What the project's history already published stays there.
 
 For a project with no spec yet, `/app:init` proposes that repository, and one for the
@@ -192,14 +207,15 @@ To move a spec that is already in the project: create the repository and push th
 in the project, remove the folder from git, list it in `.gitignore`, add the key and the
 deny line; clone the repository at the folder's path on each computer; drop a required
 check of the `spec` lane; add the `Spec` field of `/flow:init`'s forms to the project's
-feature and bug forms.
+feature and bug forms; add the checkout step above, and its secret, to the review workflow.
 
 Measured on 2026-11-22, on throwaway projects, with `claude -p --setting-sources project`:
 the deny line refused the Write tool in the folder and allowed it beside it; and a
 contract lane's session, prepared and prompted by the three scripts with the key set and
 no spec folder, wrote its report in 6 turns, said under the headline that the spec was
 absent and which checks it could not run, and raised nothing on that absence. The gate
-itself was not run end to end: it waits for an owner's yes.
+itself was not run end to end: it waits for an owner's yes. The path where CI reads the
+spec was not run in a session either: `tests/test_review_scripts.py` covers its two scripts.
 
 ## Headless runs
 

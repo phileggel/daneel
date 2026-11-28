@@ -16,6 +16,14 @@ What a project must act on when it takes a new version of this plugin.
   `spec-checker` audits those rules and counts the others, and `contract-reviewer` asks
   no command and no error of a rule outside them. Without rule IDs both do what they did.
   Nothing for a project to do.
+- CI reads a spec kept in its own repository. When the project's review workflow checks
+  that repository out at the spec folder, with a read-only secret, before
+  `review-prepare.sh`, the script copies it beside the files under review and removes its
+  `.git`, and `review-prompt.sh` tells the contract and ADR lanes that the spec is ahead
+  of the code and that a report quotes at most a sentence of it. Without that checkout
+  both scripts do what they did. To take it, for a project that sets `spec-proposal.repo`:
+  add the checkout step and its secret to the review workflow (`README.md` § A spec in its
+  own repository).
 - Wording only: `loop.md` § 7 is "One story per PR, whatever its size".
 - `/app:init` proposes a private repository for the spec and one for the mocks, where the
   project sets neither `spec-proposal.repo` nor `design-proposal.repo`. On the owner's yes
