@@ -199,6 +199,7 @@ class SessionPiece(unittest.TestCase):
         "rules": {"backend": ["docs/backend-rules.md"], "spec": ["specs/README.md"]},
         "glossary": "docs/glossary.md",
     }}
+    BASE_FILES = {}  # what a test class adds to the base branch
 
     def setUp(self):
         self.folder = tempfile.TemporaryDirectory()
@@ -215,6 +216,8 @@ class SessionPiece(unittest.TestCase):
         self.write("docs/glossary.md", "base glossary\n")
         self.write("specs/README.md", "base spec conventions\n")
         self.write("src/a.rs", "fn a() {}\n")
+        for path, text in self.BASE_FILES.items():
+            self.write(path, text)
         git(self.repo, "add", ".")
         git(self.repo, "commit", "-qm", "base")
         git(self.repo, "checkout", "-qb", "feat/x")
@@ -376,6 +379,54 @@ class ReviewPrepareTest(SessionPiece):
         self.assertEqual(self.piece("review-prepare.sh", "trunk").returncode, 2)
 
 
+class ASpecInItsOwnRepositoryTest(SessionPiece):
+    """`spec-proposal.repo`: the project's workflow checks the spec repository out at the
+    spec folder, which git ignores, and `review-prepare.sh` puts it beside the files under
+    review."""
+
+    BASE_SETTINGS = {"spec-proposal": {"repo": "acme/app-spec"}}
+    BASE_FILES = {".gitignore": "/docs/spec/\n"}
+
+    def spec_checked_out(self):
+        self.write("docs/spec/README.md", "the spec's conventions\n")
+        self.write("docs/spec/orders.md", "ORD-010\n")
+        self.write("docs/spec/.git/config", "what the checkout kept\n")
+
+    def prepare(self):
+        return self.piece("review-prepare.sh", "trunk", str(self.tree))
+
+    def test_the_spec_is_put_beside_the_files_under_review_without_its_git_folder(self):
+        self.spec_checked_out()
+        result = self.prepare()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual((self.tree / "docs/spec/orders.md").read_text(), "ORD-010\n")
+        self.assertFalse((self.tree / "docs/spec/.git").exists())
+        self.assertFalse((self.repo / "docs/spec/.git").exists())
+        # Its README is the spec repository's: the base branch has none, and it stays.
+        self.assertEqual(self.read("docs/spec/README.md"), "the spec's conventions\n")
+        lines = result.stdout.splitlines()
+        self.assertIn("from the spec repository: docs/spec/README.md", lines)
+        self.assertIn("the spec repository's files, beside the files under review: docs/spec", lines)
+        self.assertNotIn("not on the base branch, removed: docs/spec/README.md", lines)
+
+    def test_with_no_spec_folder_nothing_of_it_happens(self):
+        """A pull request that gets no secret: the workflow checked nothing out."""
+        result = self.prepare()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("not on the base branch, removed: docs/spec/README.md", result.stdout.splitlines())
+        self.assertFalse((self.tree / "docs/spec").exists())
+
+    def test_a_spec_folder_git_does_not_ignore_is_refused_and_nothing_changes(self):
+        self.write(".gitignore", "")
+        git(self.repo, "commit", "-qam", "the ignore line removed")
+        self.spec_checked_out()
+        result = self.prepare()
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("git does not ignore the spec folder docs/spec", result.stderr)
+        self.assertTrue((self.repo / "docs/spec/.git").exists())
+        self.assertFalse(self.tree.exists())
+
+
 class ReviewPromptTest(SessionPiece):
     """The instruction a reviewer's session is given."""
 
@@ -418,6 +469,19 @@ class ReviewPromptTest(SessionPiece):
             self.assertIn("report no finding on its absence", self.prompt(lane))
         for lane in ("backend", "frontend", "infra", "guides"):
             self.assertNotIn(absent, self.prompt(lane), lane)
+
+    def test_a_spec_put_beside_the_files_under_review_is_ahead_of_the_code(self):
+        """`review-prepare.sh` put the spec in the tree: the lanes that read it are told how
+        to read it, not that it is absent."""
+        self.write(".claude/daneel.json", json.dumps({"spec-proposal": {"repo": "acme/app-spec"}}))
+        (self.tree / "docs/spec").mkdir(parents=True)
+        for lane in ("contract", "adr"):
+            prompt = self.piece("review-prompt.sh", lane, str(self.tree)).stdout
+            self.assertIn(f"its files are in `{self.tree}/docs/spec/`", prompt, lane)
+            self.assertIn("a rule of it that the changed documents do not cover is not a finding", prompt)
+            self.assertIn("Quote at most a sentence of the spec in the report", prompt)
+            self.assertNotIn("which is not in this checkout", prompt)
+        self.assertNotIn("ahead of the code", self.piece("review-prompt.sh", "backend", str(self.tree)).stdout)
 
     def test_a_spec_proposal_key_no_piece_reads_is_refused(self):
         self.write(".claude/daneel.json", json.dumps({"spec-proposal": {"repo": "acme/app-spec", "branch": "main"}}))

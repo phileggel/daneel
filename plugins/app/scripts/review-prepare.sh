@@ -25,6 +25,14 @@
 #        the README of each kind `review.rules` does not name (defaults
 #        `docs/spec/README.md`, `docs/contracts/README.md`, `docs/adr/README.md`).
 #      A file the pull request changed still shows in its diff (protocol.md rule 6).
+#   6. A spec kept in a repository of its own (`spec-proposal.repo` on <base>) is read
+#      when the project's workflow checked that repository out at the spec folder, the
+#      folder of the first path of `review.rules.spec` (default `docs/spec`), before this
+#      runs. Its files are the spec repository's, not the pull request's: step 5 leaves
+#      them, and the folder is copied into <tree>, beside the files under review. Its
+#      `.git` is removed from both, so the session reaches no credential of that
+#      checkout. With no such folder (a pull request that gets no secret), nothing of
+#      this happens. A folder git does not ignore is refused.
 # Each path of step 5 is printed with what happened to it.
 set -euo pipefail
 
@@ -55,9 +63,10 @@ paths=$(git show "$base:.claude/daneel.json" 2>/dev/null | python3 -c '
 import json, sys
 text = sys.stdin.read()
 try:
-    review = (json.loads(text) if text.strip() else {}).get("review", {})
+    settings = json.loads(text) if text.strip() else {}
 except json.JSONDecodeError as error:
     sys.exit(f".claude/daneel.json on the base branch is not JSON: {error}")
+review = settings.get("review", {})
 rules = review.get("rules", {})
 named = [path for paths in rules.values() for path in paths]
 named += [review[key] for key in ("glossary", "owners", "setup") if review.get(key)]
@@ -67,12 +76,22 @@ for path in ["CLAUDE.md", ".claude"] + named:
     parts = path.split("/") if isinstance(path, str) else [".."]
     if not path or path.startswith("/") or ".." in parts or parts[0] == ".git":
         sys.exit(f".claude/daneel.json on the base branch names a path outside the checkout: {path!r}")
+# The first line: the spec folder when the spec has a repository of its own, else nothing.
+own = settings.get("spec-proposal")
+first = (rules.get("spec") or [defaults["spec"]])[0]
+elsewhere = isinstance(own, dict) and own.get("repo") and "/" in first
+print("spec " + first.rsplit("/", 1)[0] if elsewhere else "spec")
 seen = []
 for path in ["CLAUDE.md", ".claude"] + named:
     if path not in seen:
         seen.append(path)
         print(path)
 ') || refuse "the base branch's settings could not be read"
+spec=$(sed -n '1s/^spec *//p' <<<"$paths")
+paths=$(sed '1d' <<<"$paths")
+# Read only when the workflow checked the spec repository out there.
+[ -n "$spec" ] && [ -d "$spec" ] || spec=
+[ -z "$spec" ] || git check-ignore -q "$spec" || refuse "git does not ignore the spec folder $spec: the project's .gitignore lists it"
 
 # The plugin's folder, when inside the checkout, is not the project's work.
 plugin=$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd -P)
@@ -99,6 +118,14 @@ rm -rf "$tree/.claude/skills" "$tree/.claude/agents"
 mkdir -p .review
 
 while IFS= read -r path; do
+    if [ -n "$spec" ] && [[ "$path" == "$spec"/* ]]; then
+        if [ -e "$path" ]; then
+            echo "from the spec repository: $path"
+        else
+            echo "not in the spec repository: $path"
+        fi
+        continue
+    fi
     rm -rf -- "$path"
     if git cat-file -e "$base:$path" 2>/dev/null; then
         git checkout --quiet "$base" -- "$path"
@@ -107,3 +134,10 @@ while IFS= read -r path; do
         echo "not on the base branch, removed: $path"
     fi
 done <<<"$paths"
+
+if [ -n "$spec" ]; then
+    rm -rf -- "$spec/.git"
+    mkdir -p "$tree/$spec"
+    cp -R "$spec/." "$tree/$spec/"
+    echo "the spec repository's files, beside the files under review: $spec"
+fi

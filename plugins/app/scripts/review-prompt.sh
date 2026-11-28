@@ -16,8 +16,11 @@
 # contract and ADR lanes are pointed at the changed files of their folder, the folder of
 # the first path of `review.rules.<kind>` in `.claude/daneel.json` (defaults `docs/spec`,
 # `docs/contracts`, `docs/adr`). When the project keeps its spec in its own repository
-# (`spec-proposal.repo`), CI has no access to it: those three lanes are told so, and to
-# check what needs no spec. A key of `spec-proposal` no piece reads is refused.
+# (`spec-proposal.repo`), those three lanes are told one of two things. The spec folder is
+# in <tree> (`review-prepare.sh` put it there): the spec is ahead of the code, so a rule
+# the changed documents do not cover is no finding, and a report quotes at most a
+# sentence of it. It is not there: the spec is absent, and the lane checks what needs
+# none. A key of `spec-proposal` no piece reads is refused.
 set -euo pipefail
 
 LANES=(backend frontend arch sql infra security e2e spec contract adr guides)
@@ -54,12 +57,12 @@ own = settings.get("spec-proposal", {})
 strange = sorted(set(own) - {"repo"})
 if strange:
     sys.exit(f"review-prompt: unknown spec-proposal settings in {path}: {chr(44).join(strange)}")
-first = (settings.get("review", {}).get("rules", {}).get(kind) or [None])[0]
-folder = first.rsplit("/", 1)[0] if first and "/" in first else defaults.get(kind, "-")
-print(folder, "elsewhere" if own.get("repo") and kind in defaults else "here")
+def folder_of(name):
+    first = (settings.get("review", {}).get("rules", {}).get(name) or [None])[0]
+    return first.rsplit("/", 1)[0] if first and "/" in first else defaults.get(name, "-")
+print(folder_of(kind), "elsewhere" if own.get("repo") and kind in defaults else "here", folder_of("spec"))
 ' "$lane") || exit 2
-folder=${answer% *}
-kept=${answer##* }
+read -r folder kept spec <<<"$answer"
 
 case "$lane" in
 spec)
@@ -90,6 +93,8 @@ Nobody answers a question here: a prompt that asks which document to review gets
 Save the full report with the Write tool at the path \`bash $relative/scripts/review-path.sh reviewer-$lane\` prints, whatever the agent file says about where its output goes. Begin it with one headline: \`🔴 N critical, 🟡 N warning(s), 🔵 N suggestion(s)\`, or \`✅ No issues found.\` when there is none. One line per finding: location, claim, fix.
 Post nothing yourself: the workflow posts the saved file.
 EOF
-if [ "$kept" = elsewhere ]; then
+if [ "$kept" = elsewhere ] && [ -d "$tree/$spec" ]; then
+    echo "This project keeps its spec in a repository of its own; its files are in \`$tree/$spec/\`. The spec is ahead of the code: a rule of it that the changed documents do not cover is not a finding. Quote at most a sentence of the spec in the report, never a whole document."
+elif [ "$kept" = elsewhere ]; then
     echo "This project keeps its spec in a repository of its own, which is not in this checkout: say so on the line under the headline, check what needs no spec, and report no finding on its absence."
 fi
