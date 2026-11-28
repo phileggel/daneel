@@ -135,10 +135,10 @@ marks every issue it files (`agent-filed`, or `backlog.coder_mark`).
 - A gate fails → read its log. If the log shows the cause, fix it. If not, the next push
   adds observation and makes the failure cheap to reproduce, never a fix.
 - The same gate failing three times on one task → open question, stop.
-- A test that fails for a reason the change cannot explain is flaky and is never accepted
-  by re-running it: it is skipped in its own PR and a `task` issue labelled `flaky` is
-  filed with the failure text and the run's link; the fix that re-enables it closes the issue.
-  The run continues.
+- A test that fails for a reason the change cannot explain is flaky. It is never accepted,
+  by a re-run or a skip: a `task` issue labelled `flaky` is filed with the failure
+  text and the run's link, and its own PR fixes the cause and closes the issue before
+  the task goes on.
 - **Never:**
   - do what the project's core rules forbid;
   - change the batch without the owner's yes, except by a slice (§ 2);

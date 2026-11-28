@@ -7,6 +7,7 @@ allowed-tools:
   - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/merge.py)
   - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/watch-pr.py *)
   - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/watch-pr.py)
+  - Bash(python3 ${CLAUDE_SKILL_DIR}/scripts/grades.py *)
   - Bash(git status --short)
   - Bash(git branch --show-current)
   - Bash(git pull --ff-only)
@@ -116,12 +117,13 @@ spec; every finding graded (loop § 5); again on the fixes before the first push
 
 ## Step 8 — PR and checks
 
-- Every push: `git push -u origin HEAD`. `gh pr create --body-file <file>`: the body of loop § 1, step 8.
+- Every push: `git push -u origin HEAD`. The body (loop § 1, step 8):
+  `python3 ${CLAUDE_SKILL_DIR}/scripts/grades.py <file>` until exit 0; `gh pr create --body-file <file>`.
 - `python3 ${CLAUDE_SKILL_DIR}/scripts/watch-pr.py` in the background: exit 0 is green, 1 a
   check failed, 2 GitHub unreachable, 3 timed out, 4 not open, 5 GitHub never reached the
   local commit, 6 only lanes the usage limit stopped.
 - Every lane's newest comment, red or green, is graded in a PR comment (loop § 5)
-  before the push that applies it as `fixup!`s. A lane never reviews again: graded, its check passes.
+  before the push that applies it as `fixup!`s.
 - A lane with no verdict, its comment `no report` or stopped by the CI account's usage
   limit (by exit code or comment): nothing to fix. Re-run it alone: `gh run view <run id> --json jobs`
   for its job id, `gh run rerun --job <job id>`, watch again. At the limit, in chat: a wake-up

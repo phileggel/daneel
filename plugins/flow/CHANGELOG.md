@@ -2,6 +2,13 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## Unreleased
+
+- `method.md` § 4: a flaky test is never accepted, by a re-run or by a skip. Until now it
+  was skipped in its own PR; now its own PR fixes the cause and closes the `flaky` issue
+  before the task goes on. To take it: change any guide of the project that says a flaky
+  test is skipped.
+
 ## flow 0.6.2 — 2026-11-21
 
 - Wording only: every doc says `PR`; `method.md` § 1 says once what it stands for.
