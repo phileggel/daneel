@@ -172,7 +172,8 @@ own, which the project's owner may keep private:
   becomes `validated`, with the rule IDs and the sha. The script refuses the project
   itself. A ticket that arrives with its Spec already `validated` passes the gate.
 - A PR, a commit and a test name cite a rule by its ID, never its words; a ticket shows
-  the change it asks for.
+  the change it asks for. Where a project's issues are public, so is that diff: the rest
+  of the spec is not.
 - CI has no access to the spec. The `spec` lane no longer fires in the project, and the
   contract and ADR lanes say that the spec is absent and check the rest (`review-prompt.sh`);
   their checks against the spec, and `app:spec-checker`, run locally.

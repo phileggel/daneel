@@ -54,15 +54,15 @@ it again until none is left; what the draft leaves open is a question.
 ## Step 5 — Ask, then land
 
 The diff is `git -C {draft} diff` with `repo`, `git diff -- {folder}` without. With `repo`,
-or headless, it goes on the ticket in one comment
+or headless, it goes on the ticket, one comment
 (`gh issue comment {id} --body-file <file>`).
 
-- **Chat:** show the diff, ask each question alone, then ask for the yes. On a no, write
+- **Chat:** show the diff, ask each question alone, then the yes. On a no, write
   what the owner wants on the issue and stop. On a yes:
   - with `repo`: `bash ${CLAUDE_SKILL_DIR}/scripts/publish.sh {repo} {draft} {id}` commits
     the change, pushes the spec repository's `main` and prints the sha (exit 1: refused,
-    the reason printed; say it and stop). Then `git -C {folder} pull --ff-only`, and the
-    ticket's Spec becomes `validated`, the rule IDs and the sha
+    the reason printed; say it and stop). Then `git -C {folder} pull --ff-only`, and in the
+    ticket's body, otherwise kept, Spec becomes `validated`, the rule IDs and the sha
     (`gh issue edit {id} --body-file <file>`).
   - without: the change stays uncommitted, and goes as it is into the task's commit.
 - **Headless:** the draft stays in `{draft}`; `gh issue edit {id} --add-label needs-owner`;
@@ -72,5 +72,5 @@ or headless, it goes on the ticket in one comment
 
 1. No spec changes without the owner's yes to its diff: a rule found missing later comes
    back here.
-2. With `repo`, the agent edits `{draft}` only, and no spec file reaches the project's
+2. With `repo`, the agent edits `{draft}` only: no spec file reaches the project's
    repository.
