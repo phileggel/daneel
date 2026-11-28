@@ -23,7 +23,7 @@ would not. Used with `flow`.
 | `/app:run-batch` | A whole batch: every Queued item through `run-entry`, its end (`release.py` to a draft, or `batch-end.sh`), the closing brief last; optional `run-batch.release_check`, `.version_files`, `.changelog`, `.release_workflow` |
 | `/app:design-proposal` | Mocks of the target state, light and dark, beside the current one for an existing screen, and a note, for the owner to validate; optional `design-proposal.repo` |
 | `/app:spec-proposal` | The spec gate: the change to the rules drafted, read by `app:spec-reviewer`, and its diff shown for the owner to accept, before anything is built; optional `spec-proposal.repo`, a repository of its own for the spec |
-| `/app:init` | After `/flow:init`: the harness (`required-checks.json`, ruleset, merge settings, deny lines) and which project doc plays each role the reviewers read, asked once, added only where missing; where the project has none, a private repository for its spec and one for its mocks, if the owner wants them; re-run, re-aligns the pins, keys and defaults with the project's docs and this changelog |
+| `/app:init` | After `/flow:init`: the checklist of what a project checks or decides to run `app` (§ Taking it), each line with its state; it asks once, adds only the roles' keys and `required-checks.json` where missing, and builds nothing else of the project; re-run, re-aligns the pins, keys and defaults with the project's docs and this changelog |
 
 `protocol.md` is what every reviewer shares: modes, steps, output, the CI report.
 `scripts/branch.sh` and `scripts/review-path.sh` are what the reviewers run, always on
@@ -50,16 +50,32 @@ the helpers folder; the security lane's say which data the project holds as pers
 
 ## Taking it
 
-`/app:init`, after `/flow:init`, reads the project, asks the owner once about what is
-missing or divergent (the harness items below, and which doc plays each role the reviewers
-read: `review.rules.<lane>`, `review.rules.spec`, `.contract`, `.adr`, `review.glossary`,
-`flow-audit.guides`, `visual-proof.rules`), adds what the agent may, and names the rest for
-the owner.
+What a project checks or decides so that the pieces of `app` work for it, in order. The
+loop and its reviewers are the frame, and a project that runs `app` keeps to it; how it
+plugs into it is its own: it makes its workflow, its recipes and its repositories, and a
+line says only what a piece needs. `/app:init`, after `/flow:init`, reads the project,
+asks the owner once, adds the two lines that are its own, and prints the checklist with
+each line's state: done, added, to do by the project, or the owner's to check or decide.
 
-The machine that runs the agent needs `gh` 2.50.0 or newer, the first with `gh pr checks
---json`, which `release.py` reads; no other command was checked against an older `gh`.
+| # | Line | Whose | Done when |
+| - | ---- | ----- | --------- |
+| 1 | The plugins | the owner | `flow@daneel` and `app@daneel` are enabled in `.claude/settings.json` (daneel's `README.md` § Use in a project), and the machine that runs the agent has `gh` 2.50.0 or newer |
+| 2 | The roles | `/app:init` | `.claude/daneel.json` names the doc of each role the reviewers read: `review.rules.<lane>`, `review.rules.spec`, `.contract`, `.adr`, `review.glossary`, `flow-audit.guides`, `visual-proof.rules`. A role left blank is a default the owner chose |
+| 3 | The harness recipe | the project | `just harness`, or the recipe `run-entry.recipes.harness` names, runs the project's checks (`loop.md` § 3 lists what an app's harness holds) |
+| 4 | The visual proofs | the project | `visual-proof.vite_preview_port`, `.vite_preview_host`, `.global_css_import` and `.i18n_import` are set |
+| 5 | The review workflow | the project | its own workflow runs one job per lane a PR touches and calls, at a pinned tag, `lane-reviewed.py`, `review-prepare.sh`, `review-tools.sh` and `review-prompt.sh` (§ A reviewer's session in CI, § One review per PR), with the secret its sessions use |
+| 6 | The required checks | `/app:init` | `required-checks.json` at the root (`{"checks": [...]}`) holds the real job names, each already reporting on `main` |
+| 7 | The deny lines | the owner | `.claude/settings.json` denies publishing a release (below) |
+| 8 | The merge methods | the owner | the repository allows rebase and squash merges: `merge.py` and `release.py` use both |
+| 9 | The ruleset | the owner | a copy of this plugin's `ruleset.json` is applied (below) |
+| 10 | The mocks | to decide | they live in the project (`screenshots/design/`), or `design-proposal.repo` names a repository that holds only mocks and notes |
+| 11 | The spec | to decide | it lives in the project, or `spec-proposal.repo` names its own repository (§ A spec in its own repository gives the steps) |
+| 12 | The release | to decide | `run-batch.version_files`, `.changelog`, `.release_workflow` and `.release_check` are set where a default does not fit |
 
-By hand, the same, in this order, since a ruleset refuses a project's own push of `main` and the plugin's
+`gh` 2.50.0 is the first with `gh pr checks --json`, which `release.py` reads; no other
+command was checked against an older `gh`.
+
+Lines 6 to 9 by hand, in this order, since a ruleset refuses a project's own push of `main` and the plugin's
 `merge.py` lands only with the pull request (PR) that enables it:
 
 1. One PR, which the owner merges by hand: the plugins enabled;
@@ -197,11 +213,10 @@ own, which the project's owner may keep private:
   PR of it changes a spec file, and `app:spec-checker` runs locally.
 - What the project's history already published stays there.
 
-For a project with no spec yet, `/app:init` proposes that repository, and one for the
-mocks (`design-proposal.repo`). On the owner's yes its `new-repo.sh` creates each, private
-and with a README, when it does not exist; for the spec it also clones it at the folder's
-path and lists the folder in `.gitignore`. `/app:init` adds the keys; the owner adds the
-deny line. The script refuses a folder git tracks.
+For a project with no spec yet, the steps are the project's: create the repository,
+private, with a README, so that its `main` exists; in the project, list the spec folder in
+`.gitignore`, add the key and the deny line; clone the repository at the folder's path on
+each computer; add the `Spec` field and the checkout step named below.
 
 To move a spec that is already in the project: create the repository and push the folder's files to its `main`;
 in the project, remove the folder from git, list it in `.gitignore`, add the key and the
