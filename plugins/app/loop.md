@@ -122,12 +122,13 @@ for guides.
 
 Every finding, local or from CI, is graded before any is applied; one line per finding
 that changed something or was rejected goes in the PR body, or a PR comment once pushed.
-A CI 🔴 or 🟡's line quotes its opening words; `merge.py` refuses without it:
+A CI 🔴 or 🟡's line quotes its opening words; `merge.py` refuses without it. Run-entry's
+`grades.py` refuses a PR body whose (b) or (c) line lacks its source:
 
 - **(a)** in scope → fix in the PR.
-- **(b)** bigger, or outside the file set → folded or filed, linked from that line.
-- **(c)** is never "pre-existing" alone: a rejection cites what overrides the finding —
-  a rule, a file, an ADR, a measurement, the owner's decision. On what the branch adds, the
+- **(b)** bigger, or outside the file set → folded or filed; the line carries its `#NNN`.
+- **(c)** is never "pre-existing" alone: after a dash, the line cites what overrides the
+  finding — a rule, a file, an ADR, a measurement, the owner's decision. On what the branch adds, the
   override stands on the default branch, in a file the branch leaves alone, or is the
   owner's decision. A measurement may be made on the branch; its code may still show a
   finding factually wrong, quoting the line.
@@ -161,14 +162,9 @@ half-migrated file is not. The deciding test is **two stories**: if a reviewer w
 the PR as the task plus a migration, the migration is a separate issue. A spec, contract,
 glossary, ADR or architecture document drifting from right code is a `task`.
 
-## 7. PR size and split
+## 7. One story per PR
 
-One story per PR. The target is about 400 hand-written lines per reviewer
-lane; above about 800 in a lane, split. Generated files, lockfiles, screenshots and spec
-documents are not counted, and the total has no limit: a mechanical change that one
-check proves is one story whatever its size. A feature whose backend or frontend exceeds
-about 20 files or 500 lines ships as one PR per layer, in order: spec, contract, migration,
-backend and bindings; then the frontend; then E2E and closure. Each is mergeable alone.
+One story per PR, whatever its size: no count of lines or files splits it.
 
 While a PR waits for its checks, the next task may be prepared on a branch not
 pushed yet: its harness and reviewers run there, the reviewers given its last commit

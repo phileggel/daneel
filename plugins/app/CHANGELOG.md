@@ -11,6 +11,15 @@ What a project must act on when it takes a new version of this plugin.
   out was a new PR. It now accepts what the local branch once pointed at, and its push
   with lease replaces it. A commit origin holds that the local branch never held still
   refuses the merge. Nothing for a project to do.
+- `loop.md` § 7 sets no size for a PR any more: the target of about 400 lines per
+  reviewer lane, the split above about 800 and the one PR per layer of a large feature
+  are gone. "One story per PR" stays. To take it: remove those figures from any guide of
+  the project that restates them.
+- `/app:run-entry` Step 8 checks the file of the PR body before the PR exists
+  (`grades.py`, exit 1 with each line printed): a (b) line carries the `#NNN` of its
+  issue, a (c) line a citation after a dash — a path, `#NNN`, an ADR, a figure or
+  `owner`. `loop.md` § 5 gives the form. It reads one local file and calls nothing; the
+  grade check of CI findings does not change. Nothing for a project to do.
 
 ## app 0.14.0 — 2026-11-22
 
