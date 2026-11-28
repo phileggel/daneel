@@ -7,6 +7,7 @@ allowed-tools:
   - Bash(gh api repos/{owner}/{repo}/rulesets*)
   - Bash(gh api 'repos/{owner}/{repo}/commits/main/check-runs?per_page=100' *)
   - Bash(gh --version)
+  - Bash(bash ${CLAUDE_SKILL_DIR}/scripts/new-repo.sh *)
   - Bash(git checkout -b chore/take-app)
   - Bash(git add *)
   - Bash(git commit -m *)
@@ -46,6 +47,7 @@ Then, per role, the doc `CLAUDE.md` names, else the default:
 | visual-proof rules | `visual-proof.rules` | `docs/visual-proof-rules.md` |
 | a lane's own folders | `review.lanes.<lane>` | `review-lanes.sh`'s header |
 | spec repository | `spec-proposal.repo` | none |
+| mocks repository | `design-proposal.repo` | none |
 | architecture document | none: the rules name it | `ARCHITECTURE.md` |
 
 ## Step 2 — Ask
@@ -53,7 +55,8 @@ Then, per role, the doc `CLAUDE.md` names, else the default:
 One message: the table, a doc guessed per role or "none → default", and each
 harness item missing or divergent — a required check not reporting on `main`, a deny line
 absent, a ruleset with a bypass actor or no PR rule, a merge method off, `gh`
-below 2.50.0, a review workflow without `review-prepare.sh`, `review-tools.sh`, `review-prompt.sh`. A default beside each line; one reply; nothing is done before it. A blank
+below 2.50.0, a review workflow without `review-prepare.sh`, `review-tools.sh`, `review-prompt.sh`. Where the spec or the mocks have no repository: a private one for each
+(`<repo>-spec`, `<repo>-design`), or none. A default beside each line; one reply; nothing is done before it. A blank
 role is a conscious default.
 
 ## Step 3 — Add
@@ -70,6 +73,10 @@ Only what is missing, replacing nothing:
    `gh api repos/<owner>/<repo>/rulesets --method POST --input <file>` (none yet) or
    `gh api repos/<owner>/<repo>/rulesets/<id> --method PUT --input <file>` (the one Step 1 found).
 5. **Merge settings** off: named for the owner.
+6. **Repositories**, each one asked for:
+   `bash ${CLAUDE_SKILL_DIR}/scripts/new-repo.sh spec <owner/name> <spec folder>`,
+   `bash ${CLAUDE_SKILL_DIR}/scripts/new-repo.sh design <owner/name>` (exit 1: refused, the
+   reason printed). Each prints its key, for item 1; the spec's, its deny line, for item 3.
 
 Then one PR, never from `main`: `git checkout -b chore/take-app`, `git add
 <path>` per file written, `git commit -m "chore: set up daneel's app"`, `git push -u

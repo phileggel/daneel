@@ -23,7 +23,7 @@ would not. Used with `flow`.
 | `/app:run-batch` | A whole batch: every Queued item through `run-entry`, its end (`release.py` to a draft, or `batch-end.sh`), the closing brief last; optional `run-batch.release_check`, `.version_files`, `.changelog`, `.release_workflow` |
 | `/app:design-proposal` | Mocks of the target state, light and dark, beside the current one for an existing screen, and a note, for the owner to validate; optional `design-proposal.repo` |
 | `/app:spec-proposal` | The spec gate: the change to the rules drafted, read by `app:spec-reviewer`, and its diff shown for the owner to accept, before anything is built; optional `spec-proposal.repo`, a repository of its own for the spec |
-| `/app:init` | After `/flow:init`: the harness (`required-checks.json`, ruleset, merge settings, deny lines) and which project doc plays each role the reviewers read, asked once, added only where missing; re-run, re-aligns the pins, keys and defaults with the project's docs and this changelog |
+| `/app:init` | After `/flow:init`: the harness (`required-checks.json`, ruleset, merge settings, deny lines) and which project doc plays each role the reviewers read, asked once, added only where missing; where the project has none, a private repository for its spec and one for its mocks, if the owner wants them; re-run, re-aligns the pins, keys and defaults with the project's docs and this changelog |
 
 `protocol.md` is what every reviewer shares: modes, steps, output, the CI report.
 `scripts/branch.sh` and `scripts/review-path.sh` are what the reviewers run, always on
@@ -179,7 +179,13 @@ own, which the project's owner may keep private:
   their checks against the spec, and `app:spec-checker`, run locally.
 - What the project's history already published stays there.
 
-To move a spec there: create the repository and push the folder's files to its `main`;
+For a project with no spec yet, `/app:init` proposes that repository, and one for the
+mocks (`design-proposal.repo`). On the owner's yes its `new-repo.sh` creates each, private
+and with a README, when it does not exist; for the spec it also clones it at the folder's
+path and lists the folder in `.gitignore`. `/app:init` adds the keys; the owner adds the
+deny line. The script refuses a folder git tracks.
+
+To move a spec that is already in the project: create the repository and push the folder's files to its `main`;
 in the project, remove the folder from git, list it in `.gitignore`, add the key and the
 deny line; clone the repository at the folder's path on each computer; drop a required
 check of the `spec` lane; add the `Spec` field of `/flow:init`'s forms to the project's
