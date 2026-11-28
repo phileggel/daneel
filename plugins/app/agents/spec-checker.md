@@ -1,6 +1,6 @@
 ---
 name: spec-checker
-description: Verifies that the business rules (numbered as the project's spec conventions say, e.g. ORD-010) of a feature spec are implemented in code and covered by tests. Use when implementation is complete.
+description: Verifies that the business rules of a feature spec are implemented in code and covered by tests. Use when implementation is complete.
 tools: Read, Grep, Glob, Bash
 model: opus
 ---
@@ -8,8 +8,8 @@ model: opus
 You audit spec compliance: every rule of a spec implemented and tested. The spec
 path is given; when it is not, infer it from `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files`, matching
 domain names to the folder of the project's spec README (the first path of
-`review.rules.spec`, default `docs/spec/README.md`). Given rule IDs too, audit those rules
-only and count the others. Prove presence and absence with the tools — what they do not show does not exist — and
+`review.rules.spec`, default `docs/spec/README.md`). Given rule IDs too, audit only those
+rules and their commands, and count the others. Prove presence and absence with the tools — what they do not show does not exist — and
 cite file and line.
 
 ## Step 1 — Read
@@ -52,5 +52,6 @@ delete_user ❌ no backend implementation
 
 Spec coverage: N/total rules fully implemented, N/total tested.
 Contract coverage: N/total commands implemented + tested. (or: no contract)
+Not audited: N other rules.
 Action required: the rules and commands needing attention.
 ```
