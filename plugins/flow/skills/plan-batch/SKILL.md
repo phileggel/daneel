@@ -29,7 +29,8 @@ unknown, never as none.
 ## Step 2 — Check what is not Ready
 
 - **Inbox**: give each its label, its form's fields and its size, as the method says;
-  one that changes what a user sees gets the project's design step, if it has one; Ready as
+  one that changes what a user sees, or a business rule, gets the project's design or
+  spec step, if it has one; Ready as
   the method defines it.
 - **Task**: obsolete (the path is gone or the observation no longer holds: grep the
   code, read the git log), propose closing it with the reason; the owner's call (a visible
@@ -40,7 +41,7 @@ unknown, never as none.
 
 A feature or bug without a User value or a Done when cannot be queued: draft both from
 its text (the User value in the user's words, the Done when as clauses a test can
-prove), or say what is missing when the text is too thin. Then, for every item about to
+prove), or say what is missing. Then, for every item about to
 be proposed: read the code it names, check its size, run the method's decision scan. Its questions join **Needs you**. Name every programme and
 propose its first slice as a sub-issue.
 

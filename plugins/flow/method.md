@@ -24,7 +24,7 @@ The owner is not the QA: no issue waits for the owner to check by hand that what
 built works. A Done-when clause the agent cannot run becomes a test of the harness, or,
 when that test is larger than the issue, a `task` issue that asks for it, and the issue
 closes on what the harness proves. What the owner notices while using the product is
-welcome and is no gate.
+welcome and no gate.
 
 ## 2. Issues and the Project
 
@@ -90,7 +90,8 @@ says `Closes #123`, so its merge closes the issue.
   exists) → In review (a PR is linked) → Done (closed). GitHub sets the last
   two.
 - **Ready**: its form's fields written and its `size:` label set; no `needs-owner`; a
-  feature or bug whose Design is none or validated; a flow issue with its Decision.
+  feature or bug whose Design is none or validated, and its Spec where the project
+  settles it before Ready; a flow issue with its Decision.
 - **A batch** is the Queued items in row order, their Batch field its date.
   `/flow:plan-batch` proposes it in chat; the owner's yes sets Batch, order and Status,
   and nothing else makes an item Queued, except a slice split off an item during its run:
@@ -155,15 +156,15 @@ marks every issue it files (`agent-filed`, or `backlog.coder_mark`).
 ## 5. How a batch ends
 
 Every batch ends alike: the project's batch-end checks, what they find folded or filed
-(§ 2), then the release or the batch tag, its flow audit, and last the closing brief — the
-last thing the run says. A security issue that puts users at
+(§ 2), then the release or the batch tag, its flow audit, and last the closing brief.
+A security issue that puts users at
 risk is a `fix` instead: a `bug` issue put to the owner, worked before the batch ends,
 checked again on what it changed, released.
 
 - **A batch with a `feat` or `fix` is released**: once every PR of the batch
   has merged and the workflow runs of `main`'s head are green, the agent cuts it: the
   `v*` tag and its draft release, with its notes. Its closing brief says everything is
-  made except the publishing, naming the draft and the runs. The owner publishes it later,
+  made except the publishing, naming the draft and the runs. The owner publishes it,
   outside the run.
 - **Any other batch** the agent closes with a `batch/<date>` tag: it publishes nothing,
   its chores ride in the next release, no fix is picked to fill a changelog.
@@ -174,8 +175,8 @@ brief.
 
 ## 6. The flow audit
 
-After a batch ends, `/flow:flow-audit` audits it once, on that
-batch's `batch-audit` issue.
+After a batch ends, `/flow:flow-audit` audits it once, on its
+`batch-audit` issue.
 
 A flow issue carries `Observed` with its evidence — a count, a duration, a PR —
 then a `Proposal` with what it `Costs` and what it protects. A change that buys speed

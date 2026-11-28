@@ -2,6 +2,16 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## Unreleased
+
+- The feature and bug forms carry a `Spec` field, not required: none, needed, or validated
+  with the IDs of the rules the ticket adds or changes. `method.md` § 2: a ticket is Ready
+  with its Spec none or validated, where the project settles its spec before Ready;
+  `/flow:plan-batch` gives a ticket that changes a business rule the project's spec step.
+  To take it: a project that settles its spec before Ready (with `app`, one that sets
+  `spec-proposal.repo`) adds the field to its two forms; `/flow:init`, run again, names
+  them as drifted. Any other project has nothing to do.
+
 ## flow 0.7.0 — 2026-11-28
 
 - `method.md` § 4: a flaky test is never accepted, by a re-run or by a skip. Until now it
