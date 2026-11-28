@@ -1,6 +1,6 @@
 ---
 name: contract-reviewer
-description: Reviews a domain contract against its source spec for coverage, traceability, error exhaustiveness, and type correctness. Blocks implementation on critical findings. Run after a contract is written or amended, against the project's contract README. Read-only.
+description: Reviews a domain contract against its source spec for coverage, traceability, errors and types. Run after a contract is written or amended.
 tools: Read, Grep, Glob, Bash
 model: opus
 ---
@@ -21,7 +21,8 @@ in the spec folder); the architecture document (default `ARCHITECTURE.md`); the 
 
 From the spec, every rule scoped `backend` or `frontend + backend`, with its operation
 (create / read / update / delete / transition), its error cases and its entities. From the
-contract, every command (name, args, return, errors) and shared type.
+contract, every command (name, args, return, errors) and shared type. Given rule IDs, a
+rule outside them asks no command and no error.
 
 ## Step 2 — Check
 

@@ -171,6 +171,9 @@ own, which the project's owner may keep private:
   `publish.sh` commits it and pushes the spec repository's `main`, and the ticket's Spec
   becomes `validated`, with the rule IDs and the sha. The script refuses the project
   itself. A ticket that arrives with its Spec already `validated` passes the gate.
+- The spec may be ahead of the code, since a change is published before the work starts:
+  `/app:run-entry` gives `app:spec-checker` and `app:contract-reviewer` the rule IDs the
+  ticket's Spec names, and they judge those rules only.
 - A PR, a commit and a test name cite a rule by its ID, never its words; a ticket shows
   the change it asks for. Where a project's issues are public, so is that diff: the rest
   of the spec is not.

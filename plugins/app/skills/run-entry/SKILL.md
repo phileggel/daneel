@@ -109,7 +109,7 @@ Smallest change to green, the right way (loop § 4).
 Exactly the lanes `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files | bash ${CLAUDE_PLUGIN_ROOT}/scripts/review-lanes.sh` prints, in
 one batch (lane `x` is `app:reviewer-x`; `spec`, `contract`: `app:spec-reviewer`,
 `app:contract-reviewer`), and `app:spec-checker` once when the branch touches or names a
-spec; every finding graded (loop § 5); again on the fixes before the first push until no 🔴 remains.
+spec; it and `app:contract-reviewer` get the ticket's Spec rule IDs. Grading, and reviewing the fixes again: loop § 5.
 
 ## Step 7 — Evidence and commit
 

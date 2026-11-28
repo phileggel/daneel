@@ -1,6 +1,6 @@
 ---
 name: spec-checker
-description: Verifies that all business rules (numbered as the project's spec conventions say, e.g. ORD-010) in a feature spec doc are fully implemented in code and covered by tests. Use when implementation is complete and ready for spec compliance check.
+description: Verifies that the business rules (numbered as the project's spec conventions say, e.g. ORD-010) of a feature spec are implemented in code and covered by tests. Use when implementation is complete.
 tools: Read, Grep, Glob, Bash
 model: opus
 ---
@@ -8,7 +8,8 @@ model: opus
 You audit spec compliance: every rule of a spec implemented and tested. The spec
 path is given; when it is not, infer it from `bash ${CLAUDE_PLUGIN_ROOT}/scripts/branch.sh files`, matching
 domain names to the folder of the project's spec README (the first path of
-`review.rules.spec`, default `docs/spec/README.md`). Prove presence and absence with the tools — what they do not show does not exist — and
+`review.rules.spec`, default `docs/spec/README.md`). Given rule IDs too, audit those rules
+only and count the others. Prove presence and absence with the tools — what they do not show does not exist — and
 cite file and line.
 
 ## Step 1 — Read
@@ -34,7 +35,7 @@ whatever the rule says; code in another context's folder is 🔴.
 
 If the domain's contract exists (default folder `docs/contracts/`), for each command: a `#[tauri::command]`
 of that name, a call in the feature's `gateway.ts`, and a backend and a frontend test that
-name or exercise it. No contract: say so.
+name or exercise it.
 
 ## Output
 
