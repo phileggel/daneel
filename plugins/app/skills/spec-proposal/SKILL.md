@@ -31,13 +31,14 @@ agent never edits; without it, `{folder}` is part of the project.
 - `git check-ignore -q {folder}` exits 0, and `.claude/settings.json` denies the folder's
   edits (`"Edit(/{folder}/**)"` under `permissions.deny`). One missing: name it for the
   owner to add, and stop.
-- The spec's words are private data (loop § 4): a PR, a commit, an issue or a test name
-  cites a rule by its ID, never its text.
+- The spec's words are private data (loop § 4): a PR, a commit or a test name cites a
+  rule by its ID, never its text.
 
 ## Step 2 — Read the task
 
 `gh issue view <id> --json title,body,comments`, or the chat request. List the rules it
-adds or changes. None: say so; the task goes on.
+adds or changes; with `repo`, not those its `validated` Spec names. None: say so; the
+task goes on.
 
 ## Step 3 — Draft
 
@@ -52,22 +53,24 @@ it again until none is left; what the draft leaves open is a question.
 
 ## Step 5 — Ask, then land
 
-The diff is `git -C {draft} diff` with `repo`, `git diff -- {folder}` without.
+The diff is `git -C {draft} diff` with `repo`, `git diff -- {folder}` without. With `repo`,
+or headless, it goes on the ticket in one comment
+(`gh issue comment {id} --body-file <file>`).
 
 - **Chat:** show the diff, ask each question alone, then ask for the yes. On a no, write
-  what the owner wants on the issue (with `repo`, by rule ID) and stop. On a yes:
+  what the owner wants on the issue and stop. On a yes:
   - with `repo`: `bash ${CLAUDE_SKILL_DIR}/scripts/publish.sh {repo} {draft} {id}` commits
     the change, pushes the spec repository's `main` and prints the sha (exit 1: refused,
-    the reason printed; say it and stop). Then `git -C {folder} pull --ff-only`, and one
-    comment, `gh issue comment {id} --body-file <file>`: the accepted rule IDs and the sha.
+    the reason printed; say it and stop). Then `git -C {folder} pull --ff-only`, and the
+    ticket's Spec becomes `validated`, the rule IDs and the sha
+    (`gh issue edit {id} --body-file <file>`).
   - without: the change stays uncommitted, and goes as it is into the task's commit.
-- **Headless:** one comment, `gh issue comment {id} --body-file <file>`: the diff without
-  `repo`, the rule IDs with it, the draft left in `{draft}`. Then
-  `gh issue edit {id} --add-label needs-owner`; the owner answers in chat.
+- **Headless:** the draft stays in `{draft}`; `gh issue edit {id} --add-label needs-owner`;
+  the owner answers in chat.
 
 ## Rules
 
 1. No spec changes without the owner's yes to its diff: a rule found missing later comes
    back here.
-2. With `repo`, the agent edits `{draft}` only, and the proposal never reaches the issue
-   or the project's repository.
+2. With `repo`, the agent edits `{draft}` only, and no spec file reaches the project's
+   repository.

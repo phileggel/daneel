@@ -2,6 +2,17 @@
 
 What a project must act on when it takes a new version of this plugin.
 
+## Unreleased
+
+- With `spec-proposal.repo`, the spec gate opens before a ticket is Ready (`loop.md` § 2).
+  `/app:spec-proposal` posts the change's diff on the ticket; on the owner's yes it
+  publishes the change and sets the ticket's Spec to `validated`, with the rule IDs and
+  the sha. A ticket whose Spec is already `validated` passes the gate at once. Until now
+  the change was shown in chat only, and the issue got a comment with the rule IDs.
+  Without the key nothing changes. To take it, for a project that sets the key: add the
+  `Spec` field of `flow`'s forms (same release) to its feature and bug forms.
+- Wording only: `loop.md` § 7 is "One story per PR, whatever its size".
+
 ## app 0.15.0 — 2026-11-28
 
 - `merge.py` finishes a branch whose rebase the agent resolved by hand. A rebase that

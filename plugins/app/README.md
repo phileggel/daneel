@@ -165,11 +165,14 @@ own, which the project's owner may keep private:
   the folder, and `.claude/settings.json` denies its edits (`"Edit(/docs/spec/**)"` under
   `permissions.deny`, for the default folder). `/app:spec-proposal` checks both each time
   it runs, and updates the clone.
-- A change is drafted in another clone, in the scratchpad, and shown to the owner in chat.
-  On the yes, the skill's `publish.sh` commits it and pushes the spec repository's `main`;
-  the issue gets the accepted rule IDs. The script refuses the project itself.
-- Public text (a PR, a commit, an issue, a test name) cites a rule by its ID, never its
-  words.
+- A change is settled before its ticket is Ready, as a design is (`loop.md` § 2): the
+  ticket's Spec field says `needed`, the change is drafted in another clone, in the
+  scratchpad, and its diff is posted on the ticket. On the owner's yes, the skill's
+  `publish.sh` commits it and pushes the spec repository's `main`, and the ticket's Spec
+  becomes `validated`, with the rule IDs and the sha. The script refuses the project
+  itself. A ticket that arrives with its Spec already `validated` passes the gate.
+- A PR, a commit and a test name cite a rule by its ID, never its words; a ticket shows
+  the change it asks for.
 - CI has no access to the spec. The `spec` lane no longer fires in the project, and the
   contract and ADR lanes say that the spec is absent and check the rest (`review-prompt.sh`);
   their checks against the spec, and `app:spec-checker`, run locally.
@@ -178,7 +181,8 @@ own, which the project's owner may keep private:
 To move a spec there: create the repository and push the folder's files to its `main`;
 in the project, remove the folder from git, list it in `.gitignore`, add the key and the
 deny line; clone the repository at the folder's path on each computer; drop a required
-check of the `spec` lane.
+check of the `spec` lane; add the `Spec` field of `/flow:init`'s forms to the project's
+feature and bug forms.
 
 Measured on 2026-11-22, on throwaway projects, with `claude -p --setting-sources project`:
 the deny line refused the Write tool in the folder and allowed it beside it; and a

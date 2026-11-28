@@ -59,7 +59,8 @@ a five-line note, posted on the issue; an issue whose design needs a mock carrie
 never reach `main`; the PR's visual proofs are the record.
 
 A new or changed spec rule has the same gate, `/app:spec-proposal`: reviewed by
-`app:spec-reviewer` and accepted by the owner before any branch exists. Nothing else
+`app:spec-reviewer` and accepted by the owner before any branch exists; with
+`spec-proposal.repo`, before Ready, the ticket's Spec then `validated`. Nothing else
 changes a spec: a missing rule returns to the gate.
 
 ## 3. The harness
@@ -164,11 +165,11 @@ glossary, ADR or architecture document drifting from right code is a `task`.
 
 ## 7. One story per PR
 
-One story per PR, whatever its size: no count of lines or files splits it.
+One story per PR, whatever its size.
 
 While a PR waits for its checks, the next task may be prepared on a branch not
 pushed yet: its harness and reviewers run there, the reviewers given its last commit
-only, and it is rebased onto `main` before its first push — a local rebase, never a
+only, and is rebased onto `main` before its first push — a local rebase, never a
 force-push.
 
 ## 8. Where the loop runs
