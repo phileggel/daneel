@@ -2,7 +2,7 @@
 
 What a project must act on when it takes a new version of this plugin.
 
-## Unreleased
+## flow 0.8.0 — 2026-11-28
 
 - The feature and bug forms carry a `Spec` field, not required: none, needed, or validated
   with the IDs of the rules the ticket adds or changes. `method.md` § 2: a ticket is Ready
