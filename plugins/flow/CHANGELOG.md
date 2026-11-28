@@ -2,7 +2,7 @@
 
 What a project must act on when it takes a new version of this plugin.
 
-## Unreleased
+## flow 0.7.0 — 2026-11-28
 
 - `method.md` § 4: a flaky test is never accepted, by a re-run or by a skip. Until now it
   was skipped in its own PR; now its own PR fixes the cause and closes the `flaky` issue

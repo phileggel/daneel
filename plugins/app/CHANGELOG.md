@@ -2,7 +2,7 @@
 
 What a project must act on when it takes a new version of this plugin.
 
-## Unreleased
+## app 0.15.0 — 2026-11-28
 
 - `merge.py` finishes a branch whose rebase the agent resolved by hand. A rebase that
   conflicts is still aborted and left to the agent. On the re-run, origin holds the
