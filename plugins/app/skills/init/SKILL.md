@@ -7,7 +7,6 @@ allowed-tools:
   - Bash(gh api repos/{owner}/{repo}/rulesets*)
   - Bash(gh api 'repos/{owner}/{repo}/commits/main/check-runs?per_page=100' *)
   - Bash(gh --version)
-  - Bash(bash ${CLAUDE_SKILL_DIR}/scripts/new-repo.sh *)
   - Bash(git checkout -b chore/take-app)
   - Bash(git add *)
   - Bash(git commit -m *)
@@ -17,15 +16,15 @@ allowed-tools:
 
 # Skill — `init` (app)
 
-`${CLAUDE_PLUGIN_ROOT}/README.md` § Taking it says what a project needs, in order. The
-project keeps its own part only.
+`${CLAUDE_PLUGIN_ROOT}/README.md` § Taking it is the checklist: what a project checks or
+decides, in order. This skill reports it and builds nothing of the project.
 
 ## Step 1 — Look
 
 Read:
 
 - `.claude/daneel.json`, `required-checks.json`,
-  `.claude/settings.json`'s `permissions.deny`, `CLAUDE.md`, `docs/`, `.github/workflows/`;
+  `.claude/settings.json`'s `permissions.deny`, `CLAUDE.md`, `docs/`, `.github/workflows/`, `justfile`;
 - `gh repo view --json nameWithOwner,rebaseMergeAllowed,squashMergeAllowed`;
 - `gh api repos/{owner}/{repo}/rulesets`, then each one's bypass actors and required checks;
 - the check names on `main`: `gh api 'repos/{owner}/{repo}/commits/main/check-runs?per_page=100' --jq '[.check_runs[].name]'`;
@@ -55,8 +54,7 @@ Then, per role, the doc `CLAUDE.md` names, else the default:
 One message: the table, a doc guessed per role or "none → default", and each
 harness item missing or divergent — a required check not reporting on `main`, a deny line
 absent, a ruleset with a bypass actor or no PR rule, a merge method off, `gh`
-below 2.50.0, a review workflow without `review-prepare.sh`, `review-tools.sh`, `review-prompt.sh`. Where the spec or the mocks have no repository: a private one for each
-(`<repo>-spec`, `<repo>-design`), or none. A default beside each line; one reply; nothing is done before it. A blank
+below 2.50.0, a review workflow without `review-prepare.sh`, `review-tools.sh`, `review-prompt.sh`. A default beside each line; one reply; nothing is done before it. A blank
 role is a conscious default.
 
 ## Step 3 — Add
@@ -73,10 +71,6 @@ Only what is missing, replacing nothing:
    `gh api repos/<owner>/<repo>/rulesets --method POST --input <file>` (none yet) or
    `gh api repos/<owner>/<repo>/rulesets/<id> --method PUT --input <file>` (the one Step 1 found).
 5. **Merge settings** off: named for the owner.
-6. **Repositories**, each one asked for:
-   `bash ${CLAUDE_SKILL_DIR}/scripts/new-repo.sh spec <owner/name> <spec folder>`,
-   `bash ${CLAUDE_SKILL_DIR}/scripts/new-repo.sh design <owner/name>` (exit 1: refused, the
-   reason printed). Each prints its key, for item 1; the spec's, its deny line, for item 3.
 
 Then one PR, never from `main`: `git checkout -b chore/take-app`, `git add
 <path>` per file written, `git commit -m "chore: set up daneel's app"`, `git push -u
@@ -84,8 +78,8 @@ origin HEAD`, `gh pr create --body-file <file>`, the body this report.
 
 ## Report
 
-Each role with its doc or "default"; each harness item present, added or the owner's; what
-was declined; the record of the run.
+The checklist, every line with its state: done, added, to do by the project, or the
+owner's to check or decide; each role with its doc or "default"; what was declined.
 
 ## Re-run on a set-up project
 

@@ -25,12 +25,13 @@ What a project must act on when it takes a new version of this plugin.
   add the checkout step and its secret to the review workflow (`README.md` § A spec in its
   own repository).
 - Wording only: `loop.md` § 7 is "One story per PR, whatever its size".
-- `/app:init` proposes a private repository for the spec and one for the mocks, where the
-  project sets neither `spec-proposal.repo` nor `design-proposal.repo`. On the owner's yes
-  its `new-repo.sh` creates each when it does not exist, clones the spec at its folder and
-  lists the folder in `.gitignore`; `/app:init` adds the keys and names the folder's deny
-  line for the owner. A spec already in the project still moves by hand. Nothing for a
-  project to do.
+- `/app:init` ends with a checklist: every line of `README.md` § Taking it, in order, with
+  its state — done, added, to do by the project, or the owner's to check or decide. The
+  section now lists what the pieces of `app` need beyond the checks and the ruleset: the
+  plugins, the harness recipe, the visual-proof keys, the review workflow, where the mocks
+  and the spec live, the release keys. `/app:init` still adds the roles' keys and
+  `required-checks.json`, lists `design-proposal.repo` among the roles, and builds nothing
+  else of the project. Nothing for a project to do.
 
 ## app 0.15.0 — 2026-11-28
 
