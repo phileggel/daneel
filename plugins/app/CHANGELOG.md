@@ -2,7 +2,7 @@
 
 What a project must act on when it takes a new version of this plugin.
 
-## Unreleased
+## app 0.16.0 — 2026-11-28
 
 - With `spec-proposal.repo`, the spec gate opens before a ticket is Ready (`loop.md` § 2).
   `/app:spec-proposal` posts the change's diff on the ticket; on the owner's yes it
@@ -10,7 +10,7 @@ What a project must act on when it takes a new version of this plugin.
   the sha. A ticket whose Spec is already `validated` passes the gate at once. Until now
   the change was shown in chat only, and the issue got a comment with the rule IDs.
   Without the key nothing changes. To take it, for a project that sets the key: add the
-  `Spec` field of `flow`'s forms (same release) to its feature and bug forms.
+  `Spec` field of `flow` 0.8.0's forms to its feature and bug forms.
 - A spec may be ahead of the code: `/app:run-entry` Step 6 gives `app:spec-checker` and
   `app:contract-reviewer` the rule IDs the ticket's Spec names. Given rule IDs,
   `spec-checker` audits those rules and counts the others, and `contract-reviewer` asks
