@@ -11,6 +11,11 @@ What a project must act on when it takes a new version of this plugin.
   the change was shown in chat only, and the issue got a comment with the rule IDs.
   Without the key nothing changes. To take it, for a project that sets the key: add the
   `Spec` field of `flow`'s forms (same release) to its feature and bug forms.
+- A spec may be ahead of the code: `/app:run-entry` Step 6 gives `app:spec-checker` and
+  `app:contract-reviewer` the rule IDs the ticket's Spec names. Given rule IDs,
+  `spec-checker` audits those rules and counts the others, and `contract-reviewer` asks
+  no command and no error of a rule outside them. Without rule IDs both do what they did.
+  Nothing for a project to do.
 - Wording only: `loop.md` § 7 is "One story per PR, whatever its size".
 - `/app:init` proposes a private repository for the spec and one for the mocks, where the
   project sets neither `spec-proposal.repo` nor `design-proposal.repo`. On the owner's yes
